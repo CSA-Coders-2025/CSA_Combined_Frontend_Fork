@@ -52,28 +52,3 @@ async function consumerTrackHandler(e) {
     document.getElementById("mortStream").style.display = "block"
     document.getElementById("mortStream").srcObject = e.streams[0]
 }
-
-signalingServer.onmessage = async(message) => {
-        const data = JSON.parse(message.data)
-        switch(data.event)
-        {
-            case "streamStarted":
-                    if(!globalPeer)
-                    {
-                        await consumerInit()
-                    }
-                    else
-                    {
-                        globalPeer.close()
-                        await consumerInit()
-                    }
-            break;
-    
-            case "streamEnded":
-                if(globalPeer)
-                    {
-                        globalPeer.close()
-                    }
-            break;
-                }
-    }

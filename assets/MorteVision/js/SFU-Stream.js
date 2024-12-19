@@ -11,7 +11,14 @@ async function streamerInit() {
         document.getElementById("mortStream").srcObject = stream;
         const peer = streamerCreatePeer();
         stream.getTracks().forEach(track => peer.addTrack(track, stream));
+        try
+        {
         signalingServer.send(JSON.stringify({event: 'streamStarted'}));
+        }
+        catch
+        {
+            console.log("didnt send stream started")
+        }
     } else {
         alert('You are not first in line. Please wait your turn!')
     }
@@ -21,13 +28,7 @@ let streamPeerCloseOnly
 let mediaStreamCloseOnly
 
 function streamerCreatePeer() {
-    const peer = new RTCPeerConnection({
-        iceServers: [
-            {
-                urls: "stun:stun.stunprotocol.org"
-            }
-        ]
-    });
+    const peer = new RTCPeerConnection(servers);
     peer.onnegotiationneeded = () => streamerNegotiation(peer);
 
     streamPeerCloseOnly = peer
@@ -73,7 +74,14 @@ async function endStream()
     {
         streamPeerCloseOnly.close()
     }
+    try
+    {
     signalingServer.send(JSON.stringify({event: 'streamEnded'})); //pls dont exploit this
+    }
+    catch
+    {
+        console.log("didn't send stream ended")
+    }
     document.getElementById("endBroadcastButton").style.display = "none"
     document.getElementById("broadcastButton").style.display = "flex"
     

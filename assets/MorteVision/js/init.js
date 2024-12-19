@@ -1,10 +1,11 @@
-let unsetHost = Window.mortJavaURI
+let unsetHost = "https://spring2025.nighthawkcodingsociety.com"
 const isDebug = false
+let webSocketServer = "ws://spring2025.nighthawkcodingsociety.com/socket"
 if (isDebug) {
     // unsetHost = "http://localhost:8085"
     unsetHost = "https://spring2025.nighthawkcodingsociety.com"
 }
-const rtcServer = unsetHost
+let rtcServer = unsetHost
 console.log(rtcServer)
 const servers = {
     iceServers:[
@@ -27,4 +28,4 @@ const servers = {
   }
 
 
-const signalingServer = new WebSocket(`${rtcServer}/socket`)
+const signalingServer = new WebSocket(webSocketServer)
