@@ -165,105 +165,108 @@ title: Stocks Home
         .search-button:hover {
             background-color: #e07b00; /* Darker orange on hover */
         }
-        /* Leaderboard modal styling */
-        #leaderboardModal {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: auto;
-            right: 50%;
-            transform: translateY(-50%, -50%);
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            width: 80%;
-            max-height: 80%;
-            overflow-y: auto;
-            z-index: 1000; /* Ensures modal is above other elements */
-        }
-        /* Semi-transparent background overlay */
-        #modalOverlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 999; /* Ensures overlay is beneath modal */
-        }
-        /* Table styling */
-        #leaderboardTable {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        #leaderboardTable th,
-        #leaderboardTable td {
-            text-align: left;
-            padding: 10px;
-            border: 1px solid #ddd;
-        }
-        #leaderboardTable th {
-            background-color: #f8f8f8;
-            font-weight: bold;
-        }
-        #leaderboardTable tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-        #leaderboardTable tr:hover {
-            background-color: #f1f1f1;
-        }
-        /* Center the Close button */
-        #closeLeaderboardButton {
-            display: block;
-            margin: 20px auto 0;
-            padding: 10px 20px;
-            background-color: #00274d; /* Adjust color as needed */
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            text-align: center;
-            font-size: 16px;
-        }
-        #closeLeaderboardButton:hover {
-            background-color: #004080; /* Hover color */
-        }
-    </style>
-</head>
+     /* Leaderboard modal styling */
+    #leaderboardModal {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        width: 80%;
+        max-height: 80%;
+        overflow-y: auto;
+        z-index: 1000; /* Ensures modal is above other elements */
+    }
+    /* Semi-transparent background overlay */
+    #modalOverlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 999; /* Ensures overlay is beneath modal */
+    }
+    /* Table styling */
+    #leaderboardTable {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    #leaderboardTable th,
+    #leaderboardTable td {
+        text-align: left;
+        padding: 10px;
+        border: 1px solid #ddd;
+    }
+    #leaderboardTable th {
+        background-color: #f8f8f8;
+        font-weight: bold;
+        text-align: left; /* Align headers to the left by default */
+    }
+    #leaderboardTable tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    #leaderboardTable tr:hover {
+        background-color: #f1f1f1;
+    }
+    /* Close button styling */
+    #closeLeaderboardButton {
+        display: block;
+        margin: 20px auto 0;
+        padding: 10px 20px;
+        background-color: #00274d;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        text-align: center;
+        font-size: 16px;
+    }
+    #closeLeaderboardButton:hover {
+        background-color: #004080;
+    }
+</style>
+
 <body>
-<div id="leaderboardModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); width: 80%; max-height: 80%; overflow-y: auto;">
-    <h3>Leaderboard</h3>
-    <table style="width: 100%; border-collapse: collapse;">
-        <thead>
-            <tr>
-                <th>Rank</th>
-                <th>Username</th>
-                <th>Total Portfolio Value</th>
-            </tr>
-        </thead>
-        <tbody id="leaderboardTable">
-            <tr>
-                <td colspan="3" style="text-align: center;">Loading...</td>
-            </tr>
-        </tbody>
-    </table>
-    <button id="closeLeaderboardButton" style="margin-top: 10px; padding: 10px 20px; background-color: #001f3f; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Close</button>
-</div>
-    <!-- Navigation Bar -->
-    <nav class="navbar">
-        <div class="logo">NITD</div>
-        <div class="nav-buttons">
-            <a href="{{site.baseurl}}/stocks/home">Home</a>
-            <a href="{{site.baseurl}}/crypto/portfolio">Crypto</a>
-            <a href="{{site.baseurl}}/stocks/viewer">Stocks</a>
-            <a href="{{site.baseurl}}/stocks/portfolio">Portfolio</a>
-            <a href="{{site.baseurl}}/stocks/buysell">Buy/Sell</a>
-            <a href="{{site.baseurl}}/stocks/leaderboard">Leaderboard</a>
-        </div>
-    </nav>
+    <!-- Leaderboard Modal -->
+    <div id="leaderboardModal">
+        <h3 style="font-family: Arial, sans-serif; font-size: 24px;">Leaderboard</h3>
+        <hr style="margin: 10px 0; border: 1px solid black;">
+        <table id="leaderboardTable">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Username</th>
+                    <th>Total Portfolio Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="3" style="text-align: center;">Loading...</td>
+                </tr>
+            </tbody>
+        </table>
+        <button id="closeLeaderboardButton">Close</button>
+    </div>
+    <div id="modalOverlay"></div>
+<!-- Navigation Bar -->
+<nav class="navbar">
+    <div class="logo">NITD</div>
+    <div class="nav-buttons">
+        <a href="#" id="leaderboardButton">Leaderboard</a> <!-- Button to open leaderboard -->
+        <a href="{{site.baseurl}}/stocks/home">Home</a>
+        <a href="{{site.baseurl}}/stocks/viewer">Stocks</a>
+        <a href="{{site.baseurl}}/stocks/portfolio">Portfolio</a>
+        <a href="{{site.baseurl}}/stocks/buysell">Buy/Sell</a>
+        <a onclick="logout()" href="{{site.baseurl}}/stocks/login">Logout</a> 
+    </div>
+</nav>
     <!-- Dashboard Content   -->
     <div class="dashboard">
         <div class="dashboard-content">
@@ -602,41 +605,70 @@ async function logout() {
             localStorage.setItem('userID', userID)
             return(userID);   
         }
-document.getElementById("leaderboardButton").addEventListener("click", async function () {
-    const modal = document.getElementById("leaderboardModal");
-    const overlay = document.getElementById("modalOverlay");
-    const leaderboardTable = document.getElementById("leaderboardTable");
-    // Display the modal and overlay
-    modal.style.display = "block";
-    overlay.style.display = "block";
-    try {
-        // Fetch leaderboard data
-        const response = await fetch("http://localhost:8085/user/leaderboard"); // Update API endpoint if needed
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const data = await response.json();
-        // Populate the leaderboard table
-        leaderboardTable.innerHTML = data.map((item, index) => `
-            <tr>
-                <td>${index + 1}</td>
-                <td>${item.username}</td>
-                <td>$${item.portfolioValue.toFixed(2)}</td>
-            </tr>
-        `).join('');
-    } catch (error) {
-        console.error("Error fetching leaderboard:", error);
-        leaderboardTable.innerHTML = `
-            <tr>
-                <td colspan="3" style="text-align: center; color: red;">Failed to load leaderboard data</td>
-            </tr>
-        `;
-    }
+document.getElementById("leaderboardButton").addEventListener("click", function () {
+    openLeaderboard(); // Open the leaderboard modal when the button is clicked
 });
 document.getElementById("closeLeaderboardButton").addEventListener("click", function () {
+    closeLeaderboard(); // Close the leaderboard modal when the close button is clicked
+});
+// Open leaderboard modal
+function openLeaderboard() {
     const modal = document.getElementById("leaderboardModal");
     const overlay = document.getElementById("modalOverlay");
-    // Hide the modal and overlay
+    modal.style.display = "block";
+    overlay.style.display = "block";
+    fetchLeaderboard(); // Fetch and display leaderboard data
+}
+// Close leaderboard modal
+function closeLeaderboard() {
+    const modal = document.getElementById("leaderboardModal");
+    const overlay = document.getElementById("modalOverlay");
     modal.style.display = "none";
     overlay.style.display = "none";
-});
+}
+// Fetch leaderboard data
+function fetchLeaderboard() {
+    const leaderboardTable = document.getElementById("leaderboardTable");
+    leaderboardTable.innerHTML = `<tr><td colspan="3" style="text-align: center;">Loading...</td></tr>`; // Display loading text
+    fetch("http://localhost:8085/user/leaderboard") // Update API endpoint if needed
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error("Failed to fetch leaderboard");
+            }
+            return response.json();
+        })
+        .then((data) => {
+            leaderboardTable.innerHTML = ""; // Clear the loading text
+            if (Array.isArray(data)) {
+                // Sort data by balance descending for proper ranking
+                const sortedData = data.sort((a, b) => b.balance - a.balance);
+                sortedData.forEach((entry, index) => {
+                    const rank = index + 1; // Calculate rank based on order
+                    const username = entry.username; // Extract username
+                    const portfolioValue = entry.balance.toFixed(2); // Extract portfolio value and format it
+                    // Append each entry to the leaderboard table
+                    leaderboardTable.innerHTML += `
+                        <tr>
+                            <td>${rank}</td>
+                            <td>${username}</td>
+                            <td>$${portfolioValue}</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                leaderboardTable.innerHTML = `
+                    <tr>
+                        <td colspan="3" style="text-align: center; color: red;">Invalid leaderboard data format</td>
+                    </tr>
+                `;
+            }
+        })
+        .catch((error) => {
+            console.error("Error fetching leaderboard:", error);
+            leaderboardTable.innerHTML = `
+                <tr>
+                    <td colspan="3" style="text-align: center; color: red;">Failed to load leaderboard data</td>
+                </tr>
+            `;
+        });
+}

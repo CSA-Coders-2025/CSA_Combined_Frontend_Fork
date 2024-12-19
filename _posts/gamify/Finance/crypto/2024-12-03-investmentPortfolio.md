@@ -131,9 +131,56 @@ permalink: /crypto/portfolio
         .btn-buy { background-color: #4CAF50; }
         .btn-sell { background-color: #f44336; }
         .btn-close { background-color: #555; }
+
+        /* Navigation Bar */
+        .navbar {
+            width: 100%;
+            background-color: #333;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .navbar-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .navbar-links a {
+            text-decoration: none;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .navbar-links a:hover {
+            background-color: #575757;
+        }
     </style>
 </head>
 <body>
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <div class="navbar-logo">Crypto Portfolio</div>
+        <div class="navbar-links">
+            <a href="/portfolio_2025/crypto/portfolio">Portfolio</a>
+            <a href="/portfolio_2025//crypto/mining">Mining</a>
+            <a href="/portfolio_2025/stocks/home">Stocks</a>
+        </div>
+    </div>
+
     <div class="container">
         <h1>Crypto Investment Portfolio</h1>
         <div class="user-balance">Current Balance: $<span id="user-balance">5000</span></div>
@@ -158,6 +205,13 @@ permalink: /crypto/portfolio
 
 <script type="module">
     import { javaURI, fetchOptions } from '{{site.baseurl}}/assets/js/api/config.js';
+
+    // Prompt user for email
+    const userEmail = prompt("Please enter your email:");
+    if (!userEmail) {
+        alert("Email is required!");
+        window.location.reload();
+    }
 
     let userBalance = 5000;
     document.getElementById('user-balance').innerText = userBalance;
@@ -185,7 +239,7 @@ permalink: /crypto/portfolio
         document.getElementById('modal-crypto-name').innerText = crypto.name;
         document.getElementById('modal-crypto-price').innerText = crypto.price.toFixed(2);
         document.getElementById('modal-crypto-change').innerText = crypto.changePercentage.toFixed(2);
-        fetchCryptoTrend(crypto.name.toLowerCase(), 7);
+        fetchCryptoTrend(crypto.symbol.toLowerCase(), 7);
         document.getElementById('crypto-modal').style.display = 'flex';
     };
 
@@ -226,7 +280,7 @@ permalink: /crypto/portfolio
                 const response = await fetch(`${javaURI}/api/crypto/buy`, {
                     method: 'POST',
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ email: "user@example.com", cryptoId, usdAmount })
+                    body: JSON.stringify({ email: userEmail, cryptoId, usdAmount })
                 });
                 const message = await response.text();
                 alert(message);
@@ -245,7 +299,7 @@ permalink: /crypto/portfolio
                 const response = await fetch(`${javaURI}/api/crypto/sell`, {
                     method: 'POST',
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ email: "user@example.com", cryptoId, cryptoAmount })
+                    body: JSON.stringify({ email: userEmail, cryptoId, cryptoAmount })
                 });
                 const message = await response.text();
                 alert(message);
@@ -258,7 +312,6 @@ permalink: /crypto/portfolio
 
     fetchCryptos();
 </script>
-
 
 </body>
 </html>

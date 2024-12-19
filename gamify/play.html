@@ -80,14 +80,14 @@
                 // Streak Feature Start
                 let userId = null;
 
-                function setUserId() {
+                function setUserEmail() {
     const input = document.getElementById("user-id-input").value.trim();
     if (!input || isNaN(input)) {
-        alert("Please enter a valid numeric User ID.");
+        alert("Please enter a valid email.");
         return;
     }
 
-    userId = parseInt(input);
+    userId = input;
     console.log("User ID set to:", userId);
 
     // Display streak section

@@ -1,114 +1,207 @@
 ---
-layout: post
+layout: none
+permalink: /stocks/leaderboard
 title: Leaderboard
-type: issues
-permalink: /crypto/leaderboard
 ---
+
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leaderboard Page</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leaderboard</title>
+  <style>
+    /* General Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
 
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            background-color: #121212;
-            padding: 20px;
-        }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #F4F4F9;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
 
-        .leaderboard-container {
-            max-width: 1200px;
-            width: 100%;
-            background-color: #121212;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-        }
+    /* Navbar Styling */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      background-color: #001F3F; /* Dark blue background */
+      color: #fff;
+    }
+    .navbar .logo {
+      font-size: 24px;
+      font-weight: bold;
+      letter-spacing: 2px;
+    }
+    .navbar .nav-buttons {
+      display: flex;
+      gap: 20px;
+    }
+    .navbar .nav-buttons a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 16px;
+      padding: 8px 16px;
+      border-radius: 4px;
+      transition: background-color 0.3s;
+    }
+    .navbar .nav-buttons a:hover {
+      background-color: #FF8C00; /* Orange hover effect */
+    }
 
-        .header {
-            text-align: center;
-            padding: 20px;
-            background-color: #2a7de1;
-            border-radius: 8px;
-            color: #ffffff;
-        }
+    /* Main Dashboard Layout */
+    .dashboard {
+      display: flex;
+      gap: 20px;
+      padding: 20px;
+    }
 
-        .header h1 {
-            font-size: 2em;
-        }
+    .dashboard-content {
+      flex: 3;
+    }
 
-        /* Button Style for Team Links */
-        button {
-            background: #fbca1f;
-            font-family: inherit;
-            padding: 0.6em 1.3em;
-            font-weight: 900;
-            font-size: 18px;
-            border: 3px solid black;
-            border-radius: 0.4em;
-            box-shadow: 0.1em 0.1em;
-            cursor: pointer;
-            width: 100%;
-            text-align: left;
-        }
+    .sidebar {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
 
-        button:hover {
-            transform: translate(-0.05em, -0.05em);
-            box-shadow: 0.15em 0.15em;
-        }
+    /* Leaderboard Table Styling */
+    section {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      padding: 20px;
+      margin: 20px 0;
+    }
 
-        button:active {
-            transform: translate(0.05em, 0.05em);
-            box-shadow: 0.05em 0.05em;
-        }
+    h1, h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #2c3e50;
+    }
 
-        .stats-container {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            color: black;
-            font-weight: bold;
-        }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
 
-        .team-members {
-            font-size: 0.9em;
-            color: #333333;
-        }
-               /* Navbar */
-        .navbar {
-            width: 100%;
-            background-color: #333;
-            color: #fff;
-            display: flex;
-            justify-content: space-between;
-            padding: 1rem;
-            font-size: 1.2rem;
-            margin-bottom: 1rem;
-            text-align: center;
-        }
-        .navbar .links {
-            display: flex;
-            gap: 2rem;
-        }
-        .navbar .links a {
-            color: #fff;
-            text-decoration: none;
-            font-weight: bold;
-        }
-        .navbar .links a:hover {
-            color: #ddd;
-        }
-    </style>
+    thead {
+      background-color: #001F3F;
+      color: #fff;
+    }
+
+    th, td {
+      padding: 12px 15px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+    }
+
+    tbody tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    tbody tr:hover {
+      background-color: #f1f7ff;
+      cursor: pointer;
+    }
+
+    td:first-child {
+      font-weight: bold;
+      color: #e67e22;
+    }
+
+    tbody tr:nth-child(1) td:first-child {
+      color: #f1c40f;
+      font-size: 1.2em;
+    }
+    tbody tr:nth-child(2) td:first-child {
+      color: #95a5a6;
+    }
+    tbody tr:nth-child(3) td:first-child {
+      color: #cd7f32;
+    }
+
+    /* Search Bar */
+    .search-container {
+      margin-bottom: 20px;
+      display: flex;
+    }
+    .search-container input[type="text"] {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 4px 0 0 4px;
+      outline: none;
+      font-size: 16px;
+    }
+    .search-button {
+      background-color: #FF8C00;
+      color: #fff;
+      border: none;
+      border-radius: 0 4px 4px 0;
+      padding: 12px 20px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s;
+    }
+    .search-button:hover {
+      background-color: #E07B00;
+    }
+
+    /* Summary Cards */
+    .summary-cards {
+      display: flex;
+      justify-content: space-between;
+      margin: 20px 0;
+    }
+    .card {
+      flex: 1;
+      margin: 10px;
+      padding: 20px;
+      border-radius: 8px;
+      color: #fff;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .card-orange { background-color: #FF8C00; }
+    .card-purple { background-color: #6A0DAD; }
+    .card-darkblue { background-color: #001F3F; }
+
+    .card h2 { font-size: 20px; }
+    .card p { font-size: 36px; font-weight: bold; }
+  </style>
 </head>
 <body>
+
+  <!-- Navbar -->
+  <div class="navbar">
+    <div class="logo">Leaderboard</div>
+    <div class="nav-buttons">
+      <a href="#">Home</a>
+      <a href="#">Rankings</a>
+      <a href="#">Profile</a>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div class="dashboard">
+    <!-- Main Content -->
+    <div class="dashboard-content">
+      <!-- Search -->
+      <div class="search-container">
+        <input type="text" placeholder="Search for a user..." />
+        <button class="search-button">Search</button>
+      </div>
     <div class="navbar">
         <div class="links">
             <a href="/portfolio_2025/crypto/portfolio" id="portfolioLink">Investing Portfolio</a>
@@ -117,109 +210,70 @@ permalink: /crypto/leaderboard
             <a href="/portfolio_2025/crypto/leaderboard" id="leaderboardLink">Leaderboard</a>
         </div>
     </div>
-<div class="leaderboard-container">
-    <div class="header">
-        <h1>Leaderboard</h1>
-        <p>Ranking Teams by Balance</p>
+      <!-- Summary Cards -->
+      <div class="summary-cards">
+        <div class="card card-orange">
+          <h2>Top Rank</h2>
+          <p>#1</p>
+        </div>
+        <div class="card card-purple">
+          <h2>Users</h2>
+          <p>1500+</p>
+        </div>
+        <div class="card card-darkblue">
+          <h2>Average Balance</h2>
+          <p>$12,345</p>
+        </div>
+      </div>
+
+      <!-- Leaderboard Table -->
+      <section>
+        <h2>Top 10 Users by Balance</h2>
+        <table id="top-users-table">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Balance</th>
+              <th>Name</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Data will be inserted dynamically -->
+          </tbody>
+        </table>
+      </section>
     </div>
-    <div class="team-list" id="team-list">
-        <!-- Team template for each leaderboard entry -->
-        <template id="team-template">
-            <a href="#" target="_blank"> <!-- Link placeholder -->
-                <button>
-                    <div class="team-card">
-                        <div class="rank">#<span class="rank-number"></span> <span class="team-name"></span></div>
-                        <div class="stats-container">
-                            <div class="balance">Balance: <span class="balance-amount"></span></div>
-                            <div class="roi">ROI: <span class="roi-percentage"></span></div>
-                        </div>
-                        <div class="team-members">
-                            <strong>Team Members:</strong>
-                            <ul class="member-list"></ul>
-                        </div>
-                    </div>
-                </button>
-            </a>
-        </template>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="stock-table">
+        <h2>Your Stocks</h2>
+        <table>
+          <tr><th>Stock</th><th>Value</th></tr>
+          <tr><td>Apple</td><td>$150.00</td></tr>
+          <tr><td>Amazon</td><td>$3,200.00</td></tr>
+        </table>
+      </div>
     </div>
-</div>
+  </div>
 
-<script>
-    // Fetch user data, group by team number, and calculate team stats
-    function fetchAndDisplayLeaderboard() {
-        fetch("http://localhost:8088/api/people")  // Correct API endpoint for all people
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("Failed to fetch user data");
-                }
-                return response.json();
-            })
-            .then(people => {
-                // Group people by their team name
-                const teams = people.reduce((acc, person) => {
-                    const teamKey = person.team;
-                    if (!acc[teamKey]) {
-                        acc[teamKey] = { members: [], balance: 0 };
-                    }
-                    acc[teamKey].members.push(person.name);
-                    acc[teamKey].balance += person.balance;
-                    return acc;
-                }, {});
-
-                // Convert teams object into array and calculate ROI (example placeholder here)
-                const teamsArray = Object.entries(teams).map(([teamName, teamData]) => ({
-                    name: teamName,
-                    balance: teamData.balance,
-                    roi: ((teamData.balance / 5000) * 100).toFixed(2) + '%',  // Example ROI calculation
-                    members: teamData.members,
-                    link: `/leaderboard/team/${teamName}`  // Updated link structure (replace with actual endpoint as needed)
-                }));
-
-                // Sort teams by balance in descending order and display them
-                const sortedTeams = teamsArray.sort((a, b) => b.balance - a.balance);
-                populateLeaderboard(sortedTeams);
-            })
-            .catch(error => {
-                console.error("Error:", error);
-                document.getElementById("team-list").innerHTML = `<p class="error">${error.message}</p>`;
-
-            });
-    }
-
-    // Populate the leaderboard with ranked teams
-    function populateLeaderboard(teams) {
-        const teamList = document.getElementById('team-list');
-        const template = document.getElementById('team-template').content;
-
-        // Clear any existing content
-        teamList.innerHTML = '';
-
-        teams.forEach((team, index) => {
-            const teamElement = document.importNode(template, true);
-
-            // Fill in the rank, balance, ROI, members, and link
-            teamElement.querySelector('.rank-number').textContent = index + 1;
-            teamElement.querySelector('.team-name').textContent = team.name;
-            teamElement.querySelector('.balance-amount').textContent = `$${team.balance.toLocaleString()}`;
-            teamElement.querySelector('.roi-percentage').textContent = team.roi;
-            teamElement.querySelector('a').href = team.link;
-
-            const memberList = teamElement.querySelector('.member-list');
-            team.members.forEach(member => {
-                const memberItem = document.createElement('li');
-                memberItem.textContent = member;
-                memberList.appendChild(memberItem);
-            });
-
-            // Append to leaderboard
-            teamList.appendChild(teamElement);
+  <script>
+    // Fetch leaderboard data from the server
+    fetch('http://localhost:8085/api/rankings/leaderboard')
+      .then(response => response.json())
+      .then(data => {
+        const topUsersTable = document.querySelector('#top-users-table tbody');
+        data.forEach((user, index) => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${index + 1}</td>
+            <td>$${Number(user.balance).toFixed(2)}</td>
+            <td>${user.name}</td>
+          `;
+          topUsersTable.appendChild(row);
         });
-    }
-
-    // Initialize leaderboard data fetch
-    fetchAndDisplayLeaderboard();
-</script>
-
+      })
+      .catch(error => console.error('Error fetching leaderboard data:', error));
+  </script>
 </body>
 </html>
-

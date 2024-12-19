@@ -39,6 +39,7 @@ permalink: /crypto/mining
                     </div>
                 </div>
             </div>
+            
             <!-- Ethereum Market -->
             <div class="dashboard-card">
                 <h2>Ethereum Market</h2>
@@ -156,6 +157,9 @@ permalink: /crypto/mining
                 </button>
             </div>
         </div>
+        <div class="navbar">
+
+    </div>
         <!-- Performance Charts -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <div class="chart-container">
