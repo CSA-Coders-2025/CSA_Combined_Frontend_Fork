@@ -116,6 +116,46 @@ async function resetQueue() {
     fetchQueue();
 }
 
+// add/remove a group from waiting list
+async function toggleGroupInQueue() {
+    // ask for group names
+    const groupName = prompt("Enter the group name to add/remove in the waiting queue:");
+    if (!groupName || !groupName.trim()) {
+        alert("Please enter a valid group name.");
+        return;
+    }
+    
+    const trimmedGroup = groupName.trim();
+    
+    // if group is in queue, remove group, else add group to queue
+    const isInQueue = currentQueue.some(item => item === trimmedGroup);
+    
+    if (isInQueue) {        
+        // Now move the group to the completed queue endpoint
+        await fetch(URL + `doneToCompleted/${assignment}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify([trimmedGroup])
+        });
+        alert(`Moved "${trimmedGroup}" to completed queue.`);
+    } else {
+        // add to queue
+        await fetch(URL + `addToWaiting/${assignment}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify([trimmedGroup])
+        });
+        alert(`Added "${trimmedGroup}" to waiting queue.`);
+    }
+    
+    // Refresh the queue display
+    fetchQueue();
+}
+
+// Attach event listener to the toggle button
+document.getElementById('customToggleBtn').addEventListener('click', toggleGroupInQueue);
+
+
 // update display - ran periodically
 function updateQueueDisplay(queue) {
     currentQueue = queue.waiting;
