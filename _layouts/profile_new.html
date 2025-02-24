@@ -331,7 +331,7 @@ layout: aesthetihawk
     <h1>Kasm</h1>
     <form action="#">
         <label class="container-checkbox" style="white-space: nowrap;">I need a Kasm server.
-            <input type="checkbox" checked="checked">
+            <input type="checkbox" checked="checked" id="kasm-checkbox">
             <span class="checkmark"></span>
         </label>
         <input type="submit" value="Save changes">
@@ -390,11 +390,11 @@ layout: aesthetihawk
     </div>
 
     <!-- name card -->
-    <div class="name-info card" onclick="document.getElementById('change-name').style.visibility = 'visible'"
-        data-tilt data-tilt-reverse="true" data-tilt-perspective="10000" data-tilt-glare data-tilt-max-glare="0.5">
+    <div class="name-info card" onclick="document.getElementById('change-name').style.visibility = 'visible'" data-tilt
+        data-tilt-reverse="true" data-tilt-perspective="10000" data-tilt-glare data-tilt-max-glare="0.5">
         <div class="name-details">
             <h3>Name</h3>
-            <p>Aashray</p>
+            <p id="name"></p>
         </div>
         <div class="name-icon">
             <ion-icon name="person-outline" size="large"></ion-icon>
@@ -402,11 +402,11 @@ layout: aesthetihawk
     </div>
 
     <!-- uid card -->
-    <div class="uid-info card" onclick="document.getElementById('change-uid').style.visibility = 'visible'"
-        data-tilt data-tilt-reverse="true" data-tilt-perspective="10000" data-tilt-glare data-tilt-max-glare="0.5">
+    <div class="uid-info card" onclick="document.getElementById('change-uid').style.visibility = 'visible'" data-tilt
+        data-tilt-reverse="true" data-tilt-perspective="10000" data-tilt-glare data-tilt-max-glare="0.5">
         <div class="uid-details">
             <h3>User ID</h3>
-            <p>KinetekEnergy</p>
+            <p id="uid"></p>
         </div>
         <div class="uid-icon">
             <ion-icon name="id-card-outline" size="large"></ion-icon>
@@ -418,7 +418,7 @@ layout: aesthetihawk
         data-tilt data-tilt-reverse="true" data-tilt-perspective="10000" data-tilt-glare data-tilt-max-glare="0.5">
         <div class="email-details">
             <h3>Email</h3>
-            <p>transyt8@gmail.com</p>
+            <p id="email"></p>
         </div>
         <div class="email-icon">
             <ion-icon name="mail-outline" size="large"></ion-icon>
@@ -426,11 +426,11 @@ layout: aesthetihawk
     </div>
 
     <!-- kasm card -->
-    <div class="kasm-info card" onclick="document.getElementById('change-kasm').style.visibility = 'visible'"
-        data-tilt data-tilt-reverse="true" data-tilt-perspective="10000" data-tilt-glare data-tilt-max-glare="0.5">
+    <div class="kasm-info card" onclick="document.getElementById('change-kasm').style.visibility = 'visible'" data-tilt
+        data-tilt-reverse="true" data-tilt-perspective="10000" data-tilt-glare data-tilt-max-glare="0.5">
         <div class="kasm-details">
             <h3>Kasm</h3>
-            <p>Kasm Disabled</p>
+            <p id="kasm"></p>
         </div>
         <div class="kasm-icon">
             <ion-icon name="server-outline" size="large"></ion-icon>
@@ -450,8 +450,8 @@ layout: aesthetihawk
     </div>
 
     <!-- pfp card -->
-    <div class="pfp-info card" onclick="document.getElementById('change-pfp').style.visibility = 'visible'"
-        data-tilt data-tilt-reverse="true" data-tilt-perspective="10000" data-tilt-glare data-tilt-max-glare="0.5">
+    <div class="pfp-info card" onclick="document.getElementById('change-pfp').style.visibility = 'visible'" data-tilt
+        data-tilt-reverse="true" data-tilt-perspective="10000" data-tilt-glare data-tilt-max-glare="0.5">
         <div class="pfp-details">
             <h3>Profile Picture</h3>
             <p>Click to change or add your profile picture.</p>
@@ -468,3 +468,137 @@ layout: aesthetihawk
 
 <!-- js tilt feature -->
 <script src="{{ site.baseurl }}/scripts/tilt.js"></script>
+
+<script type="module">
+    import { javaURI, fetchOptions } from '{{site.baseurl}}/assets/js/api/config.js';
+    import { putUpdate, postUpdate, deleteData, logoutUserJava } from "{{site.baseurl}}/assets/js/api/profile.js";
+
+    // this runs on page load
+    document.addEventListener('DOMContentLoaded', async function () {
+        try {
+            await loadUserData();
+        } catch (error) {
+            console.error('Initialization error:', error.message);
+        }
+    });
+
+    // loading the user data to display
+    window.loadUserData = async function () {
+        try {
+            // fetch the data
+            const name = await window.fetchName();
+            const uid = await window.fetchUid();
+            const email = await window.fetchEmail();
+            const kasm = await window.fetchKasmStatus();
+
+            // if the fetch failed, set that as the text content
+            if (name == null) {
+                document.getElementById("name").textContent = "Failed to load. Are you logged in?";
+            }
+            if (uid == null) {
+                document.getElementById("uid").textContent = "Failed to load. Are you logged in?";
+            }
+            if (email == null) {
+                document.getElementById("email").textContent = "Failed to load. Are you logged in?";
+            }
+            if (kasm == null) {
+                document.getElementById("kasm").textContent = "Failed to load. Are you logged in?";
+            }
+            
+
+            // given that the fetch worked, update the internal data
+            document.getElementById("name").textContent = name;
+            document.getElementById("uid").textContent = uid;
+            document.getElementById("email").textContent = email;
+        } catch (error) {
+            console.error('Error setting placeholders:', error.message);
+        }
+    }
+
+    // FETCH COMMANDS ========
+    window.fetchName = async function () {
+        const URL = javaURI + "/api/person/get"; // Adjusted endpoint
+        
+        try {
+            const response = await fetch(URL, fetchOptions);
+            
+            if (!response.ok) {
+                throw new Error(`Failed to fetch Name: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            return data.name;
+        } 
+        catch (error) {
+            console.error('Error fetching Name:', error.message);
+            return null;
+        }
+    };
+
+    window.fetchUid = async function () {
+        const URL = javaURI + "/api/person/get"; // Adjusted endpoint
+        try {
+            const response = await fetch(URL, fetchOptions);
+            
+            if (!response.ok) {
+                throw new Error(`Failed to fetch Name: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            return data.uid;
+        } 
+        catch (error) {
+            console.error('Error fetching Name:', error.message);
+            return null;
+        }
+    };
+
+    window.fetchEmail = async function () {
+        const URL = javaURI + "/api/person/get"; // Adjusted endpoint
+        
+        try {
+            const response = await fetch(URL, fetchOptions);
+            
+            if (!response.ok) {
+                throw new Error(`Failed to fetch UID: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            return data.email;
+        } 
+        catch (error) {
+            console.error('Error fetching UID:', error.message);
+            return null;
+        }
+    };
+
+    window.fetchKasmStatus = async function() {
+        const URL = javaURI + "/api/person/get"; // Adjusted endpoint
+        
+        try {
+            const response = await fetch(URL, fetchOptions);
+            
+            if (!response.ok) {
+                throw new Error(`Failed to fetch kasm_server_needed: ${response.status}`);
+            }
+            
+            const userData = await response.json();
+            const kasmServerNeeded = userData.kasmServerNeeded
+            
+            // Update checkbox state based on fetched value
+            if (kasmServerNeeded) {
+                document.getElementById("kasm").textContent = "Kasm Enabled";
+                document.getElementById('kasm-checkbox').checked = kasmServerNeeded;
+            }
+            else {
+                document.getElementById("kasm").textContent = "Kasm Disabled";
+                document.getElementById('kasm-checkbox').checked = kasmServerNeeded;
+            }
+
+            return kasmServerNeeded;
+        } catch (error) {
+            console.error('Error fetching kasm_server_needed:', error.message);
+            return null;
+        }
+    }
+</script>
