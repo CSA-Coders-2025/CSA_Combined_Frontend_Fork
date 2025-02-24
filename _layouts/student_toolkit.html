@@ -1,24 +1,9 @@
-{%- include Aesthetihawk/header.html -%}
+---
+title: Student Toolkit
+layout: aesthetihawk
+---
 
 <style>
-    /* GRID STUFF =========================== */
-    .container {
-        display: grid;
-        grid-template-columns: auto 1fr;
-        grid-template-rows: 1fr;
-        grid-auto-columns: 1fr;
-        gap: 0px 50px;
-        grid-auto-flow: row;
-        grid-template-areas:
-            "sidebar main-info";
-
-        margin: 50px;
-    }
-
-    .sidebar {
-        grid-area: sidebar;
-    }
-
     .main-info {
         display: grid;
         grid-template-columns: 1fr;
@@ -213,32 +198,8 @@
         transform: scale(1.02);
     }
 
-    /* TYPOGRAPHY STUFF ================= */
-    h3 {
-        margin-top: 0px;
-        padding-top: 0px;
-    }
-
-    h1 {
-        white-space: nowrap;
-    }
-
     /* OTHER STUFF ====================== */
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background-color: #111111;
-        color: white;
-
-        /* delete later */
-        /* margin: 50px; */
-        margin: 0px;
-    }
-
-    .profile-pic {
-        border-radius: 50%;
-        height: 125px;
-        width: 125px;
-    }
+    
 
     input {
         /* colors */
@@ -398,121 +359,112 @@
     }
 </style>
 
-<body>
-    <div class="container">
-        <!-- the sidebar on the left with the links -->
-        <div class="sidebar">
-            {% include Aesthetihawk/sidebar.html %}
+<div class="main-info">
+    <!-- the info header at the top of the page -->
+    <div class="header">
+        <h1>{{ page.title }}</h1>
+        <p>Access all student toolkits here.</p>
+    </div>
+
+    <!-- bathroom -->
+    <div class="bathroom card">
+        <div class="bathroom-details">
+            <h3>Bathroom</h3>
+            <p>This tool lets you:</p>
+            <ul>
+                <li>Add yourself to a queue to go to the bathroom</li>
+                <li>Track how many people have already left the class to go to the bathroom</li>
+                <li>Report issues with any bathroom</li>
+                <li>Track your bathroom statistics</li>
+            </ul>
         </div>
-
-        <div class="main-info">
-            <!-- the info header at the top of the page -->
-            <div class="header">
-                <h1>Student Toolkit</h1>
-                <p>Access all student toolkits here.</p>
-            </div>
-
-            <!-- bathroom -->
-            <div class="bathroom card">
-                <div class="bathroom-details">
-                    <h3>Bathroom</h3>
-                    <p>This tool lets you:</p>
-                    <ul>
-                        <li>Add yourself to a queue to go to the bathroom</li>
-                        <li>Track how many people have already left the class to go to the bathroom</li>
-                        <li>Report issues with any bathroom</li>
-                        <li>Track your bathroom statistics</li>
-                    </ul>
-                </div>
-                <div class="bathroom-thumbnail">
-                    <img src="{{site.baseurl}}/images/toolkit-nav-buttons/bathroom.png" alt="Bathroom"
-                        class="thumbnail">
-                </div>
-            </div>
-
-            <!-- screen queue -->
-            <div class="screen-queue card">
-                <div class="screen-queue-details">
-                    <h3>Screen Queue</h3>
-                    <p>This tool lets you:</p>
-                    <ul>
-                        <li>Add yourself to a queue to present to the teacher</li>
-                        <li>Track who is not waiting to go to present</li>
-                        <li>Track who is waiting to go to present</li>
-                        <li>Track who has already presented</li>
-                    </ul>
-                </div>
-                <div class="screen-queue-thumbnail">
-                    <img src="{{site.baseurl}}/images/toolkit-nav-buttons/group-chat.png" alt="ScreenQueue"
-                        class="thumbnail">
-                </div>
-            </div>
-
-            <!-- assignment submissions -->
-            <div class="assignment-submissions card">
-                <div class="assignment-submissions-details">
-                    <h3>Assignment Submissions</h3>
-                    <p>This tool lets you:</p>
-                    <ul>
-                        <li>Submit an assignment directly to the teacher</li>
-                        <li>Write special comments on your assignment submission</li>
-                    </ul>
-                </div>
-                <div class="assignment-submissions-thumbnail">
-                    <img src="{{site.baseurl}}/images/toolkit-nav-buttons/submissions.png" alt="Submissions"
-                        class="thumbnail">
-                </div>
-            </div>
-
-            <!-- seed tracker -->
-            <div class="seed-tracker card">
-                <div class="seed-tracker-details">
-                    <h3>Seed Tracker</h3>
-                    <p>This tool lets you:</p>
-                    <ul>
-                        <li>Request seed</li>
-                    </ul>
-                </div>
-                <div class="seed-tracker-thumbnail">
-                    <img src="{{site.baseurl}}/images/toolkit-nav-buttons/seedtracker.png" alt="Seed Tracker"
-                        class="thumbnail">
-                </div>
-            </div>
-
-            <!-- sagai -->
-            <div class="sagai card">
-                <div class="sagai-details">
-                    <h3>SAGAI</h3>
-                    <p>This tool lets you:</p>
-                    <ul>
-                        <li>Use AI to grade your work</li>
-                        <li>Use AI to generate hacks based on a topic or other set of instructions</li>
-                        <li>Ask an AI to answer questions you have</li>
-                        <li>Manage assignments</li>
-                    </ul>
-                </div>
-                <div class="sagai-thumbnail">
-                    <img src="{{site.baseurl}}/images/toolkit-nav-buttons/sagai.png" alt="SAGAI" class="thumbnail">
-                </div>
-            </div>
-
-            <!-- grade viewer -->
-            <div class="view-grades card">
-                <div class="view-grades-details">
-                    <h3>View Grades</h3>
-                    <p>This tool lets you:</p>
-                    <ul>
-                        <li>View your grades per assignment</li>
-                    </ul>
-                </div>
-                <div class="view-grades-thumbnail">
-                    <img src="{{site.baseurl}}/images/toolkit-nav-buttons/view-grades.png" alt="view-grades"
-                        class="thumbnail">
-                </div>
-            </div>
+        <div class="bathroom-thumbnail">
+            <img src="{{site.baseurl}}/images/toolkit-nav-buttons/bathroom.png" alt="Bathroom"
+                class="thumbnail">
         </div>
     </div>
-</body>
+
+    <!-- screen queue -->
+    <div class="screen-queue card">
+        <div class="screen-queue-details">
+            <h3>Screen Queue</h3>
+            <p>This tool lets you:</p>
+            <ul>
+                <li>Add yourself to a queue to present to the teacher</li>
+                <li>Track who is not waiting to go to present</li>
+                <li>Track who is waiting to go to present</li>
+                <li>Track who has already presented</li>
+            </ul>
+        </div>
+        <div class="screen-queue-thumbnail">
+            <img src="{{site.baseurl}}/images/toolkit-nav-buttons/group-chat.png" alt="ScreenQueue"
+                class="thumbnail">
+        </div>
+    </div>
+
+    <!-- assignment submissions -->
+    <div class="assignment-submissions card">
+        <div class="assignment-submissions-details">
+            <h3>Assignment Submissions</h3>
+            <p>This tool lets you:</p>
+            <ul>
+                <li>Submit an assignment directly to the teacher</li>
+                <li>Write special comments on your assignment submission</li>
+            </ul>
+        </div>
+        <div class="assignment-submissions-thumbnail">
+            <img src="{{site.baseurl}}/images/toolkit-nav-buttons/submissions.png" alt="Submissions"
+                class="thumbnail">
+        </div>
+    </div>
+
+    <!-- seed tracker -->
+    <div class="seed-tracker card">
+        <div class="seed-tracker-details">
+            <h3>Seed Tracker</h3>
+            <p>This tool lets you:</p>
+            <ul>
+                <li>Request seed</li>
+            </ul>
+        </div>
+        <div class="seed-tracker-thumbnail">
+            <img src="{{site.baseurl}}/images/toolkit-nav-buttons/seedtracker.png" alt="Seed Tracker"
+                class="thumbnail">
+        </div>
+    </div>
+
+    <!-- sagai -->
+    <div class="sagai card">
+        <div class="sagai-details">
+            <h3>SAGAI</h3>
+            <p>This tool lets you:</p>
+            <ul>
+                <li>Use AI to grade your work</li>
+                <li>Use AI to generate hacks based on a topic or other set of instructions</li>
+                <li>Ask an AI to answer questions you have</li>
+                <li>Manage assignments</li>
+            </ul>
+        </div>
+        <div class="sagai-thumbnail">
+            <img src="{{site.baseurl}}/images/toolkit-nav-buttons/sagai.png" alt="SAGAI" class="thumbnail">
+        </div>
+    </div>
+
+    <!-- grade viewer -->
+    <div class="view-grades card">
+        <div class="view-grades-details">
+            <h3>View Grades</h3>
+            <p>This tool lets you:</p>
+            <ul>
+                <li>View your grades per assignment</li>
+            </ul>
+        </div>
+        <div class="view-grades-thumbnail">
+            <img src="{{site.baseurl}}/images/toolkit-nav-buttons/view-grades.png" alt="view-grades"
+                class="thumbnail">
+        </div>
+    </div>
+</div>
 
 <!-- icons -->
 <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
