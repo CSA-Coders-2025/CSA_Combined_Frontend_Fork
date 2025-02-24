@@ -1,5 +1,4 @@
 {%- include Aesthetihawk/header.html -%}
-<!-- {% include MorteVision/queuehead.html %} -->
 
 <style>
     /* GRID STUFF =========================== */
@@ -399,52 +398,11 @@
     }
 </style>
 
-<!-- <div class="container">
-    <div class="sidebar">
-        {% include sidebar.html %}
-    </div>
-</div> -->
-
 <body>
     <div class="container">
         <!-- the sidebar on the left with the links -->
         <div class="sidebar">
-            
-            <!-- <img src="#" alt="" class="profile-pic" id="headerPfp">
-            <h1 id="headerName">Welcome,<br /> User</h1> -->
-            <!-- nav links -->
-            <!-- <ul> -->
-                <!-- these will show if you ARE logged in -->
-                <!-- <li id="profile-link">
-                    <h3><a href="{{site.baseurl}}/profile_aesthetihawk">Profile Settings</a></h3>
-                </li> -->
-
-                <!-- <li id="student-toolkit-link">
-                    <h3><a href="{{site.baseurl}}/student_aesthetihawk" class="active-tab">Student Toolkit</a></h3>
-                </li>
-
-                <li id="teacher-toolkit-link"> -->
-                    <!-- this only shows if you are a teacher (your user has the teacher role) -->
-                    <!-- <h3><a href="#">Teacher Toolkit</a></h3>
-                </li>
-
-                <li id="calendar-link">
-                    <h3><a href="{{site.baseurl}}/student/calendar">Calendar</a></h3>
-                </li>
-
-                <li id="sign-out-link">
-                    <h3><a href="{{site.baseurl}}/logoutjava">Sign Out</a></h3>
-                </li> -->
-
-                <!-- these will show if you're NOT logged in -->
-                <!-- <li id="sign-in-link">
-                    <h3><a href="{{site.baseurl}}/toolkit-login">Sign In</a></h3>
-                </li>
-
-                <li id="sign-up-link">
-                    <h3><a href="{{site.baseurl}}/signup">Sign Up</a></h3>
-                </li>
-            </ul> -->
+            {% include Aesthetihawk/sidebar.html %}
         </div>
 
         <div class="main-info">
@@ -556,8 +514,6 @@
     </div>
 </body>
 
-</html>
-
 <!-- icons -->
 <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
 <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
@@ -566,7 +522,7 @@
 <script src="tilt.js"></script>
 
 <!-- link controller (show and hide relevant links depending on the user's login status: logged in or logged out) -->
-<!-- <script type="module">
+<script type="module">
     // use this to configure the API links depending on if you're running on local host or not
     import { javaURI, fetchOptions } from '{{site.baseurl}}/assets/js/api/config.js';
 
@@ -617,7 +573,7 @@
 
                     // now we should change the info in the sidebar like the name and the PFP
                     name.innerHTML = "Welcome, <br/>" + data.name;
-                    headerPfp.src = javaURI + data.pfp; 
+                    headerPfp.src = javaURI + data.pfp;
                     console.log(javaURI);
                 }
                 else { // user isn't authenticated
@@ -666,4 +622,4 @@
     function getCredentialsJavaSimulation() {
         return true;
     }
-</script> -->
+</script>
