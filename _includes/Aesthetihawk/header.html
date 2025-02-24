@@ -105,10 +105,13 @@
 
         .site-title {
             font-size: 1.625rem;
-            font-weight: 300;
+            /* font-weight: 300; */
             letter-spacing: -1px;
             margin-bottom: 0;
             float: left;
+            font-weight: bold;
+
+            font-family: 'IBM Plex Mono', monospace;
         }
 
         @media screen and (max-width: 800px) {
@@ -174,6 +177,8 @@
             display: block;
             padding: 5px 10px;
             margin-left: 20px;
+
+            font-family: 'IBM Plex Mono', monospace;
         }
 
         .site-nav .page-link:not(:last-child) {
@@ -210,6 +215,10 @@
                 margin-right: 20px;
             }
         }
+
+        .glitch {
+            font-family: 'IBM Plex Mono', monospace;
+        }
     </style>
 </head>
 
@@ -219,7 +228,10 @@
             {%- assign default_paths = site.pages | map: "path" -%}
             {%- assign page_paths = site.header_pages | default: default_paths -%}
             {%- assign titles_size = site.pages | map: 'title' | join: '' | size -%}
-            <a class="site-title" rel="author" href="{{ " /" | relative_url }}">{{ site.title | escape }}</a>
+            <a class="site-title glitch" rel="author" href="{{ " /" | relative_url }}"
+                data-value="{{ site.title | escape }}">
+                {{ site.title | escape }}
+            </a>
 
             {%- if titles_size > 0 -%}
             <nav class="site-nav">
@@ -237,10 +249,13 @@
                     {%- for path in site.header_pages -%}
                     {%- assign my_page = site.pages | where: "path", path | first -%}
                     {%- if my_page.title -%}
-                    <a class="page-link" href="{{ my_page.url | relative_url }}">{{ my_page.title | escape }}</a>
+                    <a class="page-link glitch" href="{{ my_page.url | relative_url }}"
+                        data-value="{{ my_page.title | escape }}">
+                        {{ my_page.title | escape }}
+                    </a>
                     {%- endif -%}
                     {%- endfor -%}
-                    <a id="loginArea" href="{{ site.baseurl }}/login">Login</a>
+                    <a id="loginArea" class="glitch" href="{{ site.baseurl }}/login">Login</a>
                 </div>
             </nav>
             {%- endif -%}
@@ -249,3 +264,37 @@
 
     <script type="module" src="{{ site.baseurl }}/assets/js/api/login.js"></script>
 </body>
+
+<!-- cool text hover glitch effect -->
+<script>
+    const links = document.getElementsByClassName("glitch");
+    const letters = "#+©-&*0KIR1L2345";
+    const lettersLength = letters.length;
+    const regex = /\s/;
+
+    for (let i = 0; i < links.length; i++) {
+        links[i].addEventListener("mouseover", (event) => {
+            let iterations = 0;
+            const target = event.target;
+            const originalText = target.dataset.value || target.innerText;
+
+            const interval = setInterval(() => {
+                target.innerText = originalText
+                    .split("")
+                    .map((letter, index) => {
+                        if (index < iterations) {
+                            return originalText[index];
+                        }
+                        return regex.test(letter) ? letter : letters[Math.floor(Math.random() * lettersLength)];
+                    })
+                    .join("");
+
+                if (iterations >= originalText.length) {
+                    clearInterval(interval);
+                }
+
+                iterations += 1;
+            }, 100);
+        });
+    }
+</script>
