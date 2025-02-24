@@ -477,6 +477,8 @@ active_tab: profile
 
     // this runs on page load
     document.addEventListener('DOMContentLoaded', async function () {
+        localStorage.setItem('activeTab', 'profile');
+
         try {
             await loadUserData();
         } catch (error) {
