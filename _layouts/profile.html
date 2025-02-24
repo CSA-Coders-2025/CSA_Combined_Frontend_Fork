@@ -1,6 +1,7 @@
 ---
 title: Profile
 layout: aesthetihawk
+active_tab: profile
 ---
 
 <style>
@@ -364,14 +365,16 @@ layout: aesthetihawk
 <div id="change-pfp" class="change-info-card" style="visibility: hidden;">
     <ion-icon name="image-outline" size="large"></ion-icon>
     <h1>Profile Picture</h1>
-    <form action="#">
+    <form onsubmit="return changeProfilePicture(event)">
         <label class="container-checkbox" style="white-space: nowrap; padding-left: 0px;">Click to upload a profile
             picture.
-            <input type="file" id="myFile" name="filename" style="visibility: hidden;">
+            <input type="file" id="profilePictureInput" name="filename" style="visibility: hidden;">
             <input type="submit" style="visibility: hidden;">
             <ion-icon name="cloud-upload-outline"></ion-icon>
         </label>
         <input type="submit" value="Save changes">
+        <br>
+        <p><em>Note: you will have to reload the page after uploading the file.</em></p>
     </form>
     <div class="close" onclick="document.getElementById('change-pfp').style.visibility = 'hidden'">
         <ion-icon name="close-outline" size="large" class="close"></ion-icon>
@@ -453,7 +456,7 @@ layout: aesthetihawk
         data-tilt-reverse="true" data-tilt-perspective="10000" data-tilt-glare data-tilt-max-glare="0.5">
         <div class="pfp-details">
             <h3>Profile Picture</h3>
-            <p>Click to change or add your profile picture.</p>
+            <p>Click to change or add your profile picture.</p>            
         </div>
         <div class="pfp-icon">
             <ion-icon name="image-outline" size="large"></ion-icon>
@@ -624,7 +627,7 @@ layout: aesthetihawk
             }
         }
 
-       document.getElementById("name").textContent = name; //reload the content
+        document.getElementById("name").textContent = name; //reload the content
     }
 
     window.changeUid = async function (event) {
@@ -678,9 +681,13 @@ layout: aesthetihawk
     }
 
     window.changeKasmServerStatus = async function (event) {
+        // select the checkbox and scan for updates (did they check or uncheck it?)
         const checkbox = event.target;
         const newKasmServerNeeded = checkbox.checked;
+
         const URL = javaURI + "/api/person/update"; // Adjusted endpoint
+
+        // newKasmServerNeeded is a boolean, so you can just send it directly
         const options = {
             URL,
             body: { kasmServerNeeded: newKasmServerNeeded },
@@ -699,6 +706,68 @@ layout: aesthetihawk
             document.getElementById("kasm").textContent = "Kasm Enabled";
         } else {
             document.getElementById("kasm").textContent = "Kasm Disabled";
+        }
+    }
+
+    window.changeProfilePicture = async function (event) {
+        event.preventDefault(); // Prevent the form from refreshing the page
+
+        // select the file
+        const fileInput = document.getElementById('profilePictureInput');
+        const file = fileInput.files[0];
+        
+        // all this does is update the image in the sidebar (doesnt actually send img to backend)
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function () {
+                const profileImageBox = document.getElementById('headerPfp');
+                profileImageBox.innerHTML = `<img src="${reader.result}" alt="Profile Picture">`;
+            };
+            reader.readAsDataURL(file);
+        }
+        if (!file) return;
+        
+        // this is the code that ACTUALLY sends the file to the backend
+        try {
+            const base64String = await convertToBase64(file);
+            await sendProfilePicture(base64String);
+            console.log('Profile picture uploaded successfully!');
+        } catch (error) {
+            console.error('Error uploading profile picture:', error.message);
+        }
+
+    }
+
+    // helper function to convert a file to base64 for payload
+    async function convertToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result.split(',')[1]);
+            reader.onerror = error => reject(error);
+            reader.readAsDataURL(file);
+        });
+    }
+
+
+    // helper function to send the new pfp given the base64 data
+    async function sendProfilePicture(base64String) {
+        const URL = javaURI + "/api/person/update"; // Adjust endpoint as needed
+        
+        // Create options object for PUT request
+        const options = {
+            URL,
+            body: { pfp: base64String },
+            message: 'profile-message', // Adjust the message area as needed
+            callback: () => {
+                console.log('Profile picture uploaded successfully!');
+                // Handle success response as needed
+            }
+        };
+
+        try {
+            await postUpdate(options);
+        } catch (error) {
+            console.error('Error uploading profile picture:', error.message);
         }
     }
 

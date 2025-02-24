@@ -1,5 +1,5 @@
 ---
-layout: profile_new
+layout: profile
 permalink: /profile_aesthetihawk
 ---
 

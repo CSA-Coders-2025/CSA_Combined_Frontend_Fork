@@ -50,21 +50,29 @@
     .sidebar .active-tab {
         color: #0071e3;
     }
+
+    li.active a {
+        font-weight: bold;
+        color: #0071e3;  /* Example active color */
+    }
+
 </style>
 
 <img src="#" alt="" class="profile-pic" id="headerPfp">
 <h1 id="headerName">Welcome,<br /> User</h1>
 
+
 <!-- nav links -->
 <ul>
     <!-- these will show if you ARE logged in -->
-    <li id="profile-link">
+    <li id="profile-link" class="{% if page.active_tab == 'profile' %}active{% endif %}">
         <h3><a href="{{site.baseurl}}/profile_aesthetihawk">Profile Settings</a></h3>
     </li>
-
-    <li id="student-toolkit-link">
-        <h3><a href="{{site.baseurl}}/student_aesthetihawk" class="active-tab">Student Toolkit</a></h3>
+    
+    <li id="student-toolkit-link" class="{% if active_tab == 'toolkit' %}active{% endif %}">
+        <h3><a href="{{site.baseurl}}/student_aesthetihawk">Student Toolkit</a></h3>
     </li>
+
 
     <li id="teacher-toolkit-link">
         <!-- this only shows if you are a teacher (your user has the teacher role) -->
@@ -141,7 +149,30 @@
 
                     // now we should change the info in the sidebar like the name and the PFP
                     name.innerHTML = "Welcome, <br/>" + data.name;
-                    headerPfp.src = javaURI + data.pfp;
+                    
+                    // check if the pfp actually exists
+                    if (data.pfp) {
+                        // Check if the profile picture is base64 or an image URL
+                        if (isBase64(data.pfp)) {
+                            // If the pfp is base64 but doesn't include the data:image prefix, add it
+                            if (!data.pfp.startsWith('data:image/')) {
+                                data.pfp = 'data:image/png;base64,' + data.pfp;  // Assume it's PNG, adjust the type as needed
+                            }
+                            
+                            headerPfp.src = data.pfp; // If it's base64, use the base64 string directly
+                            console.log("DATA BASE64 WAS USED")
+                            console.log(data.pfp)
+                        } else {
+                            headerPfp.src = javaURI + data.pfp; // If it's a URL, append the javaURI
+                            console.log("URI WAS USED")
+                        }
+                    }
+                    else {
+                        // no pfp available; use defailt
+                        headerPfp.src = javaURI + "/images/default.png";
+                    }
+
+
                     console.log(javaURI);
                 }
                 else { // user isn't authenticated
@@ -187,7 +218,8 @@
             });
     }
 
-    function getCredentialsJavaSimulation() {
-        return true;
+    // Helper function to check if a string is base64-encoded
+    function isBase64(str) {
+        return /^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$/.test(str);
     }
 </script>
