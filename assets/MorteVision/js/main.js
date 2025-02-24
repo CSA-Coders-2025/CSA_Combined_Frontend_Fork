@@ -2,7 +2,7 @@ let javaURI
 if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
     javaURI = "ws://localhost:8085/websocket";
 } else {
-    javaURI = "ws://spring2025.nighthawkcodingsociety.com/websocket";
+    javaURI = "wss://spring2025.nighthawkcodingsociety.com/websocket";
 }
 
 const servers = {
