@@ -1,20 +1,9 @@
-{%- include Aesthetihawk/header.html -%}
+---
+title: Profile
+layout: aesthetihawk
+---
 
 <style>
-    .container {
-        display: grid;
-        grid-template-columns: auto 1fr;
-        grid-template-rows: 1fr;
-        gap: 0px 50px;
-        grid-auto-flow: row;
-        grid-template-areas:
-            "sidebar main-info";
-    }
-
-    .sidebar {
-        grid-area: sidebar;
-    }
-
     .main-info {
         display: grid;
         grid-template-columns: 500px 500px;
@@ -198,24 +187,6 @@
         z-index: 999;
     }
 
-    h3 {
-        margin-top: 0px;
-        padding-top: 0px;
-    }
-
-    h1 {
-        white-space: nowrap;
-    }
-
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background-color: #111111;
-        color: white;
-
-        /* delete later */
-        margin: 50px;
-    }
-
     input {
         /* colors */
         background-image: linear-gradient(120deg, #1e1e1e 45%, #2a2a2a);
@@ -242,11 +213,6 @@
         left: 5px;
 
         cursor: pointer;
-    }
-
-    .dim {
-        box-shadow: 0 0 0 100vmax rgba(0, 0, 0, .3);
-        pointer-events: none;
     }
 
     /* CHECKBOX STUFF ================================ */
@@ -319,203 +285,186 @@
     }
 </style>
 
-<body>
-    <!-- change name box -->
-    <div id="change-name" class="change-info-card" style="visibility: hidden;">
-        <ion-icon name="person-outline" size="large"></ion-icon>
-        <h1>Name</h1>
-        <form action="#">
-            <input type="text" placeholder="Enter new first name.">
-            <input type="text" placeholder="Enter new last name.">
-            <input type="submit" value="Save changes">
-        </form>
-        <div class="close" onclick="document.getElementById('change-name').style.visibility = 'hidden'">
-            <ion-icon name="close-outline" size="large" class="close"></ion-icon>
+<!-- change name box -->
+<div id="change-name" class="change-info-card" style="visibility: hidden;">
+    <ion-icon name="person-outline" size="large"></ion-icon>
+    <h1>Name</h1>
+    <form action="#">
+        <input type="text" placeholder="Enter new first name.">
+        <input type="text" placeholder="Enter new last name.">
+        <input type="submit" value="Save changes">
+    </form>
+    <div class="close" onclick="document.getElementById('change-name').style.visibility = 'hidden'">
+        <ion-icon name="close-outline" size="large" class="close"></ion-icon>
+    </div>
+</div>
+
+<!-- change user ID box -->
+<div id="change-uid" class="change-info-card" style="visibility: hidden;">
+    <ion-icon name="id-card-outline" size="large"></ion-icon>
+    <h1>User ID</h1>
+    <form action="#">
+        <input type="text" placeholder="Enter new user ID.">
+        <input type="submit" value="Save changes">
+    </form>
+    <div class="close" onclick="document.getElementById('change-uid').style.visibility = 'hidden'">
+        <ion-icon name="close-outline" size="large" class="close"></ion-icon>
+    </div>
+</div>
+
+<!-- change email box -->
+<div id="change-email" class="change-info-card" style="visibility: hidden;">
+    <ion-icon name="mail-outline" size="large"></ion-icon>
+    <h1>Email</h1>
+    <form action="#">
+        <input type="text" placeholder="Enter new email.">
+        <input type="submit" value="Save changes">
+    </form>
+    <div class="close" onclick="document.getElementById('change-email').style.visibility = 'hidden'">
+        <ion-icon name="close-outline" size="large" class="close"></ion-icon>
+    </div>
+</div>
+
+<!-- change kasm box -->
+<div id="change-kasm" class="change-info-card" style="visibility: hidden;">
+    <ion-icon name="server-outline" size="large"></ion-icon>
+    <h1>Kasm</h1>
+    <form action="#">
+        <label class="container-checkbox" style="white-space: nowrap;">I need a Kasm server.
+            <input type="checkbox" checked="checked">
+            <span class="checkmark"></span>
+        </label>
+        <input type="submit" value="Save changes">
+    </form>
+    <div class="close" onclick="document.getElementById('change-kasm').style.visibility = 'hidden'">
+        <ion-icon name="close-outline" size="large" class="close"></ion-icon>
+    </div>
+</div>
+
+<!-- change class box -->
+<div id="change-class" class="change-info-card" style="visibility: hidden;">
+    <ion-icon name="school-outline" size="large"></ion-icon>
+    <h1>Class Info</h1>
+    <form action="#">
+        <label class="container-checkbox" style="white-space: nowrap;">My class
+            <select id="cars" name="cars">
+                <option value="volvo">Volvo</option>
+                <option value="saab">Saab</option>
+                <option value="fiat">Fiat</option>
+                <option value="audi">Audi</option>
+            </select>
+        </label>
+        <input type="submit" value="Save changes">
+    </form>
+    <div class="close" onclick="document.getElementById('change-class').style.visibility = 'hidden'">
+        <ion-icon name="close-outline" size="large" class="close"></ion-icon>
+    </div>
+</div>
+
+<!-- change profile pic box -->
+<div id="change-pfp" class="change-info-card" style="visibility: hidden;">
+    <ion-icon name="image-outline" size="large"></ion-icon>
+    <h1>Profile Picture</h1>
+    <form action="#">
+        <label class="container-checkbox" style="white-space: nowrap; padding-left: 0px;">Click to upload a profile
+            picture.
+            <input type="file" id="myFile" name="filename" style="visibility: hidden;">
+            <input type="submit" style="visibility: hidden;">
+            <ion-icon name="cloud-upload-outline"></ion-icon>
+        </label>
+        <input type="submit" value="Save changes">
+    </form>
+    <div class="close" onclick="document.getElementById('change-pfp').style.visibility = 'hidden'">
+        <ion-icon name="close-outline" size="large" class="close"></ion-icon>
+    </div>
+</div>
+
+<!-- main user info cards -->
+<!-- your personal information -->
+<div class="main-info">
+    <!-- the info header at the top of the page -->
+    <div class="header">
+        <h1>Personal Information</h1>
+        <p>Manage your personal information, including name, user ID, email, class specific information, and
+            more.</p>
+    </div>
+
+    <!-- name card -->
+    <div class="name-info card" onclick="document.getElementById('change-name').style.visibility = 'visible'"
+        data-tilt data-tilt-reverse="true" data-tilt-perspective="10000" data-tilt-glare data-tilt-max-glare="0.5">
+        <div class="name-details">
+            <h3>Name</h3>
+            <p>Aashray</p>
+        </div>
+        <div class="name-icon">
+            <ion-icon name="person-outline" size="large"></ion-icon>
         </div>
     </div>
 
-    <!-- change user ID box -->
-    <div id="change-uid" class="change-info-card" style="visibility: hidden;">
-        <ion-icon name="id-card-outline" size="large"></ion-icon>
-        <h1>User ID</h1>
-        <form action="#">
-            <input type="text" placeholder="Enter new user ID.">
-            <input type="submit" value="Save changes">
-        </form>
-        <div class="close" onclick="document.getElementById('change-uid').style.visibility = 'hidden'">
-            <ion-icon name="close-outline" size="large" class="close"></ion-icon>
+    <!-- uid card -->
+    <div class="uid-info card" onclick="document.getElementById('change-uid').style.visibility = 'visible'"
+        data-tilt data-tilt-reverse="true" data-tilt-perspective="10000" data-tilt-glare data-tilt-max-glare="0.5">
+        <div class="uid-details">
+            <h3>User ID</h3>
+            <p>KinetekEnergy</p>
+        </div>
+        <div class="uid-icon">
+            <ion-icon name="id-card-outline" size="large"></ion-icon>
         </div>
     </div>
 
-    <!-- change email box -->
-    <div id="change-email" class="change-info-card" style="visibility: hidden;">
-        <ion-icon name="mail-outline" size="large"></ion-icon>
-        <h1>Email</h1>
-        <form action="#">
-            <input type="text" placeholder="Enter new email.">
-            <input type="submit" value="Save changes">
-        </form>
-        <div class="close" onclick="document.getElementById('change-email').style.visibility = 'hidden'">
-            <ion-icon name="close-outline" size="large" class="close"></ion-icon>
+    <!-- email card -->
+    <div class="email-info card" onclick="document.getElementById('change-email').style.visibility = 'visible'"
+        data-tilt data-tilt-reverse="true" data-tilt-perspective="10000" data-tilt-glare data-tilt-max-glare="0.5">
+        <div class="email-details">
+            <h3>Email</h3>
+            <p>transyt8@gmail.com</p>
+        </div>
+        <div class="email-icon">
+            <ion-icon name="mail-outline" size="large"></ion-icon>
         </div>
     </div>
 
-    <!-- change kasm box -->
-    <div id="change-kasm" class="change-info-card" style="visibility: hidden;">
-        <ion-icon name="server-outline" size="large"></ion-icon>
-        <h1>Kasm</h1>
-        <form action="#">
-            <label class="container-checkbox" style="white-space: nowrap;">I need a Kasm server.
-                <input type="checkbox" checked="checked">
-                <span class="checkmark"></span>
-            </label>
-            <input type="submit" value="Save changes">
-        </form>
-        <div class="close" onclick="document.getElementById('change-kasm').style.visibility = 'hidden'">
-            <ion-icon name="close-outline" size="large" class="close"></ion-icon>
+    <!-- kasm card -->
+    <div class="kasm-info card" onclick="document.getElementById('change-kasm').style.visibility = 'visible'"
+        data-tilt data-tilt-reverse="true" data-tilt-perspective="10000" data-tilt-glare data-tilt-max-glare="0.5">
+        <div class="kasm-details">
+            <h3>Kasm</h3>
+            <p>Kasm Disabled</p>
+        </div>
+        <div class="kasm-icon">
+            <ion-icon name="server-outline" size="large"></ion-icon>
         </div>
     </div>
 
-    <!-- change class box -->
-    <div id="change-class" class="change-info-card" style="visibility: hidden;">
-        <ion-icon name="school-outline" size="large"></ion-icon>
-        <h1>Class Info</h1>
-        <form action="#">
-            <label class="container-checkbox" style="white-space: nowrap;">My class
-                <select id="cars" name="cars">
-                    <option value="volvo">Volvo</option>
-                    <option value="saab">Saab</option>
-                    <option value="fiat">Fiat</option>
-                    <option value="audi">Audi</option>
-                </select>
-            </label>
-            <input type="submit" value="Save changes">
-        </form>
-        <div class="close" onclick="document.getElementById('change-class').style.visibility = 'hidden'">
-            <ion-icon name="close-outline" size="large" class="close"></ion-icon>
+    <!-- class card -->
+    <div class="class-info card" onclick="document.getElementById('change-class').style.visibility = 'visible'"
+        data-tilt data-tilt-reverse="true" data-tilt-perspective="10000" data-tilt-glare data-tilt-max-glare="0.5">
+        <div class="class-details">
+            <h3>Class Info</h3>
+            <p>CSA 2025</p>
+        </div>
+        <div class="class-icon">
+            <ion-icon name="school-outline" size="large"></ion-icon>
         </div>
     </div>
 
-    <!-- change profile pic box -->
-    <div id="change-pfp" class="change-info-card" style="visibility: hidden;">
-        <ion-icon name="image-outline" size="large"></ion-icon>
-        <h1>Profile Picture</h1>
-        <form action="#">
-            <label class="container-checkbox" style="white-space: nowrap; padding-left: 0px;">Click to upload a profile
-                picture.
-                <input type="file" id="myFile" name="filename" style="visibility: hidden;">
-                <input type="submit" style="visibility: hidden;">
-                <ion-icon name="cloud-upload-outline"></ion-icon>
-            </label>
-            <input type="submit" value="Save changes">
-        </form>
-        <div class="close" onclick="document.getElementById('change-pfp').style.visibility = 'hidden'">
-            <ion-icon name="close-outline" size="large" class="close"></ion-icon>
+    <!-- pfp card -->
+    <div class="pfp-info card" onclick="document.getElementById('change-pfp').style.visibility = 'visible'"
+        data-tilt data-tilt-reverse="true" data-tilt-perspective="10000" data-tilt-glare data-tilt-max-glare="0.5">
+        <div class="pfp-details">
+            <h3>Profile Picture</h3>
+            <p>Click to change or add your profile picture.</p>
+        </div>
+        <div class="pfp-icon">
+            <ion-icon name="image-outline" size="large"></ion-icon>
         </div>
     </div>
-
-    <!-- main user info cards -->
-    <div class="container" id="main-content-container">
-        <!-- the sidebar on the left with the links -->
-        <div class="sidebar">
-            {% include Aesthetihawk/sidebar.html %}
-        </div>
-
-        <!-- your personal information -->
-        <div class="main-info">
-            <!-- the info header at the top of the page -->
-            <div class="header">
-                <h1>Personal Information</h1>
-                <p>Manage your personal information, including name, user ID, email, class specific information, and
-                    more.</p>
-            </div>
-
-            <!-- name card -->
-            <div class="name-info card" onclick="document.getElementById('change-name').style.visibility = 'visible'"
-                data-tilt data-tilt-reverse="true" data-tilt-perspective="10000" data-tilt-glare
-                data-tilt-max-glare="0.5">
-                <div class="name-details">
-                    <h3>Name</h3>
-                    <p>Aashray</p>
-                </div>
-                <div class="name-icon">
-                    <ion-icon name="person-outline" size="large"></ion-icon>
-                </div>
-            </div>
-
-            <!-- uid card -->
-            <div class="uid-info card" onclick="document.getElementById('change-uid').style.visibility = 'visible'"
-                data-tilt data-tilt-reverse="true" data-tilt-perspective="10000" data-tilt-glare
-                data-tilt-max-glare="0.5">
-                <div class="uid-details">
-                    <h3>User ID</h3>
-                    <p>KinetekEnergy</p>
-                </div>
-                <div class="uid-icon">
-                    <ion-icon name="id-card-outline" size="large"></ion-icon>
-                </div>
-            </div>
-
-            <!-- email card -->
-            <div class="email-info card" onclick="document.getElementById('change-email').style.visibility = 'visible'"
-                data-tilt data-tilt-reverse="true" data-tilt-perspective="10000" data-tilt-glare
-                data-tilt-max-glare="0.5">
-                <div class="email-details">
-                    <h3>Email</h3>
-                    <p>transyt8@gmail.com</p>
-                </div>
-                <div class="email-icon">
-                    <ion-icon name="mail-outline" size="large"></ion-icon>
-                </div>
-            </div>
-
-            <!-- kasm card -->
-            <div class="kasm-info card" onclick="document.getElementById('change-kasm').style.visibility = 'visible'"
-                data-tilt data-tilt-reverse="true" data-tilt-perspective="10000" data-tilt-glare
-                data-tilt-max-glare="0.5">
-                <div class="kasm-details">
-                    <h3>Kasm</h3>
-                    <p>Kasm Disabled</p>
-                </div>
-                <div class="kasm-icon">
-                    <ion-icon name="server-outline" size="large"></ion-icon>
-                </div>
-            </div>
-
-            <!-- class card -->
-            <div class="class-info card" onclick="document.getElementById('change-class').style.visibility = 'visible'"
-                data-tilt data-tilt-reverse="true" data-tilt-perspective="10000" data-tilt-glare
-                data-tilt-max-glare="0.5">
-                <div class="class-details">
-                    <h3>Class Info</h3>
-                    <p>CSA 2025</p>
-                </div>
-                <div class="class-icon">
-                    <ion-icon name="school-outline" size="large"></ion-icon>
-                </div>
-            </div>
-
-            <!-- pfp card -->
-            <div class="pfp-info card" onclick="document.getElementById('change-pfp').style.visibility = 'visible'"
-                data-tilt data-tilt-reverse="true" data-tilt-perspective="10000" data-tilt-glare
-                data-tilt-max-glare="0.5">
-                <div class="pfp-details">
-                    <h3>Profile Picture</h3>
-                    <p>Click to change or add your profile picture.</p>
-                </div>
-                <div class="pfp-icon">
-                    <ion-icon name="image-outline" size="large"></ion-icon>
-                </div>
-            </div>
-        </div>
-    </div>
-</body>
-
-</html>
+</div>
 
 <!-- icons -->
 <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
 <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 
 <!-- js tilt feature -->
-<script src="tilt.js"></script>
+<script src="{{ site.baseurl }}/scripts/tilt.js"></script>
