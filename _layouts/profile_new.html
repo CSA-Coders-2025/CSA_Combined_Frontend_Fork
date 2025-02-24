@@ -289,9 +289,8 @@ layout: aesthetihawk
 <div id="change-name" class="change-info-card" style="visibility: hidden;">
     <ion-icon name="person-outline" size="large"></ion-icon>
     <h1>Name</h1>
-    <form action="#">
-        <input type="text" placeholder="Enter new first name.">
-        <input type="text" placeholder="Enter new last name.">
+    <form onsubmit="return changeName(event)">
+        <input type="text" id="nameInput" placeholder="Enter new name.">
         <input type="submit" value="Save changes">
     </form>
     <div class="close" onclick="document.getElementById('change-name').style.visibility = 'hidden'">
@@ -303,8 +302,8 @@ layout: aesthetihawk
 <div id="change-uid" class="change-info-card" style="visibility: hidden;">
     <ion-icon name="id-card-outline" size="large"></ion-icon>
     <h1>User ID</h1>
-    <form action="#">
-        <input type="text" placeholder="Enter new user ID.">
+    <form onsubmit="return changeUid(event)">
+        <input type="text" id="uidInput" placeholder="Enter new user ID.">
         <input type="submit" value="Save changes">
     </form>
     <div class="close" onclick="document.getElementById('change-uid').style.visibility = 'hidden'">
@@ -316,8 +315,8 @@ layout: aesthetihawk
 <div id="change-email" class="change-info-card" style="visibility: hidden;">
     <ion-icon name="mail-outline" size="large"></ion-icon>
     <h1>Email</h1>
-    <form action="#">
-        <input type="text" placeholder="Enter new email.">
+    <form onsubmit="return changeEmail(event)">
+        <input type="text" id="emailInput" placeholder="Enter new email.">
         <input type="submit" value="Save changes">
     </form>
     <div class="close" onclick="document.getElementById('change-email').style.visibility = 'hidden'">
@@ -504,7 +503,7 @@ layout: aesthetihawk
             if (kasm == null) {
                 document.getElementById("kasm").textContent = "Failed to load. Are you logged in?";
             }
-            
+
 
             // given that the fetch worked, update the internal data
             document.getElementById("name").textContent = name;
@@ -518,17 +517,17 @@ layout: aesthetihawk
     // FETCH COMMANDS ========
     window.fetchName = async function () {
         const URL = javaURI + "/api/person/get"; // Adjusted endpoint
-        
+
         try {
             const response = await fetch(URL, fetchOptions);
-            
+
             if (!response.ok) {
                 throw new Error(`Failed to fetch Name: ${response.status}`);
             }
-            
+
             const data = await response.json();
             return data.name;
-        } 
+        }
         catch (error) {
             console.error('Error fetching Name:', error.message);
             return null;
@@ -539,14 +538,14 @@ layout: aesthetihawk
         const URL = javaURI + "/api/person/get"; // Adjusted endpoint
         try {
             const response = await fetch(URL, fetchOptions);
-            
+
             if (!response.ok) {
                 throw new Error(`Failed to fetch Name: ${response.status}`);
             }
-            
+
             const data = await response.json();
             return data.uid;
-        } 
+        }
         catch (error) {
             console.error('Error fetching Name:', error.message);
             return null;
@@ -555,36 +554,36 @@ layout: aesthetihawk
 
     window.fetchEmail = async function () {
         const URL = javaURI + "/api/person/get"; // Adjusted endpoint
-        
+
         try {
             const response = await fetch(URL, fetchOptions);
-            
+
             if (!response.ok) {
                 throw new Error(`Failed to fetch UID: ${response.status}`);
             }
-            
+
             const data = await response.json();
             return data.email;
-        } 
+        }
         catch (error) {
             console.error('Error fetching UID:', error.message);
             return null;
         }
     };
 
-    window.fetchKasmStatus = async function() {
+    window.fetchKasmStatus = async function () {
         const URL = javaURI + "/api/person/get"; // Adjusted endpoint
-        
+
         try {
             const response = await fetch(URL, fetchOptions);
-            
+
             if (!response.ok) {
                 throw new Error(`Failed to fetch kasm_server_needed: ${response.status}`);
             }
-            
+
             const userData = await response.json();
             const kasmServerNeeded = userData.kasmServerNeeded
-            
+
             // Update checkbox state based on fetched value
             if (kasmServerNeeded) {
                 document.getElementById("kasm").textContent = "Kasm Enabled";
@@ -600,5 +599,81 @@ layout: aesthetihawk
             console.error('Error fetching kasm_server_needed:', error.message);
             return null;
         }
+    }
+
+    // UPDATE COMMANDS =======
+    window.changeName = async function (event) {
+        event.preventDefault(); // Prevent the form from refreshing the page
+
+        const name = document.getElementById("nameInput").value.trim(); // Get and trim input value
+
+        // send the post request
+        if (name) {
+            const URL = javaURI + "/api/person/update";
+            const options = {
+                URL,
+                body: { name },
+                callback: () => {
+                    console.log('Name updated successfully!');
+                }
+            };
+            try {
+                await postUpdate(options);
+            } catch (error) {
+                console.error('Error updating Name:', error.message);
+            }
+        }
+
+       document.getElementById("name").textContent = name; //reload the content
+    }
+
+    window.changeUid = async function (event) {
+        event.preventDefault(); // Prevent the form from refreshing the page
+
+        const uid = document.getElementById("uidInput").value.trim(); // Get and trim input value
+
+        // send the post request
+        if (uid) {
+            const URL = javaURI + "/api/person/update";
+            const options = {
+                URL,
+                body: { uid },
+                callback: () => {
+                    console.log('Uid updated successfully!');
+                }
+            };
+            try {
+                await postUpdate(options);
+            } catch (error) {
+                console.error('Error updating uid:', error.message);
+            }
+        }
+
+        document.getElementById("uid").textContent = uid; //reload the content
+    }
+
+    window.changeEmail = async function (event) {
+        event.preventDefault(); // Prevent the form from refreshing the page
+
+        const email = document.getElementById("emailInput").value.trim(); // Get and trim input value
+
+        // send the post request
+        if (email) {
+            const URL = javaURI + "/api/person/update";
+            const options = {
+                URL,
+                body: { email },
+                callback: () => {
+                    console.log('Email updated successfully!');
+                }
+            };
+            try {
+                await postUpdate(options);
+            } catch (error) {
+                console.error('Error updating email:', error.message);
+            }
+        }
+
+        document.getElementById("email").textContent = email; //reload the content
     }
 </script>
