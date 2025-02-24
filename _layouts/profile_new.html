@@ -328,17 +328,17 @@ layout: aesthetihawk
 <div id="change-kasm" class="change-info-card" style="visibility: hidden;">
     <ion-icon name="server-outline" size="large"></ion-icon>
     <h1>Kasm</h1>
-    <form action="#">
+    <form>
         <label class="container-checkbox" style="white-space: nowrap;">I need a Kasm server.
-            <input type="checkbox" checked="checked" id="kasm-checkbox">
+            <input type="checkbox" checked="checked" id="kasm-checkbox" onchange="window.changeKasmServerStatus(event)">
             <span class="checkmark"></span>
         </label>
-        <input type="submit" value="Save changes">
     </form>
     <div class="close" onclick="document.getElementById('change-kasm').style.visibility = 'hidden'">
         <ion-icon name="close-outline" size="large" class="close"></ion-icon>
     </div>
 </div>
+
 
 <!-- change class box -->
 <div id="change-class" class="change-info-card" style="visibility: hidden;">
@@ -676,4 +676,30 @@ layout: aesthetihawk
 
         document.getElementById("email").textContent = email; //reload the content
     }
+
+    window.changeKasmServerStatus = async function (event) {
+        const checkbox = event.target;
+        const newKasmServerNeeded = checkbox.checked;
+        const URL = javaURI + "/api/person/update"; // Adjusted endpoint
+        const options = {
+            URL,
+            body: { kasmServerNeeded: newKasmServerNeeded },
+            callback: () => {
+                console.log('Kasm Server Needed updated successfully!');
+            }
+        };
+        try {
+            await postUpdate(options);
+        } catch (error) {
+            console.error('Error updating kasm_server_needed:', error.message);
+        }
+
+        // Update checkbox state text based on new value
+        if (newKasmServerNeeded) {
+            document.getElementById("kasm").textContent = "Kasm Enabled";
+        } else {
+            document.getElementById("kasm").textContent = "Kasm Disabled";
+        }
+    }
+
 </script>
