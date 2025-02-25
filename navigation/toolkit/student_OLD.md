@@ -2,7 +2,7 @@
 layout: post
 title: Student Toolkit
 description:
-permalink: /student
+permalink: /STUDENT_DEPRECATED
 menu: nav/homejava.html
 show_reading_time: false
 ---

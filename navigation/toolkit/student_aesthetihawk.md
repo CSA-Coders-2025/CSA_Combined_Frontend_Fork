@@ -1,6 +1,6 @@
 ---
 layout: student_toolkit
-permalink: /student_aesthetihawk
+permalink: /student
 ---
 
 <!-- page formatting is fetched from the layout -->

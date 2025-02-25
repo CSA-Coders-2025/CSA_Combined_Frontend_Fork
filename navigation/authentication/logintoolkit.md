@@ -316,7 +316,7 @@ search_exclude: true
                 // Redirect to the student calendar after successful data fetch
                 sessionStorage.setItem("loggedIn", "true");
                 setTimeout(() => {
-                    window.location.href = "{{ site.baseurl }}/profile_aesthetihawk";
+                    window.location.href = "{{ site.baseurl }}/profilejava";
                 }, 5000);
             })
             .catch(error => {
