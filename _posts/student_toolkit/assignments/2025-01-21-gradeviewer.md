@@ -5,7 +5,6 @@ permalink: /student/view-grades
 comments: false
 ---
 <style>
-    /* Styling the table */
     .styled-table {
         width: 100%;
         border-collapse: collapse;
@@ -36,7 +35,6 @@ comments: false
         text-align: center;
     }
 
-    /* Button styling */
     #gradegetter {
         padding: 10px 20px;
         font-size: 16px;
@@ -51,10 +49,11 @@ comments: false
         background-color: #45a049;
     }
 
+    .average-row {
+        background-color: #d3d3d3; 
+        font-weight: bold;
+    }
 </style>
-
-
-
 
 <table id="gradesTable" class="styled-table">
     <thead>
@@ -64,16 +63,13 @@ comments: false
         </tr>
     </thead>
     <tbody>
-        <!-- Dynamic content will be inserted here -->
     </tbody>
 </table>
-
 
 <script type="module">
     import { javaURI, fetchOptions } from '{{site.baseurl}}/assets/js/api/config.js';
     let userId = -1;
     let grades = [];
-    let assignment;
 
     function populateTable(grades) {
         const tableBody = document.getElementById("gradesTable").getElementsByTagName("tbody")[0];
@@ -103,15 +99,15 @@ comments: false
 
         let average = (total / count).toFixed(2); 
 
-        const averageDiv = document.getElementById("averageDiv");
-        if (averageDiv) {
-            averageDiv.innerHTML = `<strong>Average Grade: ${average}</strong>`;
-        } else {
-            const newAverageDiv = document.createElement("div");
-            newAverageDiv.id = "averageDiv";
-            newAverageDiv.innerHTML = `<strong>Average Grade: ${average}</strong>`;
-            document.body.appendChild(newAverageDiv);
-        }
+        const tableBody = document.getElementById("gradesTable").getElementsByTagName("tbody")[0];
+        let averageRow = tableBody.insertRow();
+        let cell1 = averageRow.insertCell(0);
+        cell1.textContent = "Average";
+
+        let cell2 = averageRow.insertCell(1);
+        cell2.textContent = average;
+
+        averageRow.classList.add("average-row");
     }
 
     async function getUserId() {

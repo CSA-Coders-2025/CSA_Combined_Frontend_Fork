@@ -1,17 +1,17 @@
 // To build GameLevels, each contains GameObjects from below imports
-import GameEnv from './GameEnv.js';
 import Background from './Background.js';
 import Player from './Player.js';
 import Npc from './Npc.js';
+import Quiz from './Quiz.js';
+import GameControl from './GameControl.js';
+import GameLevelStarWars from './GameLevelStarWars.js';
 
 class GameLevelDesert {
-  constructor(path) {
-    const header = document.querySelector('header');
-    const footer = document.querySelector('footer');
-    // Values dependent on GameEnv.create()
-    let width = GameEnv.innerWidth;
-    let height = GameEnv.innerHeight;
-
+  constructor(gameEnv) {
+    // Values dependent on this.gameEnv.create()
+    let width = gameEnv.innerWidth;
+    let height = gameEnv.innerHeight;
+    let path = gameEnv.path;
 
     // Background data
     const image_src_desert = path + "/images/gamify/desert.png"; // be sure to include the path
@@ -28,7 +28,7 @@ class GameLevelDesert {
     const CHILLGUY_SCALE_FACTOR = 5;
     const sprite_data_chillguy = {
         id: 'Chill Guy',
-        greeting: "Hi I am Chill Guy, the desert wanderer. I am looking for wisdome and adventure!",
+        greeting: "Hi I am Chill Guy, the desert wanderer. I am looking for wisdom and adventure!",
         src: sprite_src_chillguy,
         SCALE_FACTOR: CHILLGUY_SCALE_FACTOR,
         STEP_FACTOR: 1000,
@@ -47,9 +47,10 @@ class GameLevelDesert {
 
     // NPC data for Tux 
     const sprite_src_tux = path + "/images/gamify/tux.png"; // be sure to include the path
+    const sprite_greet_tux = "Hi I am Tux, the Linux mascot.  I am very happy to spend some linux shell time with you!";
     const sprite_data_tux = {
         id: 'Tux',
-        greeting: "Hi I am Tux, the Linux mascot.  I am very happy to spend some linux shell time with you!",
+        greeting: sprite_greet_tux,
         src: sprite_src_tux,
         SCALE_FACTOR: 8,  // Adjust this based on your scaling needs
         ANIMATION_RATE: 50,
@@ -73,16 +74,26 @@ class GameLevelDesert {
             "Which command is used to search for text in a file?\n1. grep\n2. search\n3. find\n4. locate",
             "Which command is used to view the contents of a file?\n1. less\n2. more\n3. view\n4. cat" 
           ] 
-        }
+        },
+        reaction: function() {
+          alert(sprite_greet_tux);
+        },
+        interact: function() {
+          let quiz = new Quiz(); // Create a new Quiz instance
+          quiz.initialize();
+          quiz.openPanel(sprite_data_tux.quiz);
+          }
+    
       };
 
 
 
       // NPC data for Octocat
       const sprite_src_octocat = path + "/images/gamify/octocat.png"; // be sure to include the path
+      const sprite_greet_octocat = "Hi I am Octocat! I am the GitHub code code code collaboration mascot";
       const sprite_data_octocat = {
         id: 'Octocat',
-        greeting: "Hi I am Octocat! I am the GitHub code code code collaboration mascot",
+        greeting: sprite_greet_octocat,
         src: sprite_src_octocat,
         SCALE_FACTOR: 10,  // Adjust this based on your scaling needs
         ANIMATION_RATE: 50,
@@ -106,80 +117,112 @@ class GameLevelDesert {
             "Which command is used to merge branches?\n1. git merge\n2. git combine\n3. git join\n4. git integrate",
             "Which command is used to view the commit history?\n1. git log\n2. git history\n3. git commits\n4. git show"
           ] 
+        },
+        reaction: function() {
+          alert(sprite_greet_octocat);
+        },
+        interact: function() {
+          let quiz = new Quiz(); // Create a new Quiz instance
+          quiz.initialize();
+          quiz.openPanel(sprite_data_octocat.quiz);
         }
     }
   
 
     const sprite_src_robot = path + "/images/gamify/robot.png"; // be sure to include the path
+    const sprite_greet_robot = "Hi I am Robot, the Jupyter Notebook mascot.  I am very happy to spend some linux shell time with you!";
     const sprite_data_robot = {
-        id: 'Robot',
-        greeting: "Hi I am Robot, the Jupyter Notebook mascot.  I am very happy to spend some linux shell time with you!",
-        src: sprite_src_robot,
-        SCALE_FACTOR: 10,  // Adjust this based on your scaling needs
-        ANIMATION_RATE: 100,
-        pixels: {height: 316, width: 627},
-        INIT_POSITION: { x: (width * 3 / 4), y: (height * 3 / 4)},
-        orientation: {rows: 3, columns: 6 },
-        down: {row: 1, start: 0, columns: 6 },  // This is the stationary npc, down is default 
-        hitbox: { widthPercentage: 0.1, heightPercentage: 0.2 },
-        // Linux command quiz
-        quiz: { 
-          title: "Jupyter Notebook Command Quiz",
-          questions: [
-            "Which shortcut is used to run a cell in Jupyter Notebook?\n1. Shift + Enter\n2. Ctrl + Enter\n3. Alt + Enter\n4. Tab + Enter",
-            "Which shortcut adds a new cell above the current cell?\n1. A\n2. B\n3. C\n4. D",
-            "Which shortcut adds a new cell below the current cell?\n1. B\n2. A\n3. C\n4. D",
-            "Which shortcut changes a cell to Markdown format?\n1. M\n2. Y\n3. R\n4. K",
-            "Which shortcut changes a cell to Code format?\n1. Y\n2. M\n3. C\n4. D",
-            "Which shortcut deletes the current cell?\n1. D, D\n2. X\n3. Del\n4. Ctrl + D",
-            "Which shortcut saves the current notebook?\n1. Ctrl + S\n2. Alt + S\n3. Shift + S\n4. Tab + S",
-            "Which shortcut restarts the kernel?\n1. 0, 0\n2. R, R\n3. K, K\n4. Shift + R",
-            "Which shortcut interrupts the kernel?\n1. I, I\n2. Ctrl + C\n3. Shift + I\n4. Alt + I",
-            "Which shortcut toggles line numbers in a cell?\n1. L\n2. N\n3. T\n4. G"
-          ] 
-        }
-      };
-
-  /*  // NPC data for HTML Hank
-const sprite_src_htmlhank = path + "/images/gamify/htmlhank.png"; // be sure to include the path
-const sprite_data_htmlhank = {
-    id: 'HTML Hank',
-    greeting: "Hey there! I'm HTML Hank, the web architect. Let's build some awesome webpages together!",
-    src: sprite_src_html_hank,
-    SCALE_FACTOR: 8,  // Adjust this based on your scaling needs
-    ANIMATION_RATE: 60,
-    pixels: { height: 350, width: 550 },
-    INIT_POSITION: { x: (width / 2), y: (height / 2) },
-    orientation: { rows: 2, columns: 4 },
-    down: { row: 0, start: 0, columns: 3 },  // This is the stationary NPC, down is default
-    hitbox: { widthPercentage: 0.1, heightPercentage: 0.2 },
-
-    // HTML & CSS quiz
-    quiz: { 
-        title: "HTML & CSS Mastery Quiz",
+      id: 'Robot',
+      greeting: sprite_greet_robot,
+      src: sprite_src_robot,
+      SCALE_FACTOR: 10,  // Adjust this based on your scaling needs
+      ANIMATION_RATE: 100,
+      pixels: {height: 316, width: 627},
+      INIT_POSITION: { x: (width * 3 / 4), y: (height * 1 / 4)},
+      orientation: {rows: 3, columns: 6 },
+      down: {row: 1, start: 0, columns: 6 },  // This is the stationary npc, down is default 
+      hitbox: { widthPercentage: 0.1, heightPercentage: 0.2 },
+      // Linux command quiz
+      quiz: { 
+        title: "Jupyter Notebook Command Quiz",
         questions: [
-            "What does HTML stand for?\n1. HyperText Markup Language\n2. HighText Machine Learning\n3. Hyper Transfer Markup Language\n4. Hyper Tool Markup Language",
-            "Which HTML tag is used to define the largest heading?\n1. <h1>\n2. <h6>\n3. <header>\n4. <h0>",
-            "Which tag is used to create a hyperlink in HTML?\n1. <a>\n2. <link>\n3. <href>\n4. <url>",
-            "Which CSS property is used to change text color?\n1. color\n2. text-color\n3. font-color\n4. bgcolor",
-            "Which unit is relative to the font size of the root element in CSS?\n1. rem\n2. em\n3. px\n4. vh",
-            "What is the correct way to reference an external CSS file?\n1. <link rel='stylesheet' href='styles.css'>\n2. <style src='styles.css'>\n3. <css file='styles.css'>\n4. <script href='styles.css'>",
-            "How do you center an element horizontally using CSS?\n1. margin: auto;\n2. align: center;\n3. text-align: middle;\n4. float: center;",
-            "Which HTML tag is used for creating an unordered list?\n1. <ul>\n2. <ol>\n3. <list>\n4. <li>",
-            "What is the purpose of the <meta> tag in HTML?\n1. To provide metadata about the document\n2. To create a navigation menu\n3. To define the main content area\n4. To embed images"
-        ]
+          "Which shortcut is used to run a cell in Jupyter Notebook?\n1. Shift + Enter\n2. Ctrl + Enter\n3. Alt + Enter\n4. Tab + Enter",
+          "Which shortcut adds a new cell above the current cell?\n1. A\n2. B\n3. C\n4. D",
+          "Which shortcut adds a new cell below the current cell?\n1. B\n2. A\n3. C\n4. D",
+          "Which shortcut changes a cell to Markdown format?\n1. M\n2. Y\n3. R\n4. K",
+          "Which shortcut changes a cell to Code format?\n1. Y\n2. M\n3. C\n4. D",
+          "Which shortcut deletes the current cell?\n1. D, D\n2. X\n3. Del\n4. Ctrl + D",
+          "Which shortcut saves the current notebook?\n1. Ctrl + S\n2. Alt + S\n3. Shift + S\n4. Tab + S",
+          "Which shortcut restarts the kernel?\n1. 0, 0\n2. R, R\n3. K, K\n4. Shift + R",
+          "Which shortcut interrupts the kernel?\n1. I, I\n2. Ctrl + C\n3. Shift + I\n4. Alt + I",
+          "Which shortcut toggles line numbers in a cell?\n1. L\n2. N\n3. T\n4. G"
+        ] 
+      },
+      reaction: function() {
+        alert(sprite_greet_robot);
+      },
+      interact: function() {
+        let quiz = new Quiz(); // Create a new Quiz instance
+        quiz.initialize();
+        quiz.openPanel(sprite_data_robot.quiz);
+      }
     }
-}; */
+
+    // NPC Data for R2D2
+    const sprite_src_r2d2 = path + "/images/gamify/r2_idle.png"; // be sure to include the path
+    const sprite_greet_r2d2 = "Hi I am R2D2.  Leave this planet and help defent the rebel base on Hoth!";
+    const sprite_data_r2d2 = {
+      id: 'StarWarsR2D2',
+      greeting: sprite_greet_r2d2,
+      src: sprite_src_r2d2,
+      SCALE_FACTOR: 8,  // Adjust this based on your scaling needs
+      ANIMATION_RATE: 100,
+      pixels: {width: 505, height: 223},
+      INIT_POSITION: { x: (width * 1 / 4), y: (height * 3 / 4)}, // Adjusted position
+      orientation: {rows: 1, columns: 3 },
+      down: {row: 0, start: 0, columns: 3 },  // This is the stationary npc, down is default 
+      hitbox: { widthPercentage: 0.1, heightPercentage: 0.2 },
+      /* Reaction function
+      *  This function is called when the player interacts with the NPC
+      *  It displays an alert with the greeting message
+      */
+      reaction: function() {
+        alert(sprite_greet_r2d2);
+      },
+      /* Interact function
+      *  This function is called when the player interacts with the NPC
+      *  It pauses the main game, creates a new GameControl instance with the StarWars level,
+      */
+      interact: function() {
+        // Set a primary game reference from the game environment
+        let primaryGame = gameEnv.gameControl;
+        // Define the game in game level
+        let levelArray = [GameLevelStarWars];
+        // Define a new GameControl instance with the StarWars level
+        let gameInGame = new GameControl(path,levelArray);
+        // Pause the primary game 
+        primaryGame.pause();
+        // Start the game in game
+        gameInGame.start();
+        // Setup "callback" function to allow transition from game in gaame to the underlying game
+        gameInGame.gameOver = function() {
+          // Call .resume on primary game
+          primaryGame.resume();
+        }
+      }
+
+    };
 
     // List of objects defnitions for this level
-    this.objects = [
+    this.classes = [
       { class: Background, data: image_data_desert },
       { class: Player, data: sprite_data_chillguy },
       { class: Npc, data: sprite_data_tux },
       { class: Npc, data: sprite_data_octocat },
       { class: Npc, data: sprite_data_robot },
-     // { class: Npc, data: sprite_data_htmlhank }, 
+      { class: Npc, data: sprite_data_r2d2 },
     ];
+    
   }
 
 }

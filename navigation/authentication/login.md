@@ -231,7 +231,8 @@ show_reading_time: false
     // Function to handle both Python and Java login simultaneously
     window.loginBoth = function () {
         pythonLogin(); // Call Python login
-        javaLogin();   // Call Java login
+        javaLogin();
+  // Call Java login
     }
     // Function to handle Python login
     window.pythonLogin = function () {
@@ -300,7 +301,7 @@ show_reading_time: false
                             if (signupResponse.ok) {
                                 return signupResponse.json();
                             } else {
-                                throw new Error("Account creation failed");
+                                throw new Error("Account creation successful!");
                             }
                         })
                         .then(signupResult => {
@@ -334,7 +335,7 @@ show_reading_time: false
                         })
                         .catch(signupError => {
                             console.error("Account creation failed:", signupError.message);
-                            alert("Account creation failed. Please try again.");
+                            alert("Account creation S.");
                         });
                 } else {
                     alert("An unexpected error occurred. Please try again later.");

@@ -204,12 +204,59 @@ permalink: /student/sagai/QNA
         <div id="ask-question">
             <h2>Ask a Question:</h2>
             <textarea id="question-input" placeholder="Insert question here..."></textarea><br>
+            <!--Drop down menu-->
+              <select id="subject">
+              <option value="other" selected="selected">Other</option>
+              <option value="primitiveType">Primitive Type</option>
+              <option value="objects">Objects</option>
+              <option value="booleanAndIf">Boolean Expressions and if Statements</option>
+              <option value="iteration">Iteration</option>
+              <option value="classes">Classes</option>
+              <option value="array">Array</option>
+              <option value="arrayList">ArrayList</option>
+              <option value="2DArray">2D Array</option>
+              <option value="inheritance">Inheritance</option>
+              <option value="recursion">Recursion</option>
+            </select> <br>
             <button id="submit-button">Submit Question</button>
         </div>
         <!-- Questions container -->
         <div id="questions-container">
             <h2>Questions</h2>
             <!-- Questions will be dynamically inserted here -->
+        </div>
+        <div id="questions-container-other">
+            <h4>other</h4>
+        </div>
+         <div id="questions-container-primitiveType">
+            <h4>primitiveType</h4>
+        </div>
+        <div id="questions-container-objects">
+            <h4>objects</h4>
+        </div>
+          <div id="questions-container-booleanAndIf">
+            <h4>booleanAndIf</h4>
+        </div>
+          <div id="questions-container-iteration">
+            <h4>iteration</h4>
+        </div>
+          <div id="questions-container-classes">
+            <h4>classes</h4>
+        </div>
+          <div id="questions-container-array">
+            <h4>array</h4>
+        </div>
+          <div id="questions-container-arrayList">
+            <h4>arrayList</h4>
+        </div>
+          <div id="questions-container-2DArray">
+            <h4>2DArray</h4>
+        </div>
+         <div id="questions-container-inheritance">
+            <h4>inheritance</h4>
+        </div>
+         <div id="questions-container-recursion">
+            <h4>recursion</h4>
         </div>
         <table>
   <thead>
@@ -237,7 +284,7 @@ permalink: /student/sagai/QNA
 
   // prepare fetch urls
   // const url = `${pythonURI}/api/jokes`;
-  const url = `${javaURI}/api/saigai/messages`;
+  const url = `${javaURI}/api/sagai/messages`;
   const getURL = url +"/";
   const likeURL = url + "/message";  // haha reaction
   const jeerURL = url + "/jeer/";  // boohoo reaction
@@ -270,20 +317,27 @@ permalink: /student/sagai/QNA
   });
 
   function populateQuestion(row){
-        const questionContainer = document.getElementById('questions-container');
+        let questionContainer;
+        let container = "questions-container"
+        if(row.subject){
+            container = container+ "-"+row.subject;
+            questionContainer = document.getElementById(container);
+        }else{
+            questionContainer = document.getElementById('questions-container-other');
+        }
+        if(!questionContainer){
+           questionContainer = document.getElementById('questions-container-other');
+        }
+       
         // Create the reply box (hidden by default)
         const replyDiv = returnReplyDiv(row);
        // Create the new question element
         const questionDiv = returnQuestionDiv(row,replyDiv);
        
         // Add everything to the DOM
-        const questionsHeader = questionContainer.querySelector("h2");
+        const questionsHeader = questionContainer.querySelector("h4");
         questionsHeader.insertAdjacentElement("afterend", questionDiv);
         questionDiv.insertAdjacentElement("afterend", replyDiv);           
-        //questionContainer.appendChild(questionDiv);
-        //questionContainer.appendChild(replyDiv);
-        // Clear input field after submission
-        //document.getElementById('question-input').value = "";
   }
 
   function returnQuestionDiv(row,replyDiv){
@@ -346,9 +400,12 @@ permalink: /student/sagai/QNA
   // Reaction function to likes or jeers user actions
   function submitMessage() {
     const questionText = document.getElementById('question-input').value;
-    const postURL = `${javaURI}/api/saigai/messages/saigai/message`;
+    // Read value from list selected from user
+    const subjectText = document.querySelector('#subject').value;
+    const postURL = `${javaURI}/api/sagai/messages/sagai/message`;
     const data = {
-                content: questionText
+                content: questionText,
+                subject: subjectText
             };
      const jsonData = JSON.stringify(data);
   // prepare fetch PUT options, clones with JS Spread Operator (...)
@@ -389,7 +446,8 @@ permalink: /student/sagai/QNA
         return;
     }
     const questionText = document.getElementById('question-input').value;
-    const postURL = `${javaURI}/api/saigai/comments/${questionId}`;
+   
+    const postURL = `${javaURI}/api/sagai/comments/${questionId}`;
     const data = {
                 content: replyText
             };
@@ -412,11 +470,6 @@ permalink: /student/sagai/QNA
       response.json().then(data => {
           console.log(data);
                 addCommenttoReplyDiv(replyDiv, data);
-            // const replyDivText = document.createElement('div');
-            // replyDivText.classList.add('reply-text');
-            // replyDivText.innerHTML = `<p>${data.content}</p>`;
-            // replyDiv.appendChild(replyDivText);
-         
       })
     })
     // catch fetch errors (ie Nginx ACCESS to server blocked)
@@ -428,7 +481,7 @@ permalink: /student/sagai/QNA
 
   // Reaction function to likes or jeers user actions
   function deleteMessageReply(commentId, replyTextArea, replyDiv) {
-    const postURL = `${javaURI}/api/saigai/comments/${commentId}`;
+    const postURL = `${javaURI}/api/sagai/comments/${commentId}`;
   // prepare fetch PUT options, clones with JS Spread Operator (...)
   const postOptions = {...fetchOptions,
     method: 'DELETE',
@@ -455,7 +508,7 @@ permalink: /student/sagai/QNA
 
     // Delete Message
   function deleteMessage(commentId, replyDiv, questionDiv) {
-    const postURL = `${javaURI}/api/saigai/messages/${commentId}`;
+    const postURL = `${javaURI}/api/sagai/messages/${commentId}`;
   // prepare fetch PUT options, clones with JS Spread Operator (...)
   const postOptions = {...fetchOptions,
     method: 'DELETE',

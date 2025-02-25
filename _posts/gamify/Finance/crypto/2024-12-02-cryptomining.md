@@ -13,6 +13,63 @@ permalink: /crypto/mining
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <style>
+       .notification { /* This entire style, ".notification", is what makes the notification pops out from the top right! */
+       position: fixed;
+       top: 20px;
+       right: 20px;
+       background-color: #333;
+       color: white;
+       padding: 10px;
+       border-radius: 5px;
+       z-index: 1000; // Ensure it appears above other elements
+   }
+   /* GPU Inventory Styles */
+   .dashboard-card {
+       @apply bg-gray-800 rounded-lg p-4 shadow-lg;
+   }
+   #gpu-inventory {
+       @apply mt-4;
+       min-height: 200px; /* Ensure minimum height even when empty */
+   }
+   .gpu-card {
+       @apply bg-gray-800 rounded-lg p-4 shadow-lg mb-4;
+       border: 1px solid rgba(255, 255, 255, 0.1);
+   }
+    /* Updated Navigation Bar Styles */
+    .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 15px; /* Reduced horizontal padding */
+        background-color: #001f3f;
+        color: #fff;
+        width: 100%;
+    }
+    .navbar .logo {
+        font-size: 24px;
+        font-weight: bold;
+        letter-spacing: 2px;
+        margin-right: 20px; /* Add margin to separate logo from nav buttons */
+    }
+    .navbar .nav-buttons {
+        display: flex;
+        gap: 15px; /* Reduced gap between buttons */
+        flex-wrap: nowrap; /* Prevent wrapping */
+        align-items: center;
+    }
+    .navbar .nav-buttons a {
+        color: #fff;
+        text-decoration: none;
+        font-size: 15px; /* Slightly smaller font size */
+        padding: 6px 12px; /* Reduced padding */
+        border-radius: 4px;
+        transition: background-color 0.3s;
+        white-space: nowrap; /* Prevent text wrapping */
+    }
+    .navbar .nav-buttons a:hover {
+        background-color: #ff8c00;
+    }
+    
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f9;
@@ -167,18 +224,236 @@ body {
 .search-button:hover {
     background-color: #e07b00;
 }
+/* ===== Mining Button Effects ===== */
+#start-mining {
+    background: linear-gradient(135deg, 
+        rgba(147, 51, 234, 0.1) 0%,    /* Purple */
+        rgba(59, 130, 246, 0.1) 50%,  /* Blue */
+        rgba(239, 68, 68, 0.1) 100%   /* Red */
+    );
+    border: 2px solid;
+    border-image-slice: 1;
+    border-image-source: linear-gradient(
+        45deg,
+        #9333ea,  /* Purple */
+        #3b82f6,  /* Blue */
+        #ef4444   /* Red */
+    );
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(8px);
+}
+/* Hover effect with chromatic aberration */
+#start-mining:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 0 25px rgba(147, 51, 234, 0.4),
+                0 0 15px rgba(59, 130, 246, 0.4),
+                0 0 5px rgba(239, 68, 68, 0.4);
+}
+/* Active state with particle effect */
+#start-mining.active {
+    background: linear-gradient(135deg,
+        rgba(147, 51, 234, 0.2) 0%,
+        rgba(59, 130, 246, 0.2) 50%,
+        rgba(239, 68, 68, 0.2) 100%
+    );
+    box-shadow: 0 0 40px rgba(147, 51, 234, 0.6),
+                inset 0 0 20px rgba(59, 130, 246, 0.4);
+}
+/* RGB Cyclic Animation */
+@keyframes chromatic-pulse {
+    0% {
+        border-color: #9333ea;  /* Purple */
+        box-shadow: 0 0 15px rgba(147, 51, 234, 0.4);
+    }
+    33% {
+        border-color: #3b82f6;   /* Blue */
+        box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+    }
+    66% {
+        border-color: #ef4444;  /* Red */
+        box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+    }
+    100% {
+        border-color: #9333ea;  /* Purple */
+        box-shadow: 0 0 15px rgba(147, 51, 234, 0.4);
+    }
+}
+#start-mining:not(.active) {
+    animation: chromatic-pulse 3s ease-in-out infinite;
+}
+/* Holographic overlay effect */
+#start-mining::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        transparent 25%,
+        rgba(147, 51, 234, 0.1) 33%,
+        rgba(59, 130, 246, 0.1) 66%,
+        transparent 75%
+    );
+    transform: rotate(45deg);
+    animation: prismatic-flow 4s infinite linear;
+    mix-blend-mode: screen;
+}
+@keyframes prismatic-flow {
+    0% { transform: translateX(-150%) rotate(45deg); }
+    100% { transform: translateX(150%) rotate(45deg); }
+}
+/* Text glow with color transition */
+#start-mining span {
+    position: relative;
+    z-index: 2;
+    animation: text-glow 2s ease-in-out infinite alternate;
+}
+@keyframes text-glow {
+    from {
+        text-shadow: 0 0 5px rgba(147, 51, 234, 0.5),
+                     0 0 10px rgba(59, 130, 246, 0.5),
+                     0 0 15px rgba(239, 68, 68, 0.5);
+    }
+    to {
+        text-shadow: 0 0 10px rgba(147, 51, 234, 0.8),
+                     0 0 20px rgba(59, 130, 246, 0.8),
+                     0 0 30px rgba(239, 68, 68, 0.8);
+    }
+}
+/* GPU Shop Modal */
+.gpu-shop-modal {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+}
+/* GPU Shop Content */
+.gpu-shop-content {
+    background-color: #1F2937;
+    width: 90%;
+    max-width: 900px;
+    max-height: 80vh;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    position: relative;
+}
+/* GPU List Container (with scrollbar) */
+.gpu-list-container {
+    overflow-y: auto;
+    max-height: calc(80vh - 4rem);
+    padding-right: 1rem;
+    scrollbar-width: thin;
+    scrollbar-color: #4B5563 #1F2937;
+}
+/* Scrollbar Style */
+.gpu-list-container::-webkit-scrollbar {
+    width: 8px;
+}
+.gpu-list-container::-webkit-scrollbar-track {
+    background: #1F2937;
+}
+.gpu-list-container::-webkit-scrollbar-thumb {
+    background-color: #4B5563;
+    border-radius: 4px;
+}
+/* GPU Card Base Style */
+.gpu-card {
+    background: rgba(26, 31, 46, 0.95);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid transparent;
+    backdrop-filter: blur(5px);
+}
+/* Different price GPU Hover Effect */
+.gpu-card.starter:hover { /* Free GPU */
+    transform: translateY(-5px);
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+    border-color: rgba(34, 197, 94, 0.5);
+}
+.gpu-card.budget:hover { /* Entry-level */
+    transform: translateY(-5px);
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+    border-color: rgba(59, 130, 246, 0.5);
+}
+.gpu-card.mid-range:hover { /* Mid-range */
+    transform: translateY(-5px);
+    box-shadow: 0 0 20px rgba(147, 51, 234, 0.3);
+    border-color: rgba(147, 51, 234, 0.5);
+}
+.gpu-card.high-end:hover { /* High-end */
+    transform: translateY(-5px);
+    box-shadow: 0 0 20px rgba(251, 146, 60, 0.3);
+    border-color: rgba(251, 146, 60, 0.5);
+}
+.gpu-card.premium:hover { /* Premium */
+    transform: translateY(-5px);
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+    border-color: rgba(239, 68, 68, 0.5);
+}
+/* difference color = different category */
+.gpu-card.starter h3 { color: #22C55E; }  /* Green */
+.gpu-card.budget h3 { color: #3B82F6; }   /* Blue */
+.gpu-card.mid-range h3 { color: #9333EA; } /* Purple */
+.gpu-card.high-end h3 { color: #FB923C; } /* Orange */
+.gpu-card.premium h3 { color: #EF4444; }  /* Red */
+/* Buy Button Style */
+.gpu-card button {
+    background: rgba(39, 39, 42, 0.9);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    transition: all 0.2s ease;
+}
+.gpu-card button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px currentColor;
+}
+/* Performance Metrics Style */
+.gpu-card .performance-metrics {
+    color: #A1A1AA;
+    font-size: 0.875rem;
+}
+.gpu-card .performance-metrics span {
+    color: white;
+    font-weight: 500;
+}
+/* ROI Display Style */
+.gpu-card .roi-indicator {
+    color: #FACC15;
+    font-weight: bold;
+    text-shadow: 0 0 8px rgba(250, 204, 21, 0.3);
+}
 </style>
 <body class="bg-gray-900 text-white min-h-screen p-6">
-    *** note: If the stats number are not showing, try to stop the mining and start again... <br>
-    *** note: If it says "Error loading mining state. Please try again.", please check if you are logged in or no...
     <!-- Navigation Bar -->
-    <div class="navbar">
-        <div class="navbar-logo">Crypto Mining</div>
-        <div class="navbar-links">
-            <a href="/portfolio_2025/crypto/portfolio">Portfolio</a>
-            <a href="/portfolio_2025/crypto/mining">Mining</a>
-            <a href="/portfolio_2025/stocks/home">Stocks</a>
+    <nav class="navbar">
+        <div class="nav-buttons">
+            <a href="{{site.baseurl}}/stocks/home">Home</a>
+            <a href="{{site.baseurl}}/crypto/portfolio">Crypto</a>
+            <a href="{{site.baseurl}}/stocks/viewer">Stocks</a>
+            <a href="{{site.baseurl}}/crypto/mining">Mining</a>
+            <a href="{{site.baseurl}}/stocks/buysell">Buy/Sell</a>
+            <a href="{{site.baseurl}}/stocks/leaderboard">Leaderboard</a>
+            <a href="{{site.baseurl}}/stocks/game">Game</a>
+            <a href="{{site.baseurl}}/stocks/portfolio">Portfolio</a>
         </div>
+    </nav>
+    <div class="text-center mb-4 text-yellow-400">
+        *** note: If the stats number are not showing, try to stop the mining and start again... <br>
+        *** note: If it says "Error loading mining state. Please try again.", please check if you are logged in or no...
     </div>
     <div class="container mx-auto">
         <!-- Main Dashboard -->
@@ -296,8 +571,8 @@ body {
         <!-- Mining Controls -->
         <div class="dashboard-card mt-4">
             <div class="flex justify-between items-center">
-                <button id="start-mining" class="bg-green-500 hover:bg-green-600 px-4 py-2 rounded">
-                    Start Mining
+                <button id="start-mining" onclick="toggleMining()">
+                    <span>Start Mining</span>
                 </button>
                 <select id="pool-selection" class="bg-gray-700 rounded px-4 py-2">
                     <option value="nicehash">NiceHash (2% fee, 4hr payout)</option>
@@ -344,6 +619,32 @@ body {
     </div>
     <script type="module">
         import { login, pythonURI, javaURI, fetchOptions } from '{{site.baseurl}}/assets/js/api/config.js'; //imports config.js
+        // Make toggleMining globally available
+        window.toggleMining = async function() {
+            try {
+                const options = {
+                    ...fetchOptions,
+                    method: 'POST',
+                    cache: 'no-cache'
+                };
+                const response = await fetch(`${javaURI}/api/mining/toggle`, options);
+                const result = await response.json();
+                console.log('Mining toggle result:', result);
+                // Update UI
+                updateMiningButton(result.isMining);
+                if (result.isMining) {
+                    startPeriodicUpdates();
+                    showNotification('Mining started successfully');
+                } else {
+                    stopPeriodicUpdates();
+                    showNotification('Mining stopped');
+                }
+                await updateMiningStats();
+            } catch (error) {
+                console.error('Error toggling mining:', error);
+                showNotification('Error toggling mining state');
+            }
+        };
         let hashrateChart, profitChart;
         let updateInterval;
         // Initialize charts and setup
@@ -359,6 +660,11 @@ body {
                 console.error('Error during initialization:', error);
             }
         });
+        function setupEventListeners() {
+            // Remove this line since we're using onclick in HTML
+            // document.getElementById('start-mining').addEventListener('click', toggleMining);
+            document.getElementById('gpu-shop').addEventListener('click', openGpuShop);
+        }
         function initializeCharts() {
             const chartConfig = {
                 type: 'line',
@@ -415,11 +721,6 @@ body {
                 }
             );
         }
-        function setupEventListeners() {
-            document.getElementById('start-mining').addEventListener('click', toggleMining);
-            document.getElementById('gpu-shop').addEventListener('click', openGpuShop);
-            document.getElementById('pool-selection').addEventListener('change', switchPool);
-        }
         async function initializeMiningState() {
             try {
                 const options = {
@@ -447,18 +748,31 @@ body {
             }
         }
         async function startPeriodicUpdates() {
-            if (updateInterval) {
-                clearInterval(updateInterval);
-            }
-            // Update mining stats every min
+            if (updateInterval) clearInterval(updateInterval);
             updateInterval = setInterval(async () => {
                 await updateMiningStats();
-            }, 60000);
-            // Update market prices every hour
+            }, 5000);
+            // 添加options定义
+            const options = {
+                ...fetchOptions,
+                method: 'GET',
+                cache: 'no-cache'
+            };
+            // 实时监控
             setInterval(async () => {
-                await updateAllMarketPrices();
-                await updateNiceHashPrice();
-            }, 3600000);
+                try {
+                    const response = await fetch(`${javaURI}/api/mining/stats`, options);
+                    const stats = await response.json();
+                    console.log('实时监控:', {
+                        time: new Date().toLocaleTimeString(),
+                        pending: stats.pendingBalance,
+                        hashrate: stats.hashrate,
+                        activeGPUs: stats.activeGPUs?.length || 0
+                    });
+                } catch (error) {
+                    console.error('监控请求失败:', error);
+                }
+            }, 5000);
         }
         // API Calls
         async function loadGPUs() {
@@ -476,27 +790,7 @@ body {
                 console.error('Error loading GPUs:', error);
             }
         }
-        async function toggleMining() {
-            try {
-                const options = {
-                    ...fetchOptions,
-                    method: 'POST',
-                    cache: 'no-cache'
-                };
-                const response = await fetch(`${javaURI}/api/mining/toggle`, options);
-                const result = await response.json();
-                updateMiningButton(result.isMining);
-                if (result.isMining) {
-                    startPeriodicUpdates();
-                } else {
-                    stopPeriodicUpdates();
-                }
-                await updateMiningStats();
-            } catch (error) {
-                console.error('Error toggling mining:', error);
-            }
-        }
-        async function toggleGPU(gpuId) {
+        window.toggleGPU = async function(gpuId) {
             try {
                 const options = {
                     ...fetchOptions,
@@ -540,23 +834,6 @@ body {
                 showNotification('Error buying GPU: ' + error.message);
             }
         }
-        async function switchPool(event) {
-            try {
-                const options = {
-                    ...fetchOptions,
-                    method: 'POST',
-                    cache: 'no-cache',
-                    body: JSON.stringify({ pool: event.target.value })
-                };
-                const response = await fetch(`${javaURI}/api/mining/pool`, options);
-                const result = await response.json();
-                if (result.success) {
-                    showNotification(`Switched to ${event.target.value}`);
-                }
-            } catch (error) {
-                console.error('Error switching pool:', error);
-            }
-        }
         async function updateMiningStats() {
             try {
                 const options = {
@@ -576,13 +853,42 @@ body {
         }
         // UI Updates
         function updateDisplay(stats) {
-            console.log('Updating display with stats:', stats); // Debug log
-            if (!stats) return; // Guard clause for undefined stats
-            // Update BTC Balance
-            document.getElementById('btc-balance').textContent = (parseFloat(stats.btcBalance) || 0).toFixed(8);
-            // Update Pending BTC
-            document.getElementById('pending-balance').textContent = (parseFloat(stats.pendingBalance) || 0).toFixed(8);
-            // Update Hashrate
+            // Log incoming data
+            console.log('Updating display with stats:', stats);
+            // Parse BTC values
+            const btcBalance = parseFloat(stats.btcBalance) || 0;
+            const pendingBalance = parseFloat(stats.pendingBalance) || 0;
+            const totalBTC = btcBalance + pendingBalance;
+            // Update BTC displays
+            document.getElementById('btc-balance').textContent = btcBalance.toFixed(8);
+            document.getElementById('pending-balance').textContent = pendingBalance.toFixed(8);
+            // Calculate and update USD value
+            let usdValue;
+            if (stats.totalBalanceUSD) {
+                // Use API-provided USD value if available
+                usdValue = stats.totalBalanceUSD;
+            } else {
+                // Calculate USD value using BTC_PRICE constant
+                usdValue = (totalBTC * 45000).toFixed(2);
+            }
+            document.getElementById('usd-value').textContent = `$${usdValue}`;
+            // Log the values being displayed
+            console.log('Display values:', {
+                btcBalance: btcBalance.toFixed(8),
+                pendingBalance: pendingBalance.toFixed(8),
+                totalBTC: totalBTC.toFixed(8),
+                usdValue: usdValue
+            });
+            // Add small random fluctuations to temperature and power
+            const tempVariation = Math.random() * 2 - 1; // Random variation ±1°C
+            const powerVariation = Math.random() * 10 - 5; // Random variation ±5W
+            // Get base values
+            const baseTemp = parseFloat(stats.averageTemperature) || 0;
+            const basePower = parseFloat(stats.powerConsumption) || 0;
+            // Calculate new values with fluctuations
+            const newTemp = Math.max(30, Math.min(90, baseTemp + tempVariation)); // Keep between 30-90°C
+            const newPower = Math.max(0, basePower + powerVariation); // Keep above 0W
+            // Update display elements
             document.getElementById('hashrate').textContent = `${(parseFloat(stats.hashrate) || 0).toFixed(2)} MH/s`;
             // Update Shares
             document.getElementById('shares').textContent = stats.shares || 0;
@@ -628,10 +934,16 @@ body {
             stats.activeGPUs.forEach(gpu => {
                 console.log('Rendering GPU:', gpu);
                 const gpuCard = document.createElement('div');
-                gpuCard.className = 'gpu-card transform transition-all duration-200 hover:scale-105';
-                const efficiency = (gpu.hashrate / gpu.power).toFixed(3);
-                const dailyRevenue = gpu.hashrate * 86400 / (1e12);
-                const dailyPowerCost = (gpu.power * 24) / 1000 * 0.12;
+                gpuCard.className = 'bg-gray-800 rounded-xl p-6 shadow-2xl transform transition-all duration-300 hover:scale-[1.02] border border-gray-700';
+                gpuCard.dataset.gpuId = gpu.id;
+                // Safely access properties
+                const hashrate = gpu.hashrate || 0;
+                const power = gpu.power || 0;
+                const temp = gpu.temp || 0;
+                const isActive = !!gpu.isActive;
+                const efficiency = (hashrate / (power || 1)).toFixed(3);
+                const dailyRevenue = hashrate * 86400 * 0.00000001;
+                const dailyPowerCost = (power * 24 / 1000 * 0.12);
                 const dailyProfit = dailyRevenue - dailyPowerCost;
                 gpuCard.innerHTML = `
                     <div class="flex justify-between items-start">
@@ -713,8 +1025,8 @@ body {
             const card = document.createElement('div');
             card.className = `gpu-card mb-4 ${getCategoryClass(category)}`;
             // Calculate daily estimates
-            const dailyRevenue = (gpu.hashRate || 0) * 86400 / (1e12); // Ensure hashRate is defined
-            const dailyPowerCost = (gpu.powerConsumption || 0) * 24 / 1000 * 0.12; // Ensure powerConsumption is defined
+            const dailyRevenue = (gpu.hashRate || 0) * 86400 * 0.00000001;
+            const dailyPowerCost = (gpu.powerConsumption || 0) * 24 / 1000 * 0.12;
             const dailyProfit = dailyRevenue - dailyPowerCost;
             const roi = dailyProfit > 0 ? (gpu.price / dailyProfit) : Infinity; // Avoid division by zero
             card.innerHTML = `

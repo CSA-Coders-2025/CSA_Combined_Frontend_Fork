@@ -159,19 +159,34 @@ layout: post
             alert("Please login first");
             return;
         }
-        const student_id=userId;
+        const studentId=userId;
         const assigmentId=assignments[assignIndex-1].id;
         urllink_submit+=assigmentId.toString();
-        const data = new FormData();
-        data.append("studentId", student_id);
-        data.append("content", submissionContent);
-        data.append("comment", comment);
+        let isLate=false;
+        const now = new Date();
+        const deadlineDate = new Date(assignments[assignIndex-1].dueDate);
+        console.log(now);
+        console.log(deadlineDate);
+        console.log(deadlineDate-now);
+        // const dataRequest = {
+        //     "studentId":studentId,
+        //     "content": submissionContent,
+        //     "comment": comment,
+        //     "isLate": deadlineDate - now < 0
+        // };
+        const formData =  new FormData();
+        formData.append('studentId', studentId);
+        formData.append('content', submissionContent);
+        formData.append('comment', comment);
+        formData.append('isLate', isLate);
+
+        // console.log(dataRequest);
 
         fetch(urllink_submit, {
-            method: 'POST',
-            credentials: 'include',
-            body: data,
-        })
+                fetchOptions,
+                method: "POST",
+                body: formData
+            })
         .then(response => {
             const outputBox = document.getElementById('outputBox');
             if (response.ok) {
@@ -197,12 +212,7 @@ layout: post
 
     async function fetchAssignments() {
         try {
-            const response = await fetch(javaURI+"/api/assignments/debug", {
-                method: 'GET',
-                headers: {
-                  'Content-Type': 'application/json',
-                }
-            });
+            const response = await fetch(javaURI+"/api/assignments/debug", fetchOptions);
             assignments=await response.json();
             populateAssignmentDropdown(assignments);
         } catch (error) {
@@ -306,20 +316,14 @@ layout: post
     }
 
 
-    
-
     async function fetchSubmissions(){
         const urllink=javaURI+"/api/submissions/getSubmissions";
         const urllink2=javaURI+"/assignment/"+assignIndex.toString();
         const theUserId=await getUserId();
         try {
-            const response = await fetch(`${urllink}/${userId}`, {
-                method: 'GET',
-                headers: {
-                  'Content-Type': 'application/json',
-                }
-            });
+            const response = await fetch(`${urllink}/${userId}`, fetchOptions);
             const Submissions=await response.json();
+            console.log(Submissions);
             populateSubmissionsTable(Submissions);
         } catch (error) {
             console.error('Error fetching submissions:', error);
@@ -332,7 +336,7 @@ layout: post
     
         submissions.forEach(submission => {
             const row = document.createElement('tr');
-            //console.log(submission.assignmentid+" "+assignIndex);
+            console.log(submission.assignmentid+" "+assignIndex);
             if(submission.assignmentid==assignIndex){
                 const contentCell = document.createElement('td');
                 contentCell.textContent = submission.content || 'N/A'; 
@@ -341,6 +345,7 @@ layout: post
                 const gradeCell = document.createElement('td');
                 gradeCell.textContent = submission.grade || 'Ungraded'; 
                 row.appendChild(gradeCell);
+                console.log(submission.grade);
     
                 const feedbackCell = document.createElement('td');
                 feedbackCell.textContent = submission.feedback || 'No feedback yet'; 
@@ -355,7 +360,10 @@ layout: post
         });
     }
 
-    getUserId();
-    fetchSubmissions();
-    fetchAssignments();
+   document.addEventListener("DOMContentLoaded", async () => {
+    await getUserId();
+    await fetchSubmissions();
+    await fetchAssignments();
+});
+
 </script>

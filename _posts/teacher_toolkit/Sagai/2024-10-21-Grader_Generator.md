@@ -191,7 +191,10 @@ permalink: /student/sagai/generator
       }
       /* Saved Questions Styling */
       #saved-questions li {
-      margin-bottom: 20px;
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+      margin-bottom: 10px;
+      list-style: none;
       }
       #saved-questions li strong {
       font-size: 18px;
@@ -199,6 +202,31 @@ permalink: /student/sagai/generator
       margin-bottom: 10px;
       display: block;
       }
+    .tag-container {
+        margin-bottom: 5px;
+    }
+    .tag {
+        display: inline-block;
+        background: #007bff;
+        color: white;
+        padding: 3px 8px;
+        margin-right: 5px;
+        border-radius: 3px;
+        font-size: 12px;
+    }
+    .question-text {
+        font-size: 16px;
+        color: #333;
+    }
+    .tag-input {
+    width: 20%;
+    padding: 10px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    margin-top: 20px;
+    font-size: 16px;
+    }
+
    </style>
 </head>
 
@@ -207,7 +235,7 @@ permalink: /student/sagai/generator
    <div class="nav-buttons">
       <a href="{{site.baseurl}}/student/sagai"><button>Home</button></a>
       <a href="{{site.baseurl}}/student/sagai/grader"><button>Grader</button></a>
-        <a href="{{site.baseurl}}/student/sagai/QNA"><button>QNA</button></a>
+      <a href="{{site.baseurl}}/student/sagai/QNA"><button>QNA</button></a>
    </div>
    <!-- Main Generator Section -->
    <div class="container">
@@ -222,6 +250,12 @@ permalink: /student/sagai/generator
       <!-- Output Section -->
       <h2>Output question:</h2>
       <div class="output" id="output">Hack will display here</div>
+      <!-- Tags Input -->
+      <div>
+         <label for="tagInput">Enter tags (comma-separated):</label>
+         <input type="text" id="tagInput" placeholder="Enter tags" class="tag-input">
+      </div>
+      <!-- Bottom Buttons -->
       <div class="bottom-buttons">
          <button class="save-btn" onclick="saveQuestion()">Save Hack</button>
          <button class="view-saved-btn" onclick="toggleModal()">See Saved Hacks</button>
@@ -231,125 +265,158 @@ permalink: /student/sagai/generator
          <div class="modal-content">
             <span class="close-btn" onclick="closeModal()">&times;</span>
             <h2>Saved Questions</h2>
+            <select id="tagFilter" onchange="loadSavedQuestions()">
+               <option value="">All Tags</option>
+            </select>
             <ul id="saved-questions" style="list-style: none; padding: 0;"></ul>
          </div>
       </div>
    </div>
-   
-   <script type="module">
-      import {javaURI} from '{{site.baseurl}}/assets/js/api/config.js';
 
-      const savedQuestions = [];
-      
+   <script type="module">
+      import { javaURI } from '{{site.baseurl}}/assets/js/api/config.js';
+
       async function submitRequirements() {
-          const topic = document.getElementById('topicInput').value;
-          const requirements = document.getElementById('requirementsInput').value;
-      
-          const userRequest = { topic, requirements };
-      
-          try {
-              const response = await fetch(`${javaURI}/generate/question`, {
+         const topic = document.getElementById('topicInput').value;
+         const requirements = document.getElementById('requirementsInput').value;
+         const userRequest = { topic, requirements };
+
+         try {
+            const response = await fetch(`${javaURI}/generate/question`, {
+               method: 'POST',
+               headers: { 'Content-Type': 'application/json' },
+               body: JSON.stringify(userRequest)
+            });
+
+            if (!response.ok) {
+               throw new Error('Network response was not ok: ' + response.statusText);
+            }
+
+            const generatedQuestion = await response.text();
+            displayQuestion(generatedQuestion);
+         } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred while generating the question. Please try again.');
+         }
+      }
+
+      function displayQuestion(question) {
+         const outputElement = document.getElementById('output');
+         const formattedQuestion = question
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/(?:\r\n|\r|\n)/g, '<br>')
+            .replace(/(A\.\s|B\.\s|C\.\s|D\.\s)/g, '<br><strong>$1</strong>')
+            .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
+         outputElement.innerHTML = formattedQuestion;
+      }
+
+      async function saveQuestion() {
+         const question = document.getElementById('output').innerHTML;
+         const tags = document.getElementById('tagInput').value.split(',').map(tag => tag.trim());
+
+         if (question) {
+            const questionData = { question, tags };
+            try {
+               const response = await fetch(`${javaURI}/save-question`, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify(userRequest)
-              });
-      
-              if (!response.ok) {
-                  throw new Error('Network response was not ok: ' + response.statusText);
-              }
-      
-              const generatedQuestion = await response.text();
-              displayQuestion(generatedQuestion);
-          } catch (error) {
-              console.error('Error:', error);
-              alert('An error occurred while generating the question. Please try again.');
-          }
+                  body: JSON.stringify(questionData)
+               });
+
+               if (response.ok) {
+                  alert('Question saved to database!');
+                  loadTags(); // Refresh tag dropdown after saving
+               } else {
+                  alert('Failed to save question. Please try again.');
+               }
+            } catch (error) {
+               console.error('Error saving question:', error);
+               alert('An error occurred while saving the question.');
+            }
+         } else {
+            alert('No question to save!');
+         }
       }
-      
-      function displayQuestion(question) {
-          const outputElement = document.getElementById('output');
-          const formattedQuestion = question
-              .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-              .replace(/(?:\r\n|\r|\n)/g, '<br>')
-              .replace(/(A\.\s|B\.\s|C\.\s|D\.\s)/g, '<br><strong>$1</strong>')
-              .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
-          outputElement.innerHTML = formattedQuestion;
-      }
-      
-      async function saveQuestion() {
-          const question = document.getElementById('output').innerHTML;
-          if (question) {
-              const questionData = { question };
-              try {
-                  const response = await fetch(`${javaURI}/save-question`, {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify(questionData)
+
+      async function loadSavedQuestions() {
+         const tagFilter = document.getElementById('tagFilter').value;
+         const list = document.getElementById('saved-questions');
+         list.innerHTML = ''; // Clear existing list
+
+         try {
+            const response = await fetch(`${javaURI}/saved-questions`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+            const questions = await response.json();
+            questions.forEach(({ question, tags }) => {
+               if (!tagFilter || tags.includes(tagFilter)) {
+                  const item = document.createElement('li');
+                  item.classList.add('saved-question-item');
+
+                  const tagContainer = document.createElement('div');
+                  tagContainer.classList.add('tag-container');
+
+                  tags.forEach(tag => {
+                     const tagElement = document.createElement('span');
+                     tagElement.classList.add('tag');
+                     tagElement.innerText = tag;
+                     tagContainer.appendChild(tagElement);
                   });
-      
-                  if (response.ok) {
-                      alert('Question saved to database!');
-                  } else {
-                      alert('Failed to save question. Please try again.');
-                  }
-              } catch (error) {
-                  console.error('Error saving question:', error);
-                  alert('An error occurred while saving the question.');
-              }
-          } else {
-              alert('No question to save!');
-          }
+
+                  const questionText = document.createElement('p');
+                  questionText.classList.add('question-text');
+                  questionText.innerHTML = question;
+
+                  item.appendChild(tagContainer);
+                  item.appendChild(questionText);
+                  list.appendChild(item);
+               }
+            });
+         } catch (error) {
+            console.error('Error loading saved questions:', error);
+            alert('Error loading saved questions: ' + error.message);
+         }
       }
-      
-window.saveQuestion = saveQuestion;
 
-function toggleModal() {
-    const modal = document.getElementById('modal');
-    modal.style.display = 'block';
-    
-    // Fetch and display saved questions
-    loadSavedQuestions();
-}
+      async function loadTags() {
+         const tagFilter = document.getElementById('tagFilter');
+         tagFilter.innerHTML = '<option value="">All Tags</option>'; // Reset dropdown
 
-window.toggleModal = toggleModal;
+         try {
+            const response = await fetch(`${javaURI}/saved-questions`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
-      
+            const questions = await response.json();
+            const uniqueTags = new Set();
+
+            questions.forEach(({ tags }) => {
+               tags.forEach(tag => uniqueTags.add(tag));
+            });
+
+            uniqueTags.forEach(tag => {
+               const option = document.createElement('option');
+               option.value = tag;
+               option.innerText = tag;
+               tagFilter.appendChild(option);
+            });
+         } catch (error) {
+            console.error('Error loading tags:', error);
+         }
+      }
+
+      function toggleModal() {
+         document.getElementById('modal').style.display = 'block';
+         loadSavedQuestions();
+         loadTags();
+      }
+
       function closeModal() {
-          document.getElementById('modal').style.display = 'none';
+         document.getElementById('modal').style.display = 'none';
       }
 
-      window.closeModal = closeModal;
-      
-async function loadSavedQuestions() {
-    const list = document.getElementById('saved-questions');
-    list.innerHTML = ''; // Clear existing list
-
-    try {
-        const response = await fetch(`${javaURI}/saved-questions`);
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const questions = await response.json(); // Ensure the response is parsed as JSON
-
-        if (!Array.isArray(questions)) {
-            throw new Error('Response is not an array');
-        }
-
-        // Populate the modal with the saved questions
-        questions.forEach((question, index) => {
-            const item = document.createElement('li');
-            item.innerHTML = `<strong>Question ${index + 1}:</strong><br>${question}`;
-            list.appendChild(item);
-        });
-    } catch (error) {
-        console.error('Error loading saved questions:', error);
-        alert('Error loading saved questions: ' + error.message);
-    }
-}
-
-      
       document.getElementById('submitButton').addEventListener('click', submitRequirements);
+      window.saveQuestion = saveQuestion;
+      window.toggleModal = toggleModal;
+      window.closeModal = closeModal;
    </script>
 </body>

@@ -11,12 +11,12 @@ comments: false
         padding: 10px;
         border: 1px solid #ccc;
         border-radius: 5px;
-        background-color: #f9f9f9;
+        background-color:rgb(42, 41, 41);
     }
     
     .user-card {
         padding: 10px;
-        background-color: #ffffff;
+        background-color:rgb(42, 41, 41);
         border: 1px solid #ddd;
         border-radius: 5px;
     }
@@ -42,7 +42,7 @@ comments: false
         padding: 10px 20px;
         cursor: pointer;
         border: 1px solid #ccc;
-        background-color: #f1f1f1;
+        background-color:rgb(42, 41, 41);
         margin-right: 10px;
         border-radius: 5px;
     }
@@ -65,7 +65,7 @@ comments: false
     }
     
     #submissionsTable th {
-        background-color: #f2f2f2;
+        background-color:rgb(49, 41, 41);
         color: black;
     }
 
@@ -95,7 +95,7 @@ comments: false
     }
 
     .modal-content {
-        background-color:rgb(22, 22, 22);
+        background-color:rgb(42, 41, 41);
         margin: 15% auto;
         padding: 20px;
         border: 1px solid #888;

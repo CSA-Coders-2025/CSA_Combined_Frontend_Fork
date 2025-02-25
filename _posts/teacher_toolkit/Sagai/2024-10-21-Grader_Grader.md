@@ -2,7 +2,6 @@
 toc: false
 layout: post
 title: Grader
-description: Grade your work
 permalink: /student/sagai/grader
 ---
 
@@ -129,11 +128,6 @@ permalink: /student/sagai/grader
 </head>
 <body>
 
-    <!-- Sign out link -->
-    <div class="signout">
-        <a href="#" style="color: white; text-decoration: none;">Sign out</a>
-    </div>
-
     <!-- SAGAI Header -->
     <h1>SAGAI</h1>
     <h2>Super Advanced Grader Artificial Intelligence</h2>
@@ -147,7 +141,7 @@ permalink: /student/sagai/grader
 
     <!-- Main Grader section -->
     <div class="container">
-        <h1 class="section-title">GRADER</h1>
+        <h1 class="section-title">Student Toolkit GRADER</h1>
 
         <!-- Grading Form -->
         <div class="form-box">

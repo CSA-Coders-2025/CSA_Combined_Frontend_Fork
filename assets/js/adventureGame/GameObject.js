@@ -1,5 +1,3 @@
-import GameEnv from './GameEnv.js';
-
 /**
  * The GameObject class serves as a base class for all game objects.
  * It mimics an interface by defining abstract methods that must be implemented
@@ -22,10 +20,11 @@ class GameObject {
      * Throws an error if an attempt is made to instantiate this class directly,
      * as it is intended to be used as a base class.
      */
-    constructor() {
+    constructor(gameEnv = null) {
         if (new.target === GameObject) {
             throw new TypeError("Cannot construct GameObject instances directly");
         }
+        this.gameEnv = gameEnv; // GameEnv instance
         this.collisionWidth = 0;
         this.collisionHeight = 0;
         this.collisionData = {};
@@ -37,21 +36,21 @@ class GameObject {
     }
 
     /**
-     * Draws the object on the canvas.
-     * This method must be implemented by subclasses.
-     * @abstract
-     */
-    draw() {
-        throw new Error("Method 'draw()' must be implemented.");
-    }
-
-    /**
      * Updates the object's state.
      * This method must be implemented by subclasses.
      * @abstract
      */
     update() {
         throw new Error("Method 'update()' must be implemented.");
+    }
+
+    /**
+     * Draws the object on the canvas.
+     * This method must be implemented by subclasses.
+     * @abstract
+     */
+    draw() {
+        throw new Error("Method 'draw()' must be implemented.");
     }
 
     /**
@@ -79,7 +78,7 @@ class GameObject {
     collisionChecks() {
         let collisionDetected = false;
 
-        for (var gameObj of GameEnv.gameObjects) {
+        for (var gameObj of this.gameEnv.gameObjects) {
             if (gameObj.canvas && this != gameObj) {
                 this.isCollision(gameObj);
                 if (this.collisionData.hit) {
@@ -141,6 +140,7 @@ class GameObject {
             other: {
                 id: other.canvas.id,
                 greet: other.spriteData.greeting,
+                reaction: other.spriteData.reaction,
                 top: otherBottom > thisTop && otherTop < thisTop,
                 bottom: otherTop < thisBottom && otherBottom > thisBottom,
                 left: otherRight > thisLeft && otherLeft < thisLeft,
@@ -156,21 +156,32 @@ class GameObject {
      * @param {*} objectID 
      */
     handleCollisionEvent() {
-        const objectID = this.collisionData.touchPoints.other.id;
-        const objectGreet = this.collisionData.touchPoints.other.greet;
+        const objectOther = this.collisionData.touchPoints.other;
         // check if the collision type is not already in the collisions array
-        if (!this.state.collisionEvents.includes(objectID)) {
+        if (!this.state.collisionEvents.includes(objectOther.id)) {
             // add the collisionType to the collisions array, making it the current collision
-            this.state.collisionEvents.push(objectID);
-            alert(objectGreet);
+            this.state.collisionEvents.push(objectOther.id);
+            this.handleCollisionReaction(objectOther);
         }
-        this.handleReaction();
+        this.handleCollisionState();
     }
 
     /**
-     * Handles Player reaction or state updates related to the collision
+     * Handles the reaction to the collision, this could be overridden by subclasses
+     * @param {*} other 
      */
-    handleReaction() {
+    handleCollisionReaction(other) {
+        if (other.reaction && typeof other.reaction === "function") {
+            other.reaction();
+            return;
+        }
+        console.log(other.greet);
+    }
+
+    /**
+     * Handles Player state updates related to the collision
+     */
+    handleCollisionState() {
         // handle player reaction based on collision type
         if (this.state.collisionEvents.length > 0) {
             const touchPoints = this.collisionData.touchPoints.this;

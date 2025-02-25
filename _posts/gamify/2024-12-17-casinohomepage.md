@@ -3,17 +3,28 @@ layout: post
 title: Casino Games
 permalink: /gamify/casinohomepage
 ---
+
 <style>
     body {
         text-align: center;
+        font-family: 'Arial', sans-serif;
+        background-size: cover;
+        color: white;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+        position: relative;
     }
     .container {
         max-width: 800px;
         margin: 50px auto;
         padding: 20px;
-        background-color: #fff;
-        border-radius: 10px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        background-color: rgba(0, 0, 0, 0.85);
+        border-radius: 15px;
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.7);
+        border: 2px solid #28a745;
+        position: relative;
+        overflow: hidden;
     }
     .game-boxes {
         display: grid;
@@ -32,26 +43,40 @@ permalink: /gamify/casinohomepage
         align-items: center;
         text-decoration: none;
         padding: 20px;
-        background-color: black;
+        background: linear-gradient(145deg, #000000, #333333);
         color: white;
         border-radius: 10px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        transition: transform 0.2s, background-color 0.3s;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+        border: 2px solid #28a745;
+        transition: transform 0.3s, background-color 0.4s, box-shadow 0.3s;
+        position: relative;
+        overflow: hidden;
         cursor: pointer;
     }
     .game-box:hover {
-        background-color: #c0392b;
-        transform: scale(1.05);
+        background: linear-gradient(145deg, #28a745, #c0392b);
+        transform: scale(1.1);
+        box-shadow: 0 10px 20px rgba(40, 167, 69, 0.6);
     }
-    .game-box h2 {
-        font-size: 1.8em;
-        margin-bottom: 10px;
-    }
-    .game-box p {
-        font-size: 1.1em;
+    .leaderboard {
+        margin-top: 40px;
+        padding: 20px;
+        background: rgba(0, 0, 0, 0.8);
+        border-radius: 10px;
+        border: 2px solid #ffc107;
     }
     
-
+    .floating-symbol {
+        position: absolute;
+        font-size: 2em;
+        opacity: 0.7;
+        animation: float 5s infinite ease-in-out;
+    }
+    @keyframes float {
+        0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+        50% { transform: translateY(-50px) rotate(180deg); opacity: 0.5; }
+        100% { transform: translateY(0) rotate(360deg); opacity: 1; }
+    }
 </style>
 
 <div class="container">
@@ -72,6 +97,5 @@ permalink: /gamify/casinohomepage
             <h2>Poker</h2>
             <p>Challenge your skills in this classic card game.</p>
         </div>
-    </div>
+    </div>  
 </div>
-

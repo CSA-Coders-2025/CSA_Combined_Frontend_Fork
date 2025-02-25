@@ -2,37 +2,44 @@ from flask import Flask, render_template, request, jsonify
 import threading
 import requests
 import json
+import serial  # Import pyserial for serial communication
 
 from static.assets.api.assets import javaURI
 
 app = Flask(__name__)
 
-# Static queue data (replace with a dynamic backend if needed)
+# Static queue data (replace with a dynamic backend)
 queue = ["John Mortensen", "Srijan Atti"]
 current_user = ""
 next_up = "Matthew Wakayama"
 
 def barcode_reader():
-    """Barcode scanner implementation"""
-    hid = {4: 'a', 5: 'b', 6: 'c', 7: 'd', 8: 'e', 9: 'f', 10: 'g', 11: 'h', 12: 'i', 13: 'j', 14: 'k', 15: 'l', 
-           16: 'm', 17: 'n', 18: 'o', 19: 'p', 20: 'q', 21: 'r', 22: 's', 23: 't', 24: 'u', 25: 'v', 26: 'w', 27: 'x', 
-           28: 'y', 29: 'z', 30: '1', 31: '2', 32: '3', 33: '4', 34: '5', 35: '6', 36: '7', 37: '8', 38: '9', 39: '0'}
-
-    fp = open('/dev/hidraw0', 'rb')
     ss = ""
-    done = False
+    print("Ready to scan a barcode. Please scan now.")
+    
+    while True:
+        # Read the barcode input from the terminal directly as a string
+        barcode_input = input()  # This captures whatever is typed into the terminal (barcode)
+        
+        if barcode_input:
+            ss = barcode_input.strip()  # Capture the barcode input into ss
+            
+            print(f"Scanned barcode: {ss}")  # Print out the scanned barcode
+            
+            # Simulate finishing the scan (i.e., sending the barcode when Enter is pressed)
+            print(f"Final scanned barcode: {ss}")
+            
+            # Assuming you need to do something with the scanned value:
+            name = get_name_by_sid(ss)  # Fetch the name using the scanned SID
+            
+            # Call a function to add to the queue or handle further logic
+            add_to_queue("jmort1021@gmail.com", name, javaURI)
+            
+            # Return the scanned barcode
+            return ss
+        else:
+            print("No input detected. Please scan again.")
 
-    while not done:
-        buffer = fp.read(8)
-        for c in buffer:
-            if ord(c) > 0:
-                if int(ord(c)) == 40:  # Enter key (end of barcode)
-                    done = True
-                    break
-                else:
-                    ss += hid.get(int(ord(c)), '')
-
-    return ss
 
 def send_barcode_to_server(student_id):
     """Send barcode data to Flask endpoint"""
@@ -50,35 +57,35 @@ def barcode_listener():
     while True:
         student_id = barcode_reader()
         send_barcode_to_server(student_id)
-        
+
 def get_name_by_sid(sid):
-    url = f"localhost:8085/api/{sid}"
+    url = f"http://localhost:8085/api/{sid}"
     try:
         response = requests.get(url)
         if response.status_code == 200:
             print("Data fetched successfully:", response.json())
             return response.json()
         else:
-            print(f"GET req failed {response.status_code}: {response.text}")
+            print(f"GET request failed {response.status_code}: {response.text}")
     except requests.exceptions.RequestException as e:
         print("Error during GET request:", e)
 
 def add_to_queue(teacherEmail, studentName, uri):
     payload = {
-        "studentName":studentName,
-        "teacherEmail":teacherEmail,
-        "uri":uri
+        "studentName": studentName,
+        "teacherEmail": teacherEmail,
+        "uri": uri
     }
-    url = "localhost:8085/api/queue/add"
+    url = "http://localhost:8085/api/queue/add"
     headers = {"Content-Type": "application/json"}
     try:
         response = requests.post(url, json=payload, headers=headers)
         if response.status_code == 201:
-            print("Data posted successfully: ", response.json)
+            print("Data posted successfully: ", response.json())
         else:
-            print(f"POST req failed with status code {response.status_code}: {response.text}")
+            print(f"POST request failed with status code {response.status_code}: {response.text}")
     except requests.exceptions.RequestException as e:
-        print("Error during POST req:", e)
+        print("Error during POST request:", e)
     
 @app.route('/')
 def home():
@@ -108,6 +115,6 @@ def scan_barcode():
 if __name__ == '__main__':
     # Start barcode listening thread
     threading.Thread(target=barcode_listener, daemon=True).start()
-
+    
     # Run Flask app
     app.run(port=4100, debug=True)

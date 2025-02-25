@@ -123,14 +123,16 @@ title: Stocks Portfolio
     <!-- Navigation Bar -->
     <!-- Navigation Bar -->
 <nav class="navbar">
-    <div class="logo">NITD</div>
     <div class="nav-buttons">
         <a href="{{site.baseurl}}/stocks/home">Home</a>
         <a href="{{site.baseurl}}/crypto/portfolio">Crypto</a>
         <a href="{{site.baseurl}}/stocks/viewer">Stocks</a>
-        <a href="{{site.baseurl}}/stocks/portfolio">Portfolio</a>
+        <a href="{{site.baseurl}}/crypto/mining">Mining</a>
         <a href="{{site.baseurl}}/stocks/buysell">Buy/Sell</a>
         <a href="{{site.baseurl}}/stocks/leaderboard">Leaderboard</a>
+        <a href="{{site.baseurl}}/stocks/game">Game</a>
+        <a href="{{site.baseurl}}/stocks/portfolio">Portfolio</a>
+
     </div>
 </nav>
     <!-- Portfolio Content -->
@@ -194,12 +196,48 @@ title: Stocks Portfolio
         </div>
     </div>
     <!-- JavaScript to Fetch Data and Display Chart -->
-    <script>
-    var userID = localStorage.getItem('userID')
-    console.log(userID);
+    <script type="module">
+    import { pythonURI, javaURI, fetchOptions } from '{{site.baseurl}}/assets/js/api/config.js';
+   function getCredentialsJava() {
+        const URL = javaURI + '/api/person/get';
+        return fetch(URL, fetchOptions)
+            .then(response => {
+                if (response.status !== 200) {
+                    console.error("HTTP status code: " + response.status);
+                    return null;
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data === null) return null;
+                console.log(data);
+                return data;
+            })
+            .catch(err => {
+                console.error("Fetch error: ", err);
+                return null;
+            });
+    }
+   async function getUserStock() {
+    try {
+        const credentials = await getCredentialsJava(); // Get user data
+        const email = credentials?.email; // Extract email
+        if (!email) {
+            throw new Error("User email not found");
+        }
+        const response = await fetch(javaURI + `/stocks/table/getStocks?username=${encodeURIComponent(email)}`);
+        if (!response.ok) {
+            throw new Error(`Error fetching stocks: ${response.statusText}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("Error fetching user stocks:", error);
+        return [];
+    }
+}
         async function getStockPrice(stock) {
         try {
-            const response = await fetch(`http://localhost:8085/api/stocks/${stock}`);
+            const response = await fetch(javaURI + `/api/stocks/${stock}`);
             const data = await response.json();
             console.log(data);
             const price = data?.chart?.result?.[0]?.meta?.regularMarketPrice;
@@ -219,7 +257,7 @@ title: Stocks Portfolio
       }
       async function getOldStockPrice(stock) {
         try {
-            const response = await fetch(`http://localhost:8085/api/stocks/${stock}`);
+            const response = await fetch(javaURI + `/api/stocks/${stock}`);
             const data = await response.json();
             console.log(data);
             const oldPrice = data?.chart?.result?.[0]?.meta?.chartPreviousClose;
@@ -253,7 +291,7 @@ title: Stocks Portfolio
         }
         async function getPercentChange(stock) {
         try {
-            const response = await fetch(`http://localhost:8085/api/stocks/${stock}`);
+            const response = await fetch(javaURI + `/api/stocks/${stock}`);
             const data = await response.json();
             console.log(data);
             const newValue = data?.chart?.result?.[0]?.meta?.regularMarketPrice;
@@ -278,7 +316,7 @@ title: Stocks Portfolio
             }); 
       }
     async function createPortfolioChart() {
-        const userStocks = await getUserStock(userID);
+        const userStocks = await getUserStock();
         const labels = [];
         const dataValues = [];
         const backgroundColors = ["#FF8C00", "#6A0DAD", "#001f3f", "#FF8C00"]; // Define colors for each stock
@@ -315,7 +353,7 @@ title: Stocks Portfolio
     }
         async function getStockTotal(stock, quantity) {
             try {
-                const response = await fetch(`http://localhost:8085/api/stocks/${stock}`);
+                const response = await fetch(javaURI + `/api/stocks/${stock}`);
                 const data = await response.json();
                 const price = data?.chart?.result?.[0]?.meta?.regularMarketPrice;
                 const totalValue = price * quantity;
@@ -325,19 +363,8 @@ title: Stocks Portfolio
                 return "N/A";
             }
         }
-        async function getUserStock(user) {
-            try {
-                const response = await fetch(`http://localhost:8085/user/getStocks?username=${user}`);
-                const stocksData = await response.json();
-                console.log(stocksData);
-                return stocksData;
-            } catch (error) {
-                console.error("Error fetching user stocks:", error);
-                return [];
-            }
-        }
         async function populatePortfolioTable() {
-            const userStocks = await getUserStock(userID);
+            const userStocks = await getUserStock();
             const portfolioTable = document.getElementById("portfolioTable");
             for (const stockInfo of userStocks) {
                 const { stockSymbol, quantity } = stockInfo;
@@ -358,36 +385,44 @@ title: Stocks Portfolio
                 portfolioTable.appendChild(row);
             }
         }
-        async function getPortfolioPerformance(user) {
-            // Fetch user's stocks and quantities
-            const userStocks = await getUserStock(user);
-            const userValue = await getUserValue(user);
-            let totalGain = 0;
-            let totalLatestValue = 0;
-            let totalOldValue = 0;
-            for (const { stockSymbol, quantity } of userStocks) {
-                const latestPrice = await getStockPrice(stockSymbol);
-                const oldPrice = await getOldStockPrice(stockSymbol);
-                // Calculate gain for each stock
-                const stockGain = (latestPrice - oldPrice) * quantity;
-                totalGain += stockGain;
-                // Calculate total values for percent increase calculation
-                totalLatestValue += latestPrice * quantity;
-                totalOldValue += oldPrice * quantity;
-            }
-            // Calculate percent increase
-            const percentIncrease = ((totalLatestValue - totalOldValue) / totalOldValue) * 100;
-            console.log(`total increase: $${totalGain.toFixed(2)}, percent increase: ${percentIncrease.toFixed(2)}%`);
-            const totalElement = document.getElementById("totalGain");
-            const percentElement = document.getElementById("percentIncrease");
-            const valueElement = document.getElementById("portfolioValue");
-            totalElement.textContent = `$${totalGain.toFixed(2)}`;
-            percentElement.textContent = `${percentIncrease.toFixed(2)}%`;
-            valueElement.textContent = `$${userValue.toFixed(2)}`;
+        async function getPortfolioPerformance() {
+    try {
+        // Fetch user credentials
+        const credentials = await getCredentialsJava();
+        const email = credentials?.email;
+        if (!email) {
+            throw new Error("User email not found");
         }
-        async function getUserValue(user) {
+        // Fetch user's stocks and portfolio value using the email
+        const userStocks = await getUserStock();
+        const userValue = await getUserValue(email);
+        let totalGain = 0;
+        let totalLatestValue = 0;
+        let totalOldValue = 0;
+        for (const { stockSymbol, quantity } of userStocks) {
+            const latestPrice = await getStockPrice(stockSymbol);
+            const oldPrice = await getOldStockPrice(stockSymbol);
+            // Calculate gain for each stock
+            const stockGain = (latestPrice - oldPrice) * quantity;
+            totalGain += stockGain;
+            // Calculate total values for percent increase calculation
+            totalLatestValue += latestPrice * quantity;
+            totalOldValue += oldPrice * quantity;
+        }
+        // Calculate percent increase
+        const percentIncrease = ((totalLatestValue - totalOldValue) / totalOldValue) * 100;
+        console.log(`Total increase: $${totalGain.toFixed(2)}, Percent increase: ${percentIncrease.toFixed(2)}%`);
+        // Update UI elements
+        document.getElementById("totalGain").textContent = `$${totalGain.toFixed(2)}`;
+        document.getElementById("percentIncrease").textContent = `${percentIncrease.toFixed(2)}%`;
+        document.getElementById("portfolioValue").textContent = `$${userValue.toFixed(2)}`;
+    } catch (error) {
+        console.error("Error fetching portfolio performance:", error);
+    }
+}
+    async function getUserValue(user) {
             try {
-                const response = await fetch(`http://localhost:8085/user/portfolioValue?username=${user}`);
+                const response = await fetch(javaURI + `/stocks/table/portfolioValue?username=${user}`);
                 const stocksData = await response.json();
                 console.log(stocksData);
                 return stocksData;
@@ -406,7 +441,7 @@ title: Stocks Portfolio
             updatePrices();
             populatePortfolioTable();
             createPortfolioChart();
-            getPortfolioPerformance(userID);
+            getPortfolioPerformance();
         });
     </script>
 </body>

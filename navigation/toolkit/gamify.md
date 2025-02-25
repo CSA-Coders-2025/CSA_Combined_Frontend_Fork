@@ -8,6 +8,13 @@ menu: nav/home.html
 
 <div class="toolkit-buttons">
   <!-- First Row of Buttons -->
+    <a href="{{site.baseurl}}/stocks/home" class="toolkit-button" data-description="Experience real-time stock market simulation with virtual trading. Monitor popular stocks like Apple, Google, and Microsoft, manage your portfolio, and climb the leaderboard as you learn investment strategies in a risk-free environment." data-authors="Author: NITD+People">
+    <img src="{{site.baseurl}}/images/toolkit-nav-buttons/stocks.png" alt="Simulation Home" />
+    <span class="button-name">Stocks Home</span>
+    <div class="description">
+      <p>Experience real-time stock market simulation with virtual trading. Monitor popular stocks like Apple, Google, and Microsoft, manage your portfolio, and climb the leaderboard as you learn investment strategies in a risk-free environment.</p>
+    </div>
+  </a>
   <a href="{{site.baseurl}}/gamify/adventureGame" class="toolkit-button" data-description="This page contains all the games developed by CSA. It includes an adventure game where you can explore endless opurtunites. Within this game you can learn how to gamble by playing the gambling game or all about stocks and crypto in our investment game!" data-authors="Author: NITD+People">
     <img src="{{site.baseurl}}/images/toolkit-nav-buttons/adventure.png" alt="Gamify" />
     <span class="button-name">The Adventure</span>
@@ -33,13 +40,6 @@ menu: nav/home.html
 
 <!-- Second Row of Buttons -->
 <div class="toolkit-buttons">
-  <a href="{{site.baseurl}}/stocks/home" class="toolkit-button" data-description="Solve challenging puzzles to sharpen your problem-solving skills. Includes logic puzzles, brain teasers, and coding challenges." data-authors="Author: Team PuzzleMasters">
-    <img src="{{site.baseurl}}/images/toolkit-nav-buttons/stocks.png" alt="Stocks Game" />
-    <span class="button-name">Stocks Game</span>
-    <div class="description">
-      <p>Learn the basics of finance and investing with a stock investing simulator for no-risk learning.</p>
-    </div>
-  </a>
   <a href="{{site.baseurl}}/gamify/casinohomepage" class="toolkit-button" data-description="Classic arcade games reimagined for learning coding concepts. Test your reflexes and learn programming tricks at the same time." data-authors="Author: ArcadeDev">
     <img src="{{site.baseurl}}/images/toolkit-nav-buttons/casinohomepage.png" alt="Casino Game" />
     <span class="button-name">Casino Game</span>

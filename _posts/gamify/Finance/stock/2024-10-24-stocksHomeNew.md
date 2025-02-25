@@ -1,7 +1,7 @@
 ---
 layout: base
-permalink: /stocks/buysellNew
-title: Stocks Buy/Sell New
+permalink: /stocks/home2
+title: Stocks Home
 ---
 
 <html lang="en">
@@ -19,43 +19,85 @@ title: Stocks Buy/Sell New
         }
         .navbar {
             display: flex;
+            flex-wrap: wrap;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 20px;
-            background-color: #001f3f; /* Dark blue background */
+            padding: 1rem 2rem;
+            background-color: #001f3f;
             color: #fff;
+            box-sizing: border-box;
         }
         .navbar .logo {
+            font-size: 2rem;
+            flex: 1 1 auto;
+        }
+        .nav-buttons {
+            display: flex;
+            flex: 2 1 auto;
+            justify-content: flex-end;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .nav-buttons a {
+            font-size: 1rem;
+            padding: 0.5rem 1rem;
+        }
+        .dashboard {
+            padding: 20px;
+            display: flex;
+            justify-content: flex-start;
+            gap: 40px;
+        }
+        .dashboard-content {
+            width: 70%; /* Increased width for the left side */
+        }
+        .sidebar {
+            width: 35%; /* Width for the right side */
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            justify-content: space-between; 
+            /*left: 50%;*/
+            position: relative; 
+            background-color: #121212; /* Orange hover effect */
+            padding: 20px; /* Add padding to the sidebar */
+            box-sizing: border-box; /* Ensure padding doesn't overflow */
+        }
+        .stock-table, .your-stocks {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #121212; /* Orange hover effect */
+            border-collapse: collapse;
+        }
+        .stock-table table, .your-stocks table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #121212; /* Orange hover effect */
+        }
+        .stock-table th, .stock-table td, .your-stocks th, .your-stocks td {
+            padding: 10px;
+            text-align: left;
+            background-color: #121212; /* Orange hover effect */
+        }
+        .stock-table th, .your-stocks th {
+            background-color: #121212; /* Orange hover effect */
+        }
+        .welcome {
             font-size: 24px;
             font-weight: bold;
-            letter-spacing: 2px;
-        }
-        .navbar .nav-buttons {
-            display: flex;
-            gap: 20px;
-        }
-        .navbar .nav-buttons a {
-            color: #fff;
-            text-decoration: none;
-            font-size: 16px;
-            padding: 8px 16px;
-            border-radius: 4px;
-            transition: background-color 0.3s;
-        }
-        .navbar .nav-buttons a:hover {
-            background-color: #ff8c00; /* Orange hover effect */
         }
         .summary-cards {
-            display: flex;
-            justify-content: space-between;
-            margin: 20px 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
         }
         .card {
             padding: 0px;
             margin: 30px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            flex: 1;
             text-align: center;
             color: #fff; /* Text color set to white */
             padding-bottom: -40px;
@@ -231,212 +273,271 @@ title: Stocks Buy/Sell New
         .sell-button:hover {
             background-color: #c62828;
         }
+        html {
+            font-size: 16px;
+        }
+        @media (max-width: 1200px) {
+            html {
+                font-size: 15px;
+            }
+        }
+        @media (max-width: 992px) {
+            html {
+                font-size: 14px;
+            }
+        }
+        @media (max-width: 768px) {
+            html {
+                font-size: 13px;
+            }
+        }
+        @media (max-width: 576px) {
+            html {
+                font-size: 12px;
+            }
+        }
+        @media (max-width: 768px) {
+            .navbar .logo {
+                font-size: 1.5rem;
+            }
+            .nav-buttons a {
+                font-size: 0.9rem;
+                padding: 0.5rem 1rem;
+            }
+            .header h1 {
+                font-size: 1.75rem;
+                flex: 1 1 100%;
+                text-align: center;
+            }
+            .buy-sell-buttons-container {
+                flex: 1 1 100%;
+                align-items: center;
+            }
+            .search-container {
+                max-width: 90%;
+            }
+            .summary-cards {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+            .card h2 {
+                font-size: 1.1rem;
+            }
+            .card p {
+                font-size: 1.5rem;
+            }
+            .price-info h2 {
+                font-size: 2rem;
+            }
+            .change {
+                font-size: 1rem;
+            }
+            .metric {
+                flex: 1 1 150px;
+                padding: 0.75rem;
+                font-size: 0.9rem;
+            }
+        }
+        @media (max-width: 480px) {
+            .search-container {
+                flex-direction: column;
+            }
+            .search-container input[type="text"], .search-button {
+                width: 100%;
+                border-radius: 0.25rem;
+            }
+            .search-button {
+                margin-top: 0.5rem;
+                border-radius: 0.25rem;
+            }
+            .buy-sell-buttons {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            .buy-button, .sell-button {
+                width: 100%;
+            }
+        }
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
     </style>
 </head>
 <body>
     <!-- Navigation Bar -->
     <nav class="navbar">
-        <div class="logo">NITD</div>
-        <div class="nav-buttons">
+          <div class="nav-buttons">
             <a href="{{site.baseurl}}/stocks/home">Home</a>
             <a href="{{site.baseurl}}/crypto/portfolio">Crypto</a>
             <a href="{{site.baseurl}}/stocks/viewer">Stocks</a>
-            <a href="{{site.baseurl}}/stocks/portfolio">Portfolio</a>
+            <a href="{{site.baseurl}}/crypto/mining">Mining</a>
             <a href="{{site.baseurl}}/stocks/buysell">Buy/Sell</a>
             <a href="{{site.baseurl}}/stocks/leaderboard">Leaderboard</a>
+            
         </div>
     </nav>
-    <div class="search-container">
-        <input type="text" id="searchBar" placeholder="Search..." oninput="this.value = this.value.toUpperCase()">
-        <button class="search-button" onclick="getStockData()">Search</button>
-    </div>
-    <!-- Content to display only after search -->
-    <div id="stock-content" style="display: none;">
-        <!-- Header with stock name and Buy/Sell buttons on the same line -->
-        <!-- Header with stock name and Buy/Sell buttons on the same line -->
-    <div class="header">
-        <div>
-            <h1 id="stock-name">N/A</h1>
-            <p id="stock-symbol">NASDAQ: N/A</p>
+    <!-- Dashboard -->
+    <div class="dashboard">
+        <div class="dashboard-content">
+            <h1 id="userIDName" class="welcome">Hi Rafael, Welcome Back</h1>
+            <p>Invest your money with small risk!</p>
+            <div class="summary-cards">
+                <div class="card card-orange">
+                    <h2>Today's Dollar</h2>
+                    <h2>Change</h2>
+                    <p id="totalGain">NA</p>
+                </div>
+                <div class="card card-purple">
+                    <h2>Today's Percent</h2>
+                    <h2>Change</h2>
+                    <p id="percentIncrease">NA</p>
+                </div>
+                <div class="card card-darkblue">
+                    <h2>Revenue</h2>
+                    <h2>Return</h2>
+                    <p id="portfolioValue">NA</p>
+                </div>
+            </div>
+            <div class="search-container">
+                <input type="text" id="searchBar" placeholder="Search...">
+                <button class="search-button" onclick="getStockData()">Search</button>
+            </div>
+            <div class="chart-container" id="chartContainer">
+                <div class="chart" id="chart1">
+                    <canvas id="stockChart" width="475" height="375">[Graph Placeholder]</canvas>
+                </div>
+            </div>
+            <div id="output" style="color: red; padding-top: 10px;"></div>
         </div>
-        <div class="buy-sell-buttons-container">
-    <div class="buy-sell-buttons">
-        <button class="buy-button" onclick="handleBuyClick()">Buy</button>
-        <button class="sell-button" onclick="handleSellClick()">Sell</button>
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="your-stocks">
+                <h3>Your Stocks</h3>
+                <table id="yourStocksTable">
+                    <tr>
+                        <th>Stock</th>
+                        <th>Price</th>
+                    </tr>
+                </table>
+            </div>
+            <div class="stock-table">
+                <h3>Stock Prices</h3>
+                <table>
+                    <tr>
+                        <th>Stock</th>
+                        <th>Price</th>
+                    </tr>
+                    <tr>
+                        <td>Spotify</td>
+                        <td id="SpotifyPrice">$297,408</td>
+                    </tr>
+                    <tr>
+                        <td>Apple</td>
+                        <td id="ApplePrice">$142,845</td>
+                    </tr>
+                    <tr>
+                        <td>Google</td>
+                        <td id="GooglePrice">$2,823,894</td>
+                    </tr>
+                    <tr>
+                        <td>Facebook</td>
+                        <td id="FacebookPrice">$208,123</td>
+                    </tr>
+                    <tr>
+                        <td>Microsoft</td>
+                        <td id="MicrosoftPrice">$330,456</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
     </div>
-    <!-- Quantity Input Box -->
-    <input type="number" id="quantity-input" placeholder="Enter quantity" min="1" style="width: 125px; margin-top: 10px;">
-    <p class="buysell" id="buysell"></p>
-    <p class="userStock" id="userStock"></p>
-    <script>
-            let buyCooldown = false;
-            let sellCooldown = false;
-            const changeElement = document.getElementById('buysell');
-            function handleBuyClick() {
-                let quantity = document.getElementById("quantity-input").value;
-                if (!buyCooldown && quantity && !isNaN(quantity)) {
-                    buyStock();
-                    buyCooldown = true;
-                    setTimeout(() => { buyCooldown = false; }, 1000); // 1 second cooldown
-                } else {
-                    displayError("Please enter a valid quantity.");
-                    console.error("quantity");
-                    changeElement.textContent = `Please enter a value`;
-                    changeElement.classList.add("negative");
-                    changeElement.classList.remove("positive");
+</body>
+</html>
+   <script type="module">
+    import { pythonURI, javaURI, fetchOptions } from '{{site.baseurl}}/assets/js/api/config.js';
+   function getCredentialsJava() {
+        const URL = javaURI + '/api/person/get';
+        return fetch(URL, fetchOptions)
+            .then(response => {
+                if (response.status !== 200) {
+                    console.error("HTTP status code: " + response.status);
+                    return null;
                 }
-            }
-            function handleSellClick() {
-                let quantity = document.getElementById("quantity-input").value;
-                if (!sellCooldown && quantity && !isNaN(quantity)) {
-                    removeStock();
-                    sellCooldown = true;
-                    setTimeout(() => { sellCooldown = false; }, 1000); // 1 second cooldown
-                } else {
-                    displayError("Please enter a valid quantity.");
-                    console.error("quantity");
-                    changeElement.textContent = `Please enter a value`;
-                    changeElement.classList.add("negative");
-                    changeElement.classList.remove("positive");
-                }
-            }
-            function displayError(message) {
-                const output = document.getElementById("output");
-                output.textContent = message;
-                setTimeout(() => { output.textContent = ""; }, 2000); // Clear after 2 seconds
-            }
-        </script>
-</div>
-    </div>
-        <!-- Price Info -->
-        <div class="price-info">
-            <h2 id="stock-price">N/A</h2>
-            <p id="stock-change" class="change positive">N/A</p>
-        </div>
-        <!-- Summary Cards -->
-        <div class="summary-cards">
-            <div class="card card-darkblue">
-                <h2>Volume:</h2>
-                <p id="volume">N/A</p>
-            </div>
-            <div class="card card-purple">
-                <h2>Day High:</h2>
-                <p id="day-high">N/A</p>
-            </div>
-            <div class="card card-orange">
-                <h2>52-Week High:</h2>
-                <p id="year-high">N/A</p>
-            </div>
-            <div class="card card-purple">
-                <h2>Day Low:</h2>
-                <p id="day-low">N/A</p>
-            </div>
-            <div class="card card-darkblue">
-                <h2>52-Week Low:</h2>
-                <p id="year-low">N/A</p>
-            </div>
-        </div>
-        <!-- Chart Container -->
-        <div class="chart-container" id="chartContainer">
-            <div class="chart" id="chart1">
-                <canvas id="stockChart" width="475" height="375">[Graph Placeholder]</canvas>
-            </div>
-        </div>
-    </div>
-    <div id="output" style="color: red; padding-top: 10px;"></div>
-    <script>
-     let stockChart;
-    var userID = localStorage.getItem('userID')
-    console.log(userID);
-    async function getStockData() {
-        const stockSymbol = document.getElementById("searchBar").value;
-        document.getElementById("output").textContent = ""; // Clear previous messages
-        document.getElementById("buysell").textContent = ""; // Clear previous messages
-        document.getElementById("userStock").textContent = ""; // Clear previous messages
-        try {
-            const response = await fetch(`http://localhost:8085/api/stocks/${stockSymbol}`);
-            const data = await response.json();
-            if (data?.chart?.result) {
-                // Show stock content container if data is found
-                document.getElementById("stock-content").style.display = "block";
-                // Display data in HTML elements as in your original script
-                const timestamps = data.chart.result[0].timestamp;
-                const prices = data.chart.result[0].indicators.quote[0].close;
-                const stockName = data.chart.result[0].meta.longName;
-                const stockPrice = data.chart.result[0].meta.regularMarketPrice;
-                const percentChange = await getPercentChange(stockSymbol);
-                document.getElementById('stock-name').textContent = `${stockName} (${stockSymbol})`;
-                document.getElementById('stock-symbol').textContent = `NASDAQ: ${stockSymbol}`;
-                document.getElementById('stock-price').textContent = `$${stockPrice.toFixed(2)}`;
-                const changeElement = document.getElementById('stock-change');
-        changeElement.textContent = `${percentChange}%`;
-        if (percentChange < 0) {
-            changeElement.classList.add("negative");
-            changeElement.classList.remove("positive");
-        } else {
-            changeElement.classList.add("positive");
-            changeElement.classList.remove("negative");
-        }
-        const volume = data?.chart?.result?.[0]?.meta?.regularMarketVolume;
-        const dayHigh = data?.chart?.result?.[0]?.meta?.regularMarketDayHigh;
-        const dayLow = data?.chart?.result?.[0]?.meta?.regularMarketDayLow;
-        const yearHigh = data?.chart?.result?.[0]?.meta?.fiftyTwoWeekHigh;
-        const yearLow = data?.chart?.result?.[0]?.meta?.fiftyTwoWeekLow;
-        document.getElementById('volume').textContent = volume ? volume.toLocaleString() : 'N/A';
-        document.getElementById('day-high').textContent = dayHigh ? `$${dayHigh.toFixed(2)}` : 'N/A';
-        document.getElementById('year-high').textContent = dayHigh ? `$${yearHigh.toFixed(2)}` : 'N/A';
-        document.getElementById('day-low').textContent = dayLow ? `$${dayLow.toFixed(2)}` : 'N/A';
-        document.getElementById('year-low').textContent = dayLow ? `$${yearLow.toFixed(2)}` : 'N/A';
-        // Check if data exists
-        if (timestamps && prices) {
-                // Convert timestamps to readable dates
-                const labels = timestamps.map(ts => new Date(ts * 1000).toLocaleString());
-               displayChart(labels, prices, stockSymbol);
-            } else {
-                console.error(`Data not found for ${stockSymbol}. Response structure:`, data);
-                document.getElementById("output").textContent = `Data not found for ${stockSymbol}.`;
-                document.getElementById("stock-content").style.display = "none"; // Hide content if no data
-            }
-        } } catch (error) {
-            console.error('Error fetching stock data:', error);
-            document.getElementById("output").textContent = "Error fetching stock data. Please try again later.";
-            document.getElementById("stock-content").style.display = "none"; // Hide content on error
-        }
+                return response.json();
+            })
+            .then(data => {
+                if (data === null) return null;
+                console.log(data);
+                return data;
+            })
+            .catch(err => {
+                console.error("Fetch error: ", err);
+                return null;
+            });
     }
-async function getPercentChange(stockSymbol) {
-        try {
-            const response = await fetch(`http://localhost:8085/api/stocks/${stockSymbol}`);
-            const data = await response.json();
-            console.log(data);
-            const newValue = data?.chart?.result?.[0]?.meta?.regularMarketPrice;
-            const oldValue = data?.chart?.result?.[0]?.meta?.chartPreviousClose;
-            const percentChange = ((newValue - oldValue) / oldValue) * 100;
-            //const outputElement = document.getElementById("output");
-            if (percentChange !== undefined) {
-                //outputElement.textContent = `The price of ${stock} is: $${price}`;
-                return percentChange.toFixed(2);
-            } else {
-                outputElement.textContent = `Price not found for ${stockSymbol}.`;
-                console.error(`Price not found for ${stockSymbol}. Response structure:`, data);
-            }
-        } catch (error) {
-            console.error('Error fetching stock data:', error);
-            document.getElementById("output").textContent = "Error fetching stock data. Please try again later.";
-        }
-        }
-async function selectStock(stock) {
-    const selectedStockElement = document.querySelector(`.stock-item[onclick="selectStock('${stock}')"]`);
-    if (selectedStockElement) {
-        selectedStockElement.classList.add("selected");
-        currentlySelectedStock = selectedStockElement;
-    }
+   async function getUserStocks() {
     try {
-        const response = await fetch(`http://localhost:8085/api/stocks/${stock}`);
-        const data = await response.json();
+        const credentials = await getCredentialsJava(); // Get user data
+        const email = credentials?.email; // Extract email
+        if (!email) {
+            throw new Error("User email not found");
+        }
+        const response = await fetch(javaURI + `/stocks/table/getStocks?username=${encodeURIComponent(email)}`);
+        if (!response.ok) {
+            throw new Error(`Error fetching stocks: ${response.statusText}`);
+        }
+        return await response.json();
     } catch (error) {
-        console.error('Error fetching stock data:', error);
+        console.error("Error fetching user stocks:", error);
+        return [];
     }
 }
+    async function updateYourStocksTable() {
+        const userStocks = await getUserStocks();
+        const table = document.getElementById("yourStocksTable");
+        // Clear any existing rows (excluding header)
+        table.innerHTML = `
+            <tr>
+                <th>Stock</th>
+                <th>Price</th>
+            </tr>`;
+        // Populate the table with each user's stock and price
+        for (const stockInfo of userStocks) {
+            const { stockSymbol } = stockInfo;
+            const price = await getStockPrice(stockSymbol);
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${stockSymbol}</td>
+                <td id="${stockSymbol}Price">$${price}</td>
+            `;
+            table.appendChild(row);
+        }
+    }
+    document.addEventListener("DOMContentLoaded", () => {
+        updateYourStocksTable();
+    });
+    let stockChart; // Declare stockChart globally
+   window.getStockData = async function() {
+    const stockSymbol = document.getElementById("searchBar").value;
+    document.getElementById("output").textContent = ""; // Clear previous messages
+    try {
+        const response = await fetch(javaURI + `/api/stocks/${stockSymbol}`);
+        const data = await response.json();
+        // Extract timestamps and prices
+        const timestamps = data?.chart?.result?.[0]?.timestamp;
+        const prices = data?.chart?.result?.[0]?.indicators?.quote?.[0]?.close;
+        // Check if data exists
+        if (timestamps && prices) {
+            // Convert timestamps to readable dates
+            const labels = timestamps.map(ts => new Date(ts * 1000).toLocaleString());
+            displayChart(labels, prices, stockSymbol);
+        } else {
+            document.getElementById("output").textContent = `Data not found for ${stockSymbol}.`;
+        }
+    } catch (error) {
+        console.error('Error fetching stock data:', error);
+        document.getElementById("output").textContent = "Error fetching stock data. Please try again later.";
+    }
+};
 function displayChart(labels, prices, tickerSymbol) {
     const ctx = document.getElementById('stockChart').getContext('2d');
     // Destroy the old chart if it exists
@@ -503,114 +604,133 @@ function displayChart(labels, prices, tickerSymbol) {
         }
     });
 }
-async function buyStock() {
-    const stockSymbol = document.getElementById("searchBar").value; // Get the stock symbol from the search bar
-    const quantity = document.getElementById("quantity-input").value; 
-    const outputElement = document.getElementById("output");
-    outputElement.textContent = ""; // Clear previous messages
-    console.log(stockSymbol);
-    //await delay(1000);
-    try {
-        const response = await fetch('http://localhost:8085/user/addStock', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                username: userID,
-                quantity: quantity,
-                stockSymbol: stockSymbol
-            })
-        });
-        const changeElement = document.getElementById('buysell');
-        const userElement = document.getElementById('userStock');
-        // Fetch updated user stock list after buying the stock
-        const userStocks = await getUserStock(userID);
-        if (response.ok) {
-            // Find the stock in userStocks and get its updated quantity
-            const stock = userStocks.find(s => s.stockSymbol === stockSymbol);
-            const updatedQuantity = stock ? stock.quantity : 1; // Default to 1 if stock is newly added
-            outputElement.textContent = `${stockSymbol} has been added to your portfolio.`;
-            changeElement.textContent = `${stockSymbol} has been bought`;
-            changeElement.classList.add("positive");
-            changeElement.classList.remove("negative");
-            // Display the updated quantity of the bought stock
-            userElement.textContent = `${stockSymbol} current quantity: ${updatedQuantity}`;
-            console.log(`Successfully added 1 share of ${stockSymbol} to the portfolio.`);
-            //await delay(1000);
-        } else {
-            changeElement.textContent = `Failed to add ${stockSymbol}. Please try again.`;
-            changeElement.classList.add("negative");
-            changeElement.classList.remove("positive");
-            //userElement.textContent = `${stockSymbol} current quantity: ${updatedQuantity}`;
-            console.error(`Failed to add ${stockSymbol}. Status code:`, response.status);
+async function getStockPrice(stock) {
+        try {
+            const response = await fetch(javaURI + `/api/stocks/${stock}`);
+            const data = await response.json();
+            console.log(data);
+            const price = data?.chart?.result?.[0]?.meta?.regularMarketPrice;
+            const outputElement = document.getElementById("output");
+            if (price !== undefined) {
+                //outputElement.textContent = `The price of ${stock} is: $${price}`;
+                return(price)
+            } else {
+                outputElement.textContent = `Price not found for ${stock}.`;
+                console.error(`Price not found for ${stock}. Response structure:`, data);
+            }
+        } catch (error) {
+            console.error('Error fetching stock data:', error);
+            document.getElementById("output").textContent = "Error fetching stock data. Please try again later.";
         }
-    } catch (error) {
-        console.error('Error adding stock:', error);
-        changeElement.textContent = "Error adding stock. Please try again later.";
-        changeElement.classList.add("negative");
-        changeElement.classList.remove("positive");
-        //userElement.textContent = `${stockSymbol} current quantity: ${updatedQuantity}`;
-    }
-}
-async function removeStock() {
-    const stockSymbol = document.getElementById("searchBar").value; // Get the stock symbol from the search bar
-    const quantity = document.getElementById("quantity-input").value;
-    const outputElement = document.getElementById("output");
-    outputElement.textContent = ""; // Clear previous messages
-    console.log(stockSymbol);
-    //await delay(1000);
-    try {
-        const response = await fetch('http://localhost:8085/user/removeStock', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                username: userID,
-                quantity: quantity,
-                stockSymbol: stockSymbol
-            })
+return new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve(prices[symbol]);
+                }, 0); // Simulate network delay
+            }); 
+      }
+      document.addEventListener("DOMContentLoaded", () => {
+            getCredentialsJava();
+            updateStockPrices(); // Call the function after DOM is fully loaded
+            getPortfolioPerformance();
+            //getUserIdFromAPI();
         });
-        const changeElement = document.getElementById('buysell');
-        const userElement = document.getElementById('userStock');
-        const userStocks = await getUserStock(userID);
-        if (response.ok) {
-            // Find the stock in userStocks and get its remaining quantity
-            const stock = userStocks.find(s => s.stockSymbol === stockSymbol);
-            const remainingQuantity = stock ? stock.quantity : 0; // If not found, assume 0
-            outputElement.textContent = `${stockSymbol} has been removed from your portfolio.`;
-            changeElement.textContent = `${stockSymbol} has been removed`;
-            changeElement.classList.add("negative");
-            changeElement.classList.remove("positive");
-            // Display the updated user stocks with quantities
-            userElement.textContent = `${stockSymbol} remaining quantity: ${remainingQuantity}`;
-            console.log(`Successfully removed 1 share of ${stockSymbol} from the portfolio.`);
-            //await delay(1000);
-        } else {
-            outputElement.textContent = `Failed to remove ${stockSymbol}. Please try again.`;
-            console.error(`Failed to remove ${stockSymbol}. Status code:`, response.status);
+async function updateStockPrices() {
+            const stockSymbols = ['Spotify', 'Apple', 'Google', 'Facebook', 'Microsoft'];
+            const tickerSymbols = ['SPOT', 'AAPL', 'GOOG', 'META', 'MSFT'];
+            const tickerPrices = [];
+            let counter = 0; 
+            for (const stock of tickerSymbols) {
+                const price = await getStockPrice(stock);
+                tickerPrices.push(price)              
+                const priceElement = document.getElementById(stockSymbols[counter] + "Price");
+                if (priceElement) {
+                    priceElement.textContent = `$${price}`;
+                } else {
+                    console.error(`Element with ID ${stock + "Price"} not found.`);
+                }
+                counter++;                 
+                //console.log(price);
+                //console.log(tickerPrices);
+                //console.log(priceElement);
+                //console.log(counter);
+            }
         }
+async function getPortfolioPerformance() {
+    try {
+        // Fetch user credentials
+        const credentials = await getCredentialsJava();
+        const email = credentials?.email;
+        if (!email) {
+            throw new Error("User email not found");
+        }
+        // Fetch user's stocks and portfolio value using the email
+        const userStocks = await getUserStock(email);
+        const userValue = await getUserValue(email);
+        let totalGain = 0;
+        let totalLatestValue = 0;
+        let totalOldValue = 0;
+        for (const { stockSymbol, quantity } of userStocks) {
+            const latestPrice = await getStockPrice(stockSymbol);
+            const oldPrice = await getOldStockPrice(stockSymbol);
+            // Calculate gain for each stock
+            const stockGain = (latestPrice - oldPrice) * quantity;
+            totalGain += stockGain;
+            // Calculate total values for percent increase calculation
+            totalLatestValue += latestPrice * quantity;
+            totalOldValue += oldPrice * quantity;
+        }
+        // Calculate percent increase
+        const percentIncrease = ((totalLatestValue - totalOldValue) / totalOldValue) * 100;
+        console.log(`Total increase: $${totalGain.toFixed(2)}, Percent increase: ${percentIncrease.toFixed(2)}%`);
+        // Update UI elements
+        document.getElementById("totalGain").textContent = `$${totalGain.toFixed(2)}`;
+        document.getElementById("percentIncrease").textContent = `${percentIncrease.toFixed(2)}%`;
+        document.getElementById("portfolioValue").textContent = `$${userValue.toFixed(2)}`;
     } catch (error) {
-        console.error('Error removing stock:', error);
-        outputElement.textContent = "Error removing stock. Please try again later.";
+        console.error("Error fetching portfolio performance:", error);
     }
 }
 async function getUserStock(user) {
             try {
-                const response = await fetch(`http://localhost:8085/user/getStocks?username=${user}`);
+                const response = await fetch(javaURI + `/stocks/table/getStocks?username=${user}`);
                 const stocksData = await response.json();
+                console.log(stocksData);
                 return stocksData;
             } catch (error) {
                 console.error("Error fetching user stocks:", error);
                 return [];
             }
         }
-async function logout() {
-            userID = "";
-            console.log(userID);
-            localStorage.setItem('userID', userID)
-            return(userID);   
+async function getOldStockPrice(stock) {
+        try {
+            const response = await fetch(javaURI + `/api/stocks/${stock}`);
+            const data = await response.json();
+            console.log(data);
+            const oldPrice = data?.chart?.result?.[0]?.meta?.chartPreviousClose;
+            const outputElement = document.getElementById("output");
+            if (oldPrice !== undefined) {
+                //outputElement.textContent = `The price of ${stock} is: $${price}`;
+                 console.log(`The previous close price of ${stock} is: $${oldPrice}`);
+                return(oldPrice)
+            } else {
+                outputElement.textContent = `Price not found for ${stock}.`;
+                console.error(`Price not found for ${stock}. Response structure:`, data);
+            }
+        } catch (error) {
+            console.error('Error fetching stock data:', error);
+            document.getElementById("output").textContent = "Error fetching stock data. Please try again later.";
+        }
+      }
+async function getUserValue(user) {
+            try {
+                const response = await fetch(javaURI + `/stocks/table/portfolioValue?username=${user}`);
+                const stocksData = await response.json();
+                console.log(stocksData);
+                return stocksData;
+            } catch (error) {
+                console.error("Error fetching user stocks:", error);
+                return [];
+            }
         }
 function delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));

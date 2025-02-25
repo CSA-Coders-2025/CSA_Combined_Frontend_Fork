@@ -289,6 +289,11 @@ search_exclude: true
                 return response.json();
             })
             .then(data => {
+                // Check if email ends with "@gmail.com" and prompt user to update profile
+                if (data.email === `${data.uid}@gmail.com`) {
+                    alert('You need to update your name and email in the profile page to complete account setup.');
+                }
+
                 loginForm.style.display = 'none';
                 dataTable.style.display = 'block';
                 dataButton.style.display = 'block';
@@ -302,6 +307,8 @@ search_exclude: true
 
                 name.textContent = data.name;
                 ghid.textContent = data.uid;
+                //store ghid in localStorage
+                localStorage.setItem("ghid", data.uid);
                 id.textContent = data.email;
                 age.textContent = data.age;
                 roles.textContent = data.roles.map(role => role.name).join(', ');
@@ -335,3 +342,4 @@ search_exclude: true
         javaDatabase();
     };
 </script>
+
