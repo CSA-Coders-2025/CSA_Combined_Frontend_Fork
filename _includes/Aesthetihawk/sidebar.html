@@ -60,13 +60,12 @@
 <ul>
     <!-- these will show if you ARE logged in -->
     <li id="profile-link">
-        <h3><a href="{{site.baseurl}}/profile_aesthetihawk" id="profile-link_" onclick="setActiveTab('profile')">Profile
+        <h3><a href="{{site.baseurl}}/profile_aesthetihawk" id="profile-link_">Profile
                 Settings</a></h3>
     </li>
 
     <li id="student-toolkit-link">
-        <h3><a href="{{site.baseurl}}/student_aesthetihawk" id="student-toolkit-link_"
-                onclick="setActiveTab('studentToolkit')">Student Toolkit</a></h3>
+        <h3><a href="{{site.baseurl}}/student_aesthetihawk" id="student-toolkit-link_">Student Toolkit</a></h3>
     </li>
 
 
@@ -194,6 +193,14 @@
             .catch(err => {
                 console.error("Error fetching credentials: ", err);
             });
+        
+        // Add event listeners to links to update the active tab before navigation
+        document.querySelectorAll("ul li a").forEach(link => {
+            link.addEventListener("click", function () {
+                const tabId = this.id.replace("-link_", ""); // Extract tab name from ID
+                setActiveTab(tabId);
+            });
+        });
     });
 
     // this calls the backend and gets the user credentials
