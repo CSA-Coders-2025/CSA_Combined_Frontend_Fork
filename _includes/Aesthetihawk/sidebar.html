@@ -50,7 +50,6 @@
     .sidebar .active-tab {
         color: #0071e3;
     }
-
 </style>
 
 <img src="#" alt="" class="profile-pic" id="headerPfp">
@@ -61,11 +60,13 @@
 <ul>
     <!-- these will show if you ARE logged in -->
     <li id="profile-link">
-        <h3><a href="{{site.baseurl}}/profile_aesthetihawk" id="profile-link_" onclick="setActiveTab('profile')">Profile Settings</a></h3>
+        <h3><a href="{{site.baseurl}}/profile_aesthetihawk" id="profile-link_" onclick="setActiveTab('profile')">Profile
+                Settings</a></h3>
     </li>
-    
+
     <li id="student-toolkit-link">
-        <h3><a href="{{site.baseurl}}/student_aesthetihawk" id="student-toolkit-link_" onclick="setActiveTab('studentToolkit')">Student Toolkit</a></h3>
+        <h3><a href="{{site.baseurl}}/student_aesthetihawk" id="student-toolkit-link_"
+                onclick="setActiveTab('studentToolkit')">Student Toolkit</a></h3>
     </li>
 
 
@@ -99,7 +100,13 @@
 
     // link controller + active tab handler
     document.addEventListener('DOMContentLoaded', function () {
-        configureActiveTab();
+        // Get the active tab from localStorage
+        const activeTab = localStorage.getItem('activeTab');
+
+        if (activeTab) {
+            setActiveTab(activeTab);
+        }
+
         getCredentialsJava()
             .then(data => {
                 // these only show if you ARE logged in
@@ -123,9 +130,6 @@
                     signUpLink.style.display = 'none';
 
                     // only when the user is logged in can they access the toolkits
-                    // profileLink.innerHTML = `<a href="{{site.baseurl}}/profilejava">Profile</a>`;
-                    // studentToolkitLink.innerHTML = `<a href="{{site.baseurl}}/student">Student Toolkit</a>`;
-                    // calendarLink.innerHTML = `<a href="{{site.baseurl}}/student/calendar">Calendar</a>`;
                     profileLink.style.display = 'block';
                     studentToolkitLink.style.display = 'block';
                     calendarLink.style.display = 'block';
@@ -146,7 +150,7 @@
 
                     // now we should change the info in the sidebar like the name and the PFP
                     name.innerHTML = "Welcome, <br/>" + data.name;
-                    
+
                     // check if the pfp actually exists
                     if (data.pfp) {
                         // Check if the profile picture is base64 or an image URL
@@ -155,7 +159,7 @@
                             if (!data.pfp.startsWith('data:image/')) {
                                 data.pfp = 'data:image/png;base64,' + data.pfp;  // Assume it's PNG, adjust the type as needed
                             }
-                            
+
                             headerPfp.src = data.pfp; // If it's base64, use the base64 string directly
                             console.log("DATA BASE64 WAS USED")
                             console.log(data.pfp)
@@ -220,23 +224,16 @@
         return /^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$/.test(str);
     }
 
-    // change active tab coloring
-    function configureActiveTab() {
-        const str = localStorage.getItem("activeTab");
-
-        if (str === "profile") {
-            document.getElementById("profile-link_").classList.add("active-tab");
-            document.getElementById("student-toolkit-link_").classList.remove("active-tab");
-        }
-        else if (str === "studentToolkit") {
-            document.getElementById("student-toolkit-link_").classList.add("active-tab");
-            document.getElementById("profile-link_").classList.remove("active-tab");
-        }
-    }
-
-    // set a tab
+    // Function to set the active tab and store it in localStorage
     function setActiveTab(tab) {
-        localStorage.clear();
-        localStorage.setItem("activeTab", tab);
+        // Remove the active class from all tabs
+        document.querySelectorAll("ul li a").forEach(link => link.classList.remove("active-tab"));
+
+        // Add the active class to the clicked tab
+        const activeLink = document.getElementById(tab + "-link_");
+        if (activeLink) {
+            activeLink.classList.add("active-tab");
+            localStorage.setItem('activeTab', tab); // Store the active tab in localStorage
+        }
     }
 </script>
