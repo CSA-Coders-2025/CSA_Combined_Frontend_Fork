@@ -61,7 +61,7 @@ permalink: /gamify/blackjack
 <div class="container">
     <h1>Blackjack Game</h1>
     <label for="betAmount">Bet Amount:</label>
-    <input type="range" id="betAmount" min="1000" max="1000000" value="1000" oninput="updateBetDisplay()">
+    <input type="range" id="betAmount" min="1000" max="1000000" value="1000" step="1000">
     <span id="betValue">$1,000</span>
     <button id="startGame">Start Game</button>
     <button id="hit" disabled>Hit</button>
@@ -96,6 +96,16 @@ permalink: /gamify/blackjack
             document.getElementById("gameStatus").innerText = "Error fetching UID. Please log in.";
         }
     }
+
+    function updateBetDisplay() {
+        let betValue = document.getElementById("betAmount").value;
+        document.getElementById("betValue").innerText = `$${Number(betValue).toLocaleString()}`;
+    }
+
+    // Ensure the event listener is correctly set up
+    document.addEventListener("DOMContentLoaded", function() {
+        document.getElementById("betAmount").addEventListener("input", updateBetDisplay);
+    });
 
     document.getElementById("startGame").addEventListener("click", async function () {
         try {
@@ -150,10 +160,6 @@ permalink: /gamify/blackjack
             document.getElementById("gameStatus").innerText = error.message;
         }
     });
-
-    function updateBetDisplay() {
-        document.getElementById("betValue").innerText = `$${document.getElementById("betAmount").value}`;
-    }
 
     function updateUI(data) {
         console.log("API Response:", data);
