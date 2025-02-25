@@ -7,7 +7,8 @@ active_tab: profile
 <style>
     .main-info {
         display: grid;
-        grid-template-columns: 500px 500px;
+        /* grid-template-columns: 500px 500px; */
+          grid-template-columns: repeat(auto-fit, minmax(300px, 500px)); /* Responsive grid */
         grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
         gap: 30px 30px;
         grid-auto-flow: row;
@@ -18,6 +19,13 @@ active_tab: profile
             "kasm-info class-info"
             "pfp-info dummy";
         grid-area: main-info;
+    }
+
+    /* If the screen is very small, switch to a single-column layout */
+    @media (max-width: 1400px) {
+        .main-info {
+            grid-template-columns: 1fr; /* One card per row */
+        }
     }
 
     .header {
@@ -193,6 +201,7 @@ active_tab: profile
         overflow: hidden;
         position: relative;
         width: 100%;
+        max-width: 100%;
 
         /* spacing */
         padding: 30px;
