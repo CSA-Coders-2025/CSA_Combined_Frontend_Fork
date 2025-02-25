@@ -8,14 +8,15 @@ active_tab: profile
     .main-info {
         display: grid;
         grid-template-columns: 500px 500px;
-        grid-template-rows: 1fr 1fr 1fr 1fr;
+        grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
         gap: 30px 30px;
         grid-auto-flow: row;
         grid-template-areas:
             "header header"
             "name-info uid-info"
-            "email-info kasm-info"
-            "class-info pfp-info";
+            "email-info password-info"
+            "kasm-info class-info"
+            "pfp-info";
         grid-area: main-info;
     }
 
@@ -78,6 +79,25 @@ active_tab: profile
 
     .email-icon {
         grid-area: email-icon;
+    }
+
+    .password-info {
+        display: grid;
+        grid-template-columns: 1fr min-content;
+        grid-template-rows: 1fr;
+        gap: 0px 0px;
+        grid-auto-flow: row;
+        grid-template-areas:
+            "password-details password-icon";
+        grid-area: password-info;
+    }
+
+    .password-details {
+        grid-area: password-details;
+    }
+
+    .password-icon {
+        grid-area: password-icon;
     }
 
     .kasm-info {
@@ -325,6 +345,19 @@ active_tab: profile
     </div>
 </div>
 
+<!-- change password box -->
+<div id="change-password" class="change-info-card" style="visibility: hidden;">
+    <ion-icon name="mail-outline" size="large"></ion-icon>
+    <h1>Password</h1>
+    <form onsubmit="return changePassword(event)">
+        <input type="password" id="passwordInput" placeholder="Enter new password.">
+        <input type="submit" value="Save changes">
+    </form>
+    <div class="close" onclick="document.getElementById('change-password').style.visibility = 'hidden'">
+        <ion-icon name="close-outline" size="large" class="close"></ion-icon>
+    </div>
+</div>
+
 <!-- change kasm box -->
 <div id="change-kasm" class="change-info-card" style="visibility: hidden;">
     <ion-icon name="server-outline" size="large"></ion-icon>
@@ -345,15 +378,16 @@ active_tab: profile
 <div id="change-class" class="change-info-card" style="visibility: hidden;">
     <ion-icon name="school-outline" size="large"></ion-icon>
     <h1>Class Info</h1>
-    <form action="#">
-        <label class="container-checkbox" style="white-space: nowrap;">My class
-            <select id="cars" name="cars">
-                <option value="volvo">Volvo</option>
-                <option value="saab">Saab</option>
-                <option value="fiat">Fiat</option>
-                <option value="audi">Audi</option>
-            </select>
-        </label>
+    <form onsubmit="return changeClass(event)">
+        <select id="classInput" name="class">
+            <option value="CSA">Computer Science Advanced</option>
+            <option value="CSP">Computer Science Principles</option>
+            <option value="CSSE">Computer Science and Software Engineering</option>
+            <option value="Robotics">Engineering Robotics</option>
+        </select>
+
+        <input type="text" id="classInputYear" placeholder="Enter class year (YYYY).">
+
         <input type="submit" value="Save changes">
     </form>
     <div class="close" onclick="document.getElementById('change-class').style.visibility = 'hidden'">
@@ -427,6 +461,18 @@ active_tab: profile
         </div>
     </div>
 
+    <!-- password card -->
+    <div class="password-info card" onclick="document.getElementById('change-password').style.visibility = 'visible'" data-tilt
+        data-tilt-reverse="true" data-tilt-perspective="10000" data-tilt-glare data-tilt-max-glare="0.5">
+        <div class="password-details">
+            <h3>Password</h3>
+            <p>Click to change your password.</p>
+        </div>
+        <div class="password-icon">
+            <ion-icon name="lock-closed-outline" size="large"></ion-icon>
+        </div>
+    </div>
+
     <!-- kasm card -->
     <div class="kasm-info card" onclick="document.getElementById('change-kasm').style.visibility = 'visible'" data-tilt
         data-tilt-reverse="true" data-tilt-perspective="10000" data-tilt-glare data-tilt-max-glare="0.5">
@@ -456,7 +502,7 @@ active_tab: profile
         data-tilt-reverse="true" data-tilt-perspective="10000" data-tilt-glare data-tilt-max-glare="0.5">
         <div class="pfp-details">
             <h3>Profile Picture</h3>
-            <p>Click to change or add your profile picture.</p>            
+            <p>Click to change or add your profile picture.</p>
         </div>
         <div class="pfp-icon">
             <ion-icon name="image-outline" size="large"></ion-icon>
@@ -682,6 +728,31 @@ active_tab: profile
         document.getElementById("email").textContent = email; //reload the content
     }
 
+    window.changePassword = async function (event) {
+        event.preventDefault(); // Prevent the form from refreshing the page
+
+        const password = document.getElementById("passwordInput").value.trim(); // Get and trim input value
+
+        if (password) {
+            const URL = javaURI + "/api/person/update"; // Adjusted endpoint
+            const options = {
+                URL,
+                body: { password }, // Adjust the message area as needed
+                callback: () => {
+                    console.log('Password updated successfully!');
+                    window.location.href = '/portfolio_2025/toolkit-login'
+                }
+            };
+            try {
+                alert("You updated your password, so you will automatically be logged out. Be sure to remember your password!");
+                await postUpdate(options);
+                await logoutUserJava();
+            } catch (error) {
+                console.error('Error updating password:', error.message);
+            }
+        }
+    }
+
     window.changeKasmServerStatus = async function (event) {
         // select the checkbox and scan for updates (did they check or uncheck it?)
         const checkbox = event.target;
@@ -711,13 +782,20 @@ active_tab: profile
         }
     }
 
+    window.changeClass = async function (event) {
+        event.preventDefault(); // Prevent the form from refreshing the page
+
+        // no java code on profile java for this; collaboration with mort required
+    }
+    
+
     window.changeProfilePicture = async function (event) {
         event.preventDefault(); // Prevent the form from refreshing the page
 
         // select the file
         const fileInput = document.getElementById('profilePictureInput');
         const file = fileInput.files[0];
-        
+
         // all this does is update the image in the sidebar (doesnt actually send img to backend)
         if (file) {
             const reader = new FileReader();
@@ -728,7 +806,7 @@ active_tab: profile
             reader.readAsDataURL(file);
         }
         if (!file) return;
-        
+
         // this is the code that ACTUALLY sends the file to the backend
         try {
             const base64String = await convertToBase64(file);
@@ -754,7 +832,7 @@ active_tab: profile
     // helper function to send the new pfp given the base64 data
     async function sendProfilePicture(base64String) {
         const URL = javaURI + "/api/person/update"; // Adjust endpoint as needed
-        
+
         // Create options object for PUT request
         const options = {
             URL,
