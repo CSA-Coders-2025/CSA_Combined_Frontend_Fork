@@ -61,8 +61,8 @@ permalink: /gamify/blackjack
 <div class="container">
     <h1>Blackjack Game</h1>
     <label for="betAmount">Bet Amount:</label>
-    <input type="range" id="betAmount" min="1" max="1000" value="100" oninput="updateBetDisplay()">
-    <span id="betValue">$100</span>
+    <input type="range" id="betAmount" min="1000" max="1000000" value="1000" oninput="updateBetDisplay()">
+    <span id="betValue">$1,000</span>
     <button id="startGame">Start Game</button>
     <button id="hit" disabled>Hit</button>
     <button id="stand" disabled>Stand</button>
