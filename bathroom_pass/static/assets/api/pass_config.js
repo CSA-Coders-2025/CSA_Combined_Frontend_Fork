@@ -5,7 +5,7 @@ const location = "localhost"
 export var javaURI;
 // 127.0.0.1:8085 does not work for some machines
 if (location === "localhost" || location === "127.0.0.1") {
-        javaURI = "https://spring2025.nighthawkcodingsociety.com";
+        javaURI = "http://localhost:8085";
 } else {
     javaURI = "https://spring2025.nighthawkcodingsociety.com";
 }

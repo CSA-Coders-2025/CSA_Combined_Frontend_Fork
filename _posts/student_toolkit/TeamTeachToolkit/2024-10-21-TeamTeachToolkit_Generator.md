@@ -1,13 +1,14 @@
 ---
 toc: false
 layout: post
-title: AI Generator
-permalink: /student/sagai/generator
+title: Hacks Generator
+permalink: /student/TeamTeachToolkit/generator
+description: Generate MC or FRQ hacks based on specific units
 ---
 <head>
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>SAGAI Generator</title>
+   <title>Hacks Generator</title>
    <style>
       body {
       background-color: black;
@@ -226,20 +227,21 @@ permalink: /student/sagai/generator
     margin-top: 20px;
     font-size: 16px;
     }
-
+    .post-meta {
+      display: none;
+    }
    </style>
 </head>
 
 <body>
    <!-- Navigation buttons -->
    <div class="nav-buttons">
-      <a href="{{site.baseurl}}/student/sagai"><button>Home</button></a>
-      <a href="{{site.baseurl}}/student/sagai/grader"><button>Grader</button></a>
-      <a href="{{site.baseurl}}/student/sagai/QNA"><button>QNA</button></a>
+      <a href="{{site.baseurl}}/student/TeamTeachToolkit"><button>Home</button></a>
+      <a href="{{site.baseurl}}/student/TeamTeachToolkit/grader"><button>Grader</button></a>
+      <a href="{{site.baseurl}}/student/TeamTeachToolkit/review"><button>Review</button></a>
    </div>
    <!-- Main Generator Section -->
    <div class="container">
-      <h1 class="section-title">GENERATOR</h1>
       <!-- Generator Form -->
       <div class="form-box">
          <label for="topicInput">Generate a hack:</label>

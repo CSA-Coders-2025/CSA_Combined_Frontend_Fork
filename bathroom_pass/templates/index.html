@@ -177,6 +177,8 @@
         <div class="map-container">
             <img src="https://i.ibb.co/tMQ1mTy6/map.png" alt="Map">
         </div>
+        <input type="text" id="barcode-input" autofocus style="position:absolute; left:-9999px;">
+
     </div>
     
     
@@ -185,199 +187,248 @@
         
         const javaURI = "https://spring2025.nighthawkcodingsociety.com"
 
-        const teacherName = "jmort1021@gmail.com";
-        window.fetchLocations = async function fetchLocations() {
-            try {
-                const response = await fetch(javaURI + '/api/issue/issues', fetchOptions);
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
+    // Save users to localStorage
+    function saveUsers() {
+        localStorage.setItem('users', JSON.stringify(users));
+    }
+
+    // Remove a user from storage
+    function removeUser(student) {
+        delete users[student];
+        saveUsers();
+    }
+
+    function getTime()
+    {
+        const now = new Date();
+        const hours = now.getHours();
+        const minutes = now.getMinutes().toString().padStart(2, "0"); // Ensures 2 digits
+        const seconds = now.getSeconds().toString().padStart(2, "0");
+        const time = `${hours}:${minutes}:${seconds}`;
+        return time;
+    }
+    // Initialize users from localStorage
+    let users = loadUsers();
+    console.log(users);
+    document.addEventListener("DOMContentLoaded", function() {
+        const barcodeInput = document.getElementById("barcode-input");
+        barcodeInput.focus();
+
+        window.addEventListener('click', function(event) {
+            barcodeInput.focus();
+        });
+        barcodeInput.addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                let barcode = barcodeInput.value.trim();
+                console.log("Scanned Barcode:", barcode);
+
+                // Check if barcode is empty
+                if (!barcode) {
+                    console.log("Empty barcode, ignoring...");
+                    return;
                 }
-                const issues = await response.json();
+                
+                // Handle returning user
+                let currentAway = document.getElementById('current-away').textContent.trim();
+                if (users[currentAway] === barcode) {
+                    console.log("Removing ", currentAway);                    
+                    var timeIn = getTime();
+                    var timeOut = localStorage.getItem("timeout");
+                    var time = `${timeOut}-${timeIn}`;
+                    
+                    const postOptions = {
+                        ...fetchOptions,
+                        method: 'POST',
+                    }
+                    let tinkleBody = {
+                        studentEmail: currentAway,
+                        timeIn: time
+                    };
 
-                const mapContainer = document.querySelector('.map-container');
+                    setTimeout( function() {
+                        fetch(tinkleURL, {
+                            ...postOptions,
+                            body: JSON.stringify(tinkleBody),
+                        })
+                        .then(response => {
+                            if (response.ok) {
+                                console.log("Time added to database");
+                            } else {
+                                alert("Failed to add time to database.");
+                            }
+                        })
+                    }
+                    ,500);
+                    document.getElementById('current-away').innerHTML = 'Nobody';
 
-                issues.forEach(issue => {
-                    console.log(issue.bathroom)
-                    if (issue.count == 0) {
+                    removeUser(currentAway);
+                    setTimeout(
+                        removeFromQueue(),500);    
+                    check_glow();
+                    barcodeInput.value = "";
+                    return;
+                }
+                if (currentAway === 'Nobody' & barcode == users[document.getElementById('next-up').textContent])
+                {
+                    fetchQueueData();
+                    var timeOut = getTime();
+                    localStorage.setItem("timeout", timeOut);
+                    location.reload();
+                }
+                for (const key in users)
+                {
+                    if (barcode == users[key])
+                    {
+                        console.log('duplicate user. Get outta here and wait your turn.');
                         return;
                     }
-                    const locElement = document.createElement('div');
-                    locElement.className = 'location';
-                    locElement.style.position = 'absolute';
-                    locElement.style.top = (issue.positionY * 100) + '%';
-                    locElement.style.left = (issue.positionX * 100) + '%';
-
-                    const icon = document.createElement('img');
-                    icon.src = 'https://i.ibb.co/jPDbhG4H/marker.webp';
-                    icon.alt = 'Location Icon';
-                    icon.style.width = '48px';
-                    icon.style.height = '48px';
-
-                    const info = document.createElement('div');
-                    info.className = 'info';
-                    info.textContent = `${issue.bathroom} Bathroom: ${issue.issue}`;
-
-                    locElement.appendChild(icon);
-                    locElement.appendChild(info);
-                    mapContainer.appendChild(locElement);
-                });
-            } catch (error) {
-                console.error('Error fetching issues:', error);
-            }
-        }
-
-        // Fetch locations on page load
-        fetchLocations();
-
-        console.log("hello")
-
-            // Fetch locations on page load
-        window.onload = function() { 
-            fetchLocations();
-        }
-
-        let  mortensenQueue = null;
-        async function fetchQueueData() {
-            try {
-                const QueueURI = javaURI + "/api/queue/all";
-                const response = await fetch(QueueURI, fetchOptions);
-        
-                if (response.status !== 200) {
-                    console.error("Failed to fetch queue data.");
-                    return;
-                }
-        
-                const data = await response.json();
-                console.log(data);
-
-                //const mortensenQueue = data.find(queue => queue.teacherEmail === teacherName);
-                for (let i = 0; i < data.length; i++)
-                {
-                    console.log(data[i].teacherEmail);
-                    if (data[i].teacherEmail == teacherName)
-                    {
-                        mortensenQueue = data[i];
-                        break;
-                    }
-                }
-                
-                console.log(mortensenQueue);
-                if (!mortensenQueue) {
-                    console.error("No queue found for the teacher.");
-                    return;
                 }
 
-                // Split the queue into an array
-                const queueArray = mortensenQueue.peopleQueue.split(",");
-                
-                // Set the first person as "currently away" and the second as "next-up"
-                const currentUser = queueArray[0] || "Nobody"; // First person in the queue
-                const nextUp = queueArray[1] || "None"; // Second person in the queue
-        
-                // Update the UI
-                document.getElementById("current-away").textContent = currentUser;
-                document.getElementById("next-up").textContent = nextUp;
-        
-                const queueList = document.getElementById("queue-list");
-                queueList.innerHTML = ""; // Clear the existing list
-        
-                // Add the rest of the queue (starting from index 2)
-                queueArray.slice(2).forEach(person => {
-                    const li = document.createElement("li");
-                    li.textContent = person;
-                    queueList.appendChild(li);
-                    queueList.style.listStyleType = "none";
-                });
-        
-                // Update status bar and glow effect
-                const statusBar = document.getElementById("status-bar");
-                if (document.getElementById('current-away').innerText.trim() != "Nobody") {
-                    statusBar.textContent = "OCCUPIED";
-                    statusBar.classList.add("occupied");
-                    statusBar.classList.remove("unoccupied");
-                    document.body.classList.add("occupied-glow");
-                    document.body.classList.remove("unoccupied-glow");
-                } else {
-                    statusBar.textContent = "UNOCCUPIED";
-                    statusBar.classList.add("unoccupied");
-                    statusBar.classList.remove("occupied");
-                    document.body.classList.add("unoccupied-glow");
-                    document.body.classList.remove("occupied-glow");
-                }
-            } catch (error) {
-                console.error("Error fetching queue data:", error);
-            }
-        }
-        
-        
-        function check_glow()
-        {
-            // Update status bar and glow effect
-            const statusBar = document.getElementById("status-bar");
-            if (document.getElementById('current-away').innerText.trim() != "Nobody") {
-                statusBar.textContent = "OCCUPIED";
-                statusBar.classList.add("occupied");
-                statusBar.classList.remove("unoccupied");
-                document.body.classList.add("occupied-glow");
-                document.body.classList.remove("unoccupied-glow");
-            } else {
-                statusBar.textContent = "UNOCCUPIED";
-                statusBar.classList.add("unoccupied");
-                statusBar.classList.remove("occupied");
-                document.body.classList.add("unoccupied-glow");
-                document.body.classList.remove("occupied-glow");
-            }
-        }
-        
-        // Fetch queue data on page load
-        document.addEventListener("DOMContentLoaded", fetchQueueData);
-        
-
-
-        async function updateQueue() {
-            try {
-                const addQueueURI = javaURI + "/api/queue/add"
-                const response = await fetch(addQueueURI, { method: "POST" }); // Update this if you have a specific route for updating the queue
-                if (response.ok) {
-                    fetchQueueData(); // Refresh queue data after updating
-                }
-            } catch (error) {
-                console.error("Error updating queue:", error);
-            }
-        }
-
-        
-        window.addEventListener('click', function(event) {
-            if (event.target && event.target.id == 'leave-now'){
-                if (document.getElementById('current-away').innerHTML === 'Nobody')
-                {
-                    removeFromQueue();
-                }
-                else
-                {
-                    document.getElementById('current-away').innerHTML = 'Nobody';
-                    check_glow();
-                }
-            }
-        })
-
-        const deleteOptions = {
-            ...fetchOptions,
-            method: 'DELETE',
-        };
-        function removeFromQueue()
-        {
-            fetch(javaURI + "/api/queue/removefront/" + teacherName, {
-                ...deleteOptions,
-            })
-                .then(response => {
-                    if (response.ok) {
-                        fetchQueueData();
-                    } else alert("Failed to remove from queue.");
+                // Fetch user info from the server
+                fetch("/scan-barcode", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ student_id: barcode })
                 })
-                .catch(error => console.error("Error removing from queue:", error));
-        }
+                .then(response => response.json())
+                .then(resp => {
+                    if (resp.student) {
+                        users[resp.student] = barcode;
+                        saveUsers(); // Save updated users list
+                        console.log("User added:", resp.student);
+                        localStorage.setItem('timeout', getTime())
+                        console.log('timeout', getTime());
+                    } else {
+                        console.log("Invalid response:", resp);
+                    }
+                    location.reload();
+                })
+                .catch(error => console.error("Error:", error));
 
+                // Clear input field and refocus
+                barcodeInput.value = "";
+            }
+        });
+    });
+
+    const teacherName = "jmort1021@gmail.com";
+    
+    async function fetchLocations() {
+        try {
+            const response = await fetch(javaURI + '/api/issue/issues', fetchOptions);
+            if (!response.ok) throw new Error('Network response was not ok');
+            
+            const issues = await response.json();
+            const mapContainer = document.querySelector('.map-container');
+            
+            issues.forEach(issue => {
+                if (issue.count == 0) return;
+                
+                const locElement = document.createElement('div');
+                locElement.className = 'location';
+                locElement.style.position = 'absolute';
+                locElement.style.top = (issue.positionY * 100) + '%';
+                locElement.style.left = (issue.positionX * 100) + '%';
+    
+                const icon = document.createElement('img');
+                icon.src = 'https://i.ibb.co/jPDbhG4H/marker.webp';
+                icon.alt = 'Location Icon';
+                icon.style.width = '48px';
+                icon.style.height = '48px';
+    
+                const info = document.createElement('div');
+                info.className = 'info';
+                info.textContent = `${issue.bathroom} Bathroom: ${issue.issue}`;
+    
+                locElement.appendChild(icon);
+                locElement.appendChild(info);
+                mapContainer.appendChild(locElement);
+            });
+        } catch (error) {
+            console.error('Error fetching issues:', error);
+        }
+    }
+    
+    window.onload = fetchLocations;
+    
+    let mortensenQueue = null;
+    async function fetchQueueData() {
+        try {
+            const QueueURI = javaURI + "/api/queue/all";
+            const response = await fetch(QueueURI, fetchOptions);
+    
+            if (response.status !== 200) return console.error("Failed to fetch queue data.");
+            
+            const data = await response.json();
+            mortensenQueue = data.find(queue => queue.teacherEmail === teacherName);
+    
+            if (!mortensenQueue) return console.error("No queue found for the teacher.");
+    
+            const queueArray = mortensenQueue.peopleQueue.split(",");
+            document.getElementById("current-away").textContent = queueArray[0] || "Nobody";
+            document.getElementById("next-up").textContent = queueArray[1] || "None";
+    
+            const queueList = document.getElementById("queue-list");
+            queueList.innerHTML = "";
+            
+            queueArray.slice(2).forEach(person => {
+                const li = document.createElement("li");
+                li.textContent = person;
+                queueList.appendChild(li);
+                queueList.style.listStyleType = "none";
+            });
+            check_glow();
+        } catch (error) {
+            console.error("Error fetching queue data:", error);
+        }
+    }
+    
+    document.addEventListener("DOMContentLoaded", fetchQueueData);
+    
+    function check_glow() {
+        const statusBar = document.getElementById("status-bar");
+        if (document.getElementById('current-away').innerText.trim() !== "Nobody") {
+            statusBar.textContent = "OCCUPIED";
+            statusBar.classList.add("occupied");
+            statusBar.classList.remove("unoccupied");
+            document.body.classList.add("occupied-glow");
+            document.body.classList.remove("unoccupied-glow");
+        } else {
+            statusBar.textContent = "UNOCCUPIED";
+            statusBar.classList.add("unoccupied");
+            statusBar.classList.remove("occupied");
+            document.body.classList.add("unoccupied-glow");
+            document.body.classList.remove("occupied-glow");
+        }
+    }
+    
+    window.addEventListener('click', function(event) {
+        if (event.target && event.target.id == 'leave-now') {
+            if (document.getElementById('current-away').innerHTML === 'Nobody') {
+                removeFromQueue();
+            } else {
+                document.getElementById('current-away').innerHTML = 'Nobody';
+                check_glow();
+            }
+        }
+    });
+    
+    const deleteOptions = { ...fetchOptions, method: 'DELETE' };
+    
+    function removeFromQueue() {
+        fetch(javaURI + "/api/queue/removefront/" + teacherName, deleteOptions)
+            .then(response => {
+                if (response.ok) {
+                    console.log('user removed');
+                } else {
+                    alert("Failed to remove from queue.");
+                }
+            })
+            .catch(error => console.error("Error removing from queue:", error));
+    }
+    
+    console.log("Script loaded successfully");
+    
 </script>
 </body>
 </html>

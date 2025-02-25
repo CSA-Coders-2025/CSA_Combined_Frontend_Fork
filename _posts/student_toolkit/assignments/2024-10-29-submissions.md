@@ -8,6 +8,29 @@ layout: post
 
 <title>Submission Form</title>
 <style>
+    #searchBar, #rowsPerPage {
+    width: auto; /* Automatically adjust to content size */
+    max-width: 250px; /* Limit max width */
+}
+    /* Container for search bar and rows per page */
+    #search-container {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+    /* Adjust submission section size */
+    #submission-section {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    /* For the buttons and table in the student section */
+    #namesTableBody {
+        width: 75%;
+        max-height: 50px;  /* Add max height to allow for scrolling if needed */
+        overflow-y: auto;
+    }
     #timer-container {
         text-align: center;
         font-size: 24px;
@@ -106,35 +129,68 @@ layout: post
     </div>
     <br><br>
     <div>
-        <label for="submissionContent" style="font-size: 18px;">Submission Content:</label>
-        <input type="url" id="submissionContent" required />
+        <label for="searchBar">Search for a name: </label>
+        <input type="text" id="searchBar" placeholder="Search for a name..." onkeyup="filterNames()">
     </div>
-    <br><br>
     <div>
-        <label for="comments" style="font-size: 18px;">Comments:</label>
-        <textarea id="comments" rows="4" style="width: 100%;"></textarea>
+        <label for="rowsPerPage">Rows per page: </label>
+        <select id="rowsPerPage" onchange="changeRowsPerPage()">
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+            <option value="200">200</option>
+            <option value="1000">1000</option>
+            <option value="1000">2000</option>
+        </select>
     </div>
-    <br><br>
-    <button id="submit-assignment">Submit Assignment</button>
-    <br><br>
-    <div class="output-box" id="outputBox"></div>
-    <br><br>
-    <h1>Previous Submissions for: </h1>
-    <div class="Assignment-Name" id="Assignment-name">Assignment-Content</div>
-    <br><br>
-    <table id="submissions-table" style="width: 100%; margin-top: 20px;">
+    <table>
         <thead>
             <tr>
-                <th>Submisssion Content</th>
-                <th>Grade</th>
-                <th>Feedback</th>
+                <th>Name</th>
+                <th>Action</th>
             </tr>
         </thead>
-        <tbody>
-            <!-- Submissions will be populated here -->
-        </tbody>
+        <tbody id="namesTableBody"></tbody>
     </table>
-    
+<!-- <div id="pagination-container">
+    <button id="prevPage" onclick="changePage(-1)">Previous</button>
+    <span id="pageInfo">Page 1 of 10</span>
+    <button id="nextPage" onclick="changePage(1)">Next</button>
+</div> -->
+<div class="Review-Group" id="Review-Group">Group Members: </div>
+<br><br><br>
+<div>
+    <label for="submissionContent" style="font-size: 18px;">Submission Content:</label>
+    <input type="url" id="submissionContent" required />
+</div>
+<br><br>
+<div>
+    <label for="comments" style="font-size: 18px;">Comments:</label>
+    <textarea id="comments" rows="4" style="width: 100%;"></textarea>
+</div>
+<br><br>
+<button id="submit-assignment">Submit Assignment</button>
+<br><br>
+<div class="output-box" id="outputBox"></div>
+<br><br>
+<h1>Previous Submissions for: </h1>
+<div class="Assignment-Name" id="Assignment-name">Assignment-Content</div>
+<br><br>
+<table id="submissions-table" style="width: 100%; margin-top: 20px;">
+    <thead>
+        <tr>
+            <th>Submisssion Content</th>
+            <th>Grade</th>
+            <th>Feedback</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Submissions will be populated here -->
+    </tbody>
+</table>
+
 </div>
 
 
@@ -147,7 +203,10 @@ layout: post
     let assignIndex = 0;
     let assignments;
     let userId=-1;
+    let StuName;
     let Student;
+     let people = [], filteredPeople = [], listofpeople = new Set(), currentPage = 1, rowsPerPage = 5, totalPages = 1;
+     let listofpeopleIds=new Set();
 
     document.getElementById("submit-assignment").addEventListener("click", Submit);
     function Submit() {
@@ -168,6 +227,8 @@ layout: post
         console.log(now);
         console.log(deadlineDate);
         console.log(deadlineDate-now);
+
+        console.log(listofpeopleIds);
         // const dataRequest = {
         //     "studentId":studentId,
         //     "content": submissionContent,
@@ -178,14 +239,25 @@ layout: post
         formData.append('studentId', studentId);
         formData.append('content', submissionContent);
         formData.append('comment', comment);
-        formData.append('isLate', isLate);
+        formData.append('isLate', deadlineDate-now<0);
+
+        // const data;
+        console.log(Array.from(listofpeopleIds));
+        const submissionData = {
+            assignmentId: assigmentId,  
+            studentIds: Array.from(listofpeopleIds), 
+            content: submissionContent,
+            comment: comment,
+            isLate: deadlineDate - now < 0
+        };
+        console.log(JSON.stringify(submissionData));
 
         // console.log(dataRequest);
 
         fetch(urllink_submit, {
-                fetchOptions,
+                ...fetchOptions,
                 method: "POST",
-                body: formData
+                 body: JSON.stringify(submissionData)
             })
         .then(response => {
             const outputBox = document.getElementById('outputBox');
@@ -307,6 +379,11 @@ layout: post
             })
             .then(data => {
                 userId=data.id;
+                console.log("here",data);
+                StuName=data.name;
+                let info=data.name+","+String(data.id);
+                console.log(info);
+                addName(info);
 
 
             })
@@ -359,6 +436,81 @@ layout: post
            
         });
     }
+    window.filterNames = function filterNames() {
+        const searchTerm = document.getElementById("searchBar").value.toLowerCase();
+        filteredPeople = people.filter(person => person.name.toLowerCase().includes(searchTerm));
+        totalPages = Math.ceil(filteredPeople.length / rowsPerPage);
+        currentPage = 1; // Reset to first page after filtering
+        populateTable(filteredPeople.slice(0, rowsPerPage));
+    };
+
+    window.addName = function(info) {
+        console.log(info.split(","));
+        info=info.split(",");
+        console.log("Added name:", info[0]);
+        listofpeople.add(info[0]);
+        listofpeopleIds.add(Number(info[1]));
+        console.log(listofpeople);
+        const reviewGroup = document.getElementById('Review-Group');
+        reviewGroup.textContent =  "Group Members: "+Array.from(listofpeople).join(", ");
+        console.log(listofpeopleIds);
+    };
+
+    async function fetchAllStudents() {
+        try {
+            const response = await fetch(javaURI + "/api/people", fetchOptions);
+            if (!response.ok) throw new Error(`Error: ${response.status}`);
+            people = await response.json();
+            filteredPeople = people;
+            totalPages = Math.ceil(people.length / rowsPerPage);
+            populateTable(people.slice(0, rowsPerPage));
+        } catch (error) {
+            console.error("Error fetching names:", error);
+        }
+    }
+
+    window.changeRowsPerPage = function changeRowsPerPage() {
+        rowsPerPage = parseInt(document.getElementById("rowsPerPage").value);
+        currentPage = 1;
+        totalPages = Math.ceil(filteredPeople.length / rowsPerPage);
+        const startIdx = 0;
+        const endIdx = rowsPerPage;
+        populateTable(filteredPeople.slice(startIdx, endIdx));
+    };
+
+    // window.changePage = function changePage(direction) {
+    //     if (direction === 'prev' && currentPage > 1) {
+    //         currentPage--;
+    //     } else if (direction === 'next' && currentPage < totalPages) {
+    //         currentPage++;
+    //     }
+    //     const startIdx = (currentPage - 1) * rowsPerPage;
+    //     const endIdx = startIdx + rowsPerPage;
+    //     populateTable(filteredPeople.slice(startIdx, endIdx));
+    // };
+
+    window.updatePageInfo = function updatePageInfo() {
+    const pageInfo = document.getElementById("pageInfo");
+    pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+    document.getElementById("prevPage").disabled = currentPage === 1;
+    document.getElementById("nextPage").disabled = currentPage === totalPages;
+};
+
+
+    function populateTable(names) {
+        const tableBody = document.getElementById("namesTableBody");
+        tableBody.innerHTML = "";
+        names.forEach(name => {
+            const row = document.createElement("tr");
+            let info=[name.name,name.id];
+            
+            row.innerHTML = `<td>${name.name}</td><td><button onclick="addName('${info}')">Add</button></td>`;
+            tableBody.appendChild(row);
+        });
+        updatePageInfo();
+    }
+
+    fetchAllStudents();
 
    document.addEventListener("DOMContentLoaded", async () => {
     await getUserId();

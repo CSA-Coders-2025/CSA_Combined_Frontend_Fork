@@ -19,7 +19,7 @@ class GameLevelStarWars {
     };
 
     // Player data for snowspeeder
-    const sprite_src_snowspeeder = path + "/images/gamify/snowspeeder_sprite.png"; // be sure to include the path
+    const sprite_src_snowspeeder = path + "/images/gamify/snowspeeder_sprite2.png"; // be sure to include the path
     const SNOWSPEEDER_SCALE_FACTOR = 5;
     const sprite_data_snowspeeder = {
         id: 'Snowspeeder',
@@ -29,7 +29,7 @@ class GameLevelStarWars {
         STEP_FACTOR: 1000,
         ANIMATION_RATE: 50,
         INIT_POSITION: { x: 0, y: 0 }, 
-        pixels: {height: 577, width: 433},
+        pixels: {height: 293, width: 358},
         orientation: {rows: 1, columns: 1 },
         down: {row: 0, start: 0, columns: 1, rotate: -Math.PI/2 },
         left: {row: 0, start: 0, columns: 1 },

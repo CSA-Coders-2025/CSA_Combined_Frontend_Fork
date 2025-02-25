@@ -1,15 +1,16 @@
 ---
 toc: false
 layout: post
-title: Grader
-permalink: /student/sagai/grader
+title: Hacks Grader
+permalink: /student/TeamTeachToolkit/grader
+description: Grade hacks on a 0.55 scale while also providing feedback
 ---
 
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAGAI Grader</title>
+    <title>Hacks Grader</title>
 <style>
         body {
             background-color: black;
@@ -124,25 +125,22 @@ permalink: /student/sagai/grader
             border: 1px solid #555;
             color: white;
         }
+        .post-meta {
+            display: none;
+        }
     </style>
 </head>
 <body>
 
-    <!-- SAGAI Header -->
-    <h1>SAGAI</h1>
-    <h2>Super Advanced Grader Artificial Intelligence</h2>
-
     <!-- Navigation buttons -->
     <div class="nav-buttons">
-      <a href="{{site.baseurl}}/student/sagai"><button>Home</button></a>
-      <a href="{{site.baseurl}}/student/sagai/generator"><button>Generator</button></a>
-        <a href="{{site.baseurl}}/student/sagai/QNA"><button>QNA</button></a>
+      <a href="{{site.baseurl}}/student/TeamTeachToolkit"><button>Home</button></a>
+      <a href="{{site.baseurl}}/student/TeamTeachToolkit/generator"><button>Generator</button></a>
+        <a href="{{site.baseurl}}/student/TeamTeachToolkit/review"><button>Review</button></a>
     </div>
 
     <!-- Main Grader section -->
     <div class="container">
-        <h1 class="section-title">Student Toolkit GRADER</h1>
-
         <!-- Grading Form -->
         <div class="form-box">
             <label for="requirements">Requirements:</label>

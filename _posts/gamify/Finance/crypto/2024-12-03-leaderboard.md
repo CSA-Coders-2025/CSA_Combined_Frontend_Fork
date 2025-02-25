@@ -19,7 +19,6 @@ title: Leaderboard
         margin: 0;
         padding: 0;
     }
-
     /* Navigation Bar */
     .navbar {
         display: flex;
@@ -45,13 +44,11 @@ title: Leaderboard
         background-color: #ff9800;
         transform: scale(1.1);
     }
-
     /* Leaderboard Container */
     .dashboard {
         padding: 40px;
         text-align: center;
     }
-
     /* Title Button Effect */
     .leaderboard-title {
         font-size: 32px;
@@ -66,7 +63,6 @@ title: Leaderboard
         letter-spacing: 2px;
         margin-bottom: 20px;
     }
-
     /* Leaderboard Table */
     .leaderboard-table {
         width: 100%;
@@ -98,7 +94,6 @@ title: Leaderboard
         background-color: #ff22a6;
         color: #ffffff;
     }
-
     /* Rank, Balance & Name Effects */
     .rank {
         font-weight: bold;
@@ -113,7 +108,6 @@ title: Leaderboard
         color: #ffffff;
     }
   </style>
-</head>
 <body>
   <!-- Navigation Bar -->
   <nav class="navbar">

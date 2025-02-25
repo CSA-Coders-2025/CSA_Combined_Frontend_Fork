@@ -8,7 +8,7 @@ show_reading_time: false
 ---
 
 <div class="container">
-    <div class="bathroom glow-on-hover-search" onclick="location.href='{{site.baseurl}}/bathroom';"
+    <div class="bathroom glow-on-hover-search" onclick="location.href='{{site.baseurl}}/bathroom/';"
         style="cursor: pointer;">
         <div class="bathroom-image">
             <img src="{{site.baseurl}}/images/toolkit-nav-buttons/bathroom.png" alt="Bathroom" />
@@ -67,19 +67,18 @@ show_reading_time: false
             </ul>
         </div>
     </div>
-    <div class="sagai glow-on-hover-search" onclick="location.href='{{site.baseurl}}/student/sagai';"
+    <div class="sagai glow-on-hover-search" onclick="location.href='{{site.baseurl}}/student/TeamTeachToolkit';"
         style="cursor: pointer;">
         <div class="sagai-image">
-            <img src="{{site.baseurl}}/images/toolkit-nav-buttons/sagai.png" alt="SAGAI" />
+            <img src="{{site.baseurl}}/images/toolkit-nav-buttons/sagai.png" alt="TeamTeachToolkit" />
         </div>
         <div class="sagai-details">
-            <h3>SAGAI</h3>
+            <h3>Team Teach Toolkit</h3>
             <p>This tool lets you:</p>
             <ul>
-                <li>Use AI to grade your work</li>
-                <li>Use AI to generate hacks based on a topic or other set of instructions</li>
-                <li>Ask an AI to answer questions you have</li>
-                <li>Manage assignments</li>
+                <li>Use an AI that can grade and provide feedbacks on homework hacks</li>
+                <li>Use an AI that can generate MC or FRQ hacks based on a unit</li>
+                <li>Use a review page to go over covered topics during team teaches</li>
             </ul>
         </div>
     </div>
