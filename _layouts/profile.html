@@ -560,25 +560,28 @@ active_tab: profile
             const email = await window.fetchEmail();
             const kasm = await window.fetchKasmStatus();
 
-            // if the fetch failed, set that as the text content
+            // if the fetch failed, set that as the text content; otherwise show
             if (name == null) {
                 document.getElementById("name").textContent = "Failed to load. Are you logged in?";
+            }
+            else {
+                document.getElementById("name").textContent = name;
             }
             if (uid == null) {
                 document.getElementById("uid").textContent = "Failed to load. Are you logged in?";
             }
+            else {
+                document.getElementById("uid").textContent = uid;
+            }
             if (email == null) {
                 document.getElementById("email").textContent = "Failed to load. Are you logged in?";
+            }
+            else {
+                document.getElementById("email").textContent = email;
             }
             if (kasm == null) {
                 document.getElementById("kasm").textContent = "Failed to load. Are you logged in?";
             }
-
-
-            // given that the fetch worked, update the internal data
-            document.getElementById("name").textContent = name;
-            document.getElementById("uid").textContent = uid;
-            document.getElementById("email").textContent = email;
         } catch (error) {
             console.error('Error setting placeholders:', error.message);
         }
@@ -599,6 +602,7 @@ active_tab: profile
             return data.name;
         }
         catch (error) {
+            document.getElementById("name").textContent = "Failed to load. Are you logged in?";
             console.error('Error fetching Name:', error.message);
             return null;
         }
@@ -617,6 +621,7 @@ active_tab: profile
             return data.uid;
         }
         catch (error) {
+            document.getElementById("uid").textContent = "Failed to load. Are you logged in?";
             console.error('Error fetching Name:', error.message);
             return null;
         }
@@ -636,6 +641,7 @@ active_tab: profile
             return data.email;
         }
         catch (error) {
+            document.getElementById("email").textContent = "Failed to load. Are you logged in?";
             console.error('Error fetching UID:', error.message);
             return null;
         }
@@ -670,6 +676,7 @@ active_tab: profile
             return null;
         }
     }
+
 
     // UPDATE COMMANDS =======
     window.changeName = async function (event) {
