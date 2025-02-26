@@ -36,19 +36,19 @@ socket.onmessage = async function (event) {
     switch (messageData["context"]) {
         case "viewerOfferServer": //streamer recieves this
             viewerOfferServer(messageData)
-        break;
+            break;
 
         case "viewerAcceptServer": //viewer recieves this
             viewerAcceptServer(messageData)
-        break;
+            break;
 
         case "iceToStreamerServer":
             globalPeer.addIceCandidate(new RTCIceCandidate(JSON.parse(messageData["candidate"])))
-        break;
+            break;
 
         case "iceToViewerServer":
             globalPeer.addIceCandidate(new RTCIceCandidate(JSON.parse(messageData["candidate"])))
-        break;
+            break;
     }
 };
 
@@ -62,14 +62,13 @@ function sendMessage(message) {
 
 //broadcaster related////////////////////////////////
 
-async function viewerOfferServer(messageData)
-{
+async function viewerOfferServer(messageData) {
     const peer = new RTCPeerConnection(servers);
     globalPeer = peer
     let remotedesc = new RTCSessionDescription()
     remotedesc.sdp = messageData["sdp"]
     remotedesc.type = "offer"
-    peer.onicecandidate = (e) => sendMessage({context:"iceToViewerClient", candidate: JSON.stringify(e.candidate.toJSON())})
+    peer.onicecandidate = (e) => sendMessage({ context: "iceToViewerClient", candidate: JSON.stringify(e.candidate.toJSON()) })
     peer.setRemoteDescription(remotedesc)
     videoStreamGlobal.getTracks().forEach(track => peer.addTrack(track, videoStreamGlobal));
     const answer = await peer.createAnswer()
@@ -109,17 +108,21 @@ async function captureScreen() {
     }
 }
 
+async function stopStreaming() {
+    videoStreamGlobal.getTracks().forEach(function (track) {
+        track.stop();
+    })
+}
+
 async function broadcast() {
     const stream = await captureScreen();
     videoStreamGlobal = stream
     document.getElementById("mortStream").srcObject = stream;
     sendMessage({ context: "broadcastRequest" })
 }
-
 //viewer related////////////////////
 
-function viewerAcceptServer(messageData)
-{
+function viewerAcceptServer(messageData) {
     let remotedesc = new RTCSessionDescription()
     remotedesc.sdp = messageData["sdp"]
     remotedesc.type = "answer"
@@ -136,7 +139,7 @@ async function watch() {
     peer.addTransceiver("video", { direction: "recvonly" });
     const offer = await peer.createOffer()
     await peer.setLocalDescription(offer)
-    peer.onicecandidate = (e) => sendMessage({ context: "iceToStreamerClient", candidate: JSON.stringify(e.candidate.toJSON())})
+    peer.onicecandidate = (e) => sendMessage({ context: "iceToStreamerClient", candidate: JSON.stringify(e.candidate.toJSON()) })
     globalPeer = peer
     let payload =
     {
