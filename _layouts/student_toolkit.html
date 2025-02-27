@@ -307,6 +307,11 @@ active_tab: toolkit
     .thumbnail {
         width: 150px;
     }
+
+    a {
+        text-decoration: none;
+        color: white;
+    }
 </style>
 
 <div class="main-info">
@@ -317,101 +322,113 @@ active_tab: toolkit
     </div>
 
     <!-- bathroom -->
-    <div class="bathroom card">
-        <div class="bathroom-details">
-            <h3>Bathroom</h3>
-            <p>This tool lets you:</p>
-            <ul>
-                <li>Add yourself to a queue to go to the bathroom</li>
-                <li>Track how many people have already left the class to go to the bathroom</li>
-                <li>Report issues with any bathroom</li>
-                <li>Track your bathroom statistics</li>
-            </ul>
+    <a href="{{site.baseurl}}/bathroom/">
+        <div class="bathroom card">
+            <div class="bathroom-details">
+                <h3>Bathroom</h3>
+                <p>This tool lets you:</p>
+                <ul>
+                    <li>Add yourself to a queue to go to the bathroom</li>
+                    <li>Track how many people have already left the class to go to the bathroom</li>
+                    <li>Report issues with any bathroom</li>
+                    <li>Track your bathroom statistics</li>
+                </ul>
+            </div>
+            <div class="bathroom-thumbnail">
+                <img src="{{site.baseurl}}/images/toolkit-nav-buttons/bathroom.png" alt="Bathroom"
+                    class="thumbnail">
+            </div>
         </div>
-        <div class="bathroom-thumbnail">
-            <img src="{{site.baseurl}}/images/toolkit-nav-buttons/bathroom.png" alt="Bathroom"
-                class="thumbnail">
-        </div>
-    </div>
+    </a>
 
     <!-- screen queue -->
-    <div class="screen-queue card">
-        <div class="screen-queue-details">
-            <h3>Screen Queue</h3>
-            <p>This tool lets you:</p>
-            <ul>
-                <li>Add yourself to a queue to present to the teacher</li>
-                <li>Track who is not waiting to go to present</li>
-                <li>Track who is waiting to go to present</li>
-                <li>Track who has already presented</li>
-            </ul>
+    <a href="{{site.baseurl}}/student-toolkit/queue">
+        <div class="screen-queue card">
+            <div class="screen-queue-details">
+                <h3>Screen Queue</h3>
+                <p>This tool lets you:</p>
+                <ul>
+                    <li>Add yourself to a queue to present to the teacher</li>
+                    <li>Track who is not waiting to go to present</li>
+                    <li>Track who is waiting to go to present</li>
+                    <li>Track who has already presented</li>
+                </ul>
+            </div>
+            <div class="screen-queue-thumbnail">
+                <img src="{{site.baseurl}}/images/toolkit-nav-buttons/group-chat.png" alt="ScreenQueue"
+                    class="thumbnail">
+            </div>
         </div>
-        <div class="screen-queue-thumbnail">
-            <img src="{{site.baseurl}}/images/toolkit-nav-buttons/group-chat.png" alt="ScreenQueue"
-                class="thumbnail">
-        </div>
-    </div>
+    </a>
 
     <!-- assignment submissions -->
-    <div class="assignment-submissions card">
-        <div class="assignment-submissions-details">
-            <h3>Assignment Submissions</h3>
-            <p>This tool lets you:</p>
-            <ul>
-                <li>Submit an assignment directly to the teacher</li>
-                <li>Write special comments on your assignment submission</li>
-            </ul>
+    <a href="{{site.baseurl}}/student/submissions/">
+        <div class="assignment-submissions card">
+            <div class="assignment-submissions-details">
+                <h3>Assignment Submissions</h3>
+                <p>This tool lets you:</p>
+                <ul>
+                    <li>Submit an assignment directly to the teacher</li>
+                    <li>Write special comments on your assignment submission</li>
+                </ul>
+            </div>
+            <div class="assignment-submissions-thumbnail">
+                <img src="{{site.baseurl}}/images/toolkit-nav-buttons/submissions.png" alt="Submissions"
+                    class="thumbnail">
+            </div>
         </div>
-        <div class="assignment-submissions-thumbnail">
-            <img src="{{site.baseurl}}/images/toolkit-nav-buttons/submissions.png" alt="Submissions"
-                class="thumbnail">
-        </div>
-    </div>
+    </a>
 
     <!-- seed tracker -->
-    <div class="seed-tracker card">
-        <div class="seed-tracker-details">
-            <h3>Seed Tracker</h3>
-            <p>This tool lets you:</p>
-            <ul>
-                <li>Request seed</li>
-            </ul>
+    <a href="{{site.baseurl}}/student/seedtracker/">
+        <div class="seed-tracker card">
+            <div class="seed-tracker-details">
+                <h3>Seed Tracker</h3>
+                <p>This tool lets you:</p>
+                <ul>
+                    <li>Request seed</li>
+                </ul>
+            </div>
+            <div class="seed-tracker-thumbnail">
+                <img src="{{site.baseurl}}/images/toolkit-nav-buttons/seedtracker.png" alt="Seed Tracker"
+                    class="thumbnail">
+            </div>
         </div>
-        <div class="seed-tracker-thumbnail">
-            <img src="{{site.baseurl}}/images/toolkit-nav-buttons/seedtracker.png" alt="Seed Tracker"
-                class="thumbnail">
-        </div>
-    </div>
+    </a>
 
     <!-- sagai -->
-    <div class="sagai card">
-        <div class="sagai-details">
-            <h3>SAGAI</h3>
-            <p>This tool lets you:</p>
-            <ul>
-                <li>Use AI to grade your work</li>
-                <li>Use AI to generate hacks based on a topic or other set of instructions</li>
-                <li>Ask an AI to answer questions you have</li>
-                <li>Manage assignments</li>
-            </ul>
+    <a href="{{site.baseurl}}/student/TeamTeachToolkit/">
+        <div class="sagai card">
+            <div class="sagai-details">
+                <h3>SAGAI</h3>
+                <p>This tool lets you:</p>
+                <ul>
+                    <li>Use AI to grade your work</li>
+                    <li>Use AI to generate hacks based on a topic or other set of instructions</li>
+                    <li>Ask an AI to answer questions you have</li>
+                    <li>Manage assignments</li>
+                </ul>
+            </div>
+            <div class="sagai-thumbnail">
+                <img src="{{site.baseurl}}/images/toolkit-nav-buttons/sagai.png" alt="SAGAI" class="thumbnail">
+            </div>
         </div>
-        <div class="sagai-thumbnail">
-            <img src="{{site.baseurl}}/images/toolkit-nav-buttons/sagai.png" alt="SAGAI" class="thumbnail">
-        </div>
-    </div>
+    </a>
 
     <!-- grade viewer -->
-    <div class="view-grades card">
-        <div class="view-grades-details">
-            <h3>View Grades</h3>
-            <p>This tool lets you:</p>
-            <ul>
-                <li>View your grades per assignment</li>
-            </ul>
+    <a href="{{site.baseurl}}/student/view-grades">
+        <div class="view-grades card">
+            <div class="view-grades-details">
+                <h3>View Grades</h3>
+                <p>This tool lets you:</p>
+                <ul>
+                    <li>View your grades per assignment</li>
+                </ul>
+            </div>
+            <div class="view-grades-thumbnail">
+                <img src="{{site.baseurl}}/images/toolkit-nav-buttons/view-grades.png" alt="view-grades"
+                    class="thumbnail">
+            </div>
         </div>
-        <div class="view-grades-thumbnail">
-            <img src="{{site.baseurl}}/images/toolkit-nav-buttons/view-grades.png" alt="view-grades"
-                class="thumbnail">
-        </div>
-    </div>
+    </a>
 </div>

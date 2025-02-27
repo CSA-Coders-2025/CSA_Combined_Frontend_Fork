@@ -8,7 +8,7 @@ active_tab: profile
     .main-info {
         display: grid;
         /* grid-template-columns: 500px 500px; */
-          grid-template-columns: repeat(auto-fit, minmax(300px, 500px)); /* Responsive grid */
+        grid-template-columns: repeat(auto-fit, minmax(300px, 500px)); /* Responsive grid */
         grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
         gap: 30px 30px;
         grid-auto-flow: row;
@@ -21,11 +21,8 @@ active_tab: profile
         grid-area: main-info;
     }
 
-    /* If the screen is very small, switch to a single-column layout */
-    @media (max-width: 1400px) {
-        .main-info {
-            grid-template-columns: 1fr; /* One card per row */
-        }
+    @media (min-width: 1400PX) {
+    .cards { grid-template-columns: repeat(2, 1fr); }
     }
 
     .header {
