@@ -142,6 +142,7 @@ async function stopStreaming() {
     document.getElementById("mortStream").style.display = "none"
     document.getElementById("endBroadcastButton").style.display = "none"
     document.getElementById("broadcastButton").style.display = "flex"
+    sendMessage({ context: "endStream"});
 }
 
 async function watch() {
