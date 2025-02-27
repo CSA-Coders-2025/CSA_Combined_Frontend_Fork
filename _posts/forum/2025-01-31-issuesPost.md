@@ -140,7 +140,7 @@ title: Issues Post
     <script type="module">
         import {javaURI, fetchOptions} from '{{site.baseurl}}/assets/js/api/config.js';
         function isLoggedIn() {
-            const token = document.cookie.split('; ').find(row => row.startsWith('jwt_java_spring='));
+            const token = localStorage.getItem('ghid');
             return token !== undefined;
         }
         document.getElementById('issueForm').addEventListener('submit', function(event) {
