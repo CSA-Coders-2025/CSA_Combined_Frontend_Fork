@@ -58,7 +58,7 @@ permalink: /gamify/blackjack
 
 <div class="container">
     <h1>Blackjack Game</h1>
-    <h2>Balance: <span id="balance">$1000</span></h2>
+    <h2>Balance: <span id="balance">$0</span></h2>
     <label for="betAmount">Bet Amount:</label>
     <input type="range" id="betAmount" min="1000" max="1000000" value="1000" oninput="updateBetDisplay()">
     <span id="betValue">$1000</span>
@@ -77,7 +77,7 @@ permalink: /gamify/blackjack
     import { javaURI, fetchOptions } from '{{site.baseurl}}/assets/js/api/config.js';
 
     const API_URL = `${javaURI}/api/casino/blackjack`;
-    let uid = "", balance = 1000;
+    let uid = "", balance = 0;
 
     async function getUID() {
         try {
@@ -85,18 +85,30 @@ permalink: /gamify/blackjack
             if (!response.ok) throw new Error(`Server response: ${response.status}`);
 
             const data = await response.json();
-            if (!data || !data.uid) throw new Error("UID not found in response");
+            if (!data || !data.uid || data.balance === undefined) {
+                throw new Error("UID or balance not found in response");
+            }
 
             uid = data.uid;
-            balance = data.balance; // Load stored balance
+            balance = data.balance;
             updateBalanceDisplay();
+            updateBetSlider();
         } catch (error) {
-            document.getElementById("gameStatus").innerText = "Error fetching UID.";
+            document.getElementById("gameStatus").innerText = "Error fetching user data.";
         }
     }
 
+    function updateBetSlider() {
+        const betSlider = document.getElementById("betAmount");
+        betSlider.max = balance; 
+        if (parseInt(betSlider.value) > balance) {
+            betSlider.value = balance;
+        }
+        updateBetDisplay();
+    }
+
     document.getElementById("startGame").addEventListener("click", async function () {
-        await getUID();
+        await getUID(); 
         const bet = parseInt(document.getElementById("betAmount").value);
 
         if (bet > balance) {
@@ -109,9 +121,14 @@ permalink: /gamify/blackjack
             ...fetchOptions, method: "POST", body: JSON.stringify(requestData)
         });
 
-        if (!response.ok) throw new Error("Failed to start game.");
+        if (!response.ok) {
+            document.getElementById("gameStatus").innerText = "Failed to start game.";
+            return;
+        }
+
         const data = await response.json();
         updateUI(data, true);
+        document.getElementById("startGame").disabled = true;
     });
 
     document.getElementById("hit").addEventListener("click", async function () {
@@ -120,7 +137,11 @@ permalink: /gamify/blackjack
             ...fetchOptions, method: "POST", body: JSON.stringify(requestData)
         });
 
-        if (!response.ok) throw new Error("Failed to hit.");
+        if (!response.ok) {
+            document.getElementById("gameStatus").innerText = "Failed to hit.";
+            return;
+        }
+
         const data = await response.json();
         updateUI(data);
     });
@@ -131,9 +152,14 @@ permalink: /gamify/blackjack
             ...fetchOptions, method: "POST", body: JSON.stringify(requestData)
         });
 
-        if (!response.ok) throw new Error("Failed to stand.");
+        if (!response.ok) {
+            document.getElementById("gameStatus").innerText = "Failed to stand.";
+            return;
+        }
+
         const data = await response.json();
-        updateUI(data);
+        updateUI(data, false);
+        displayCards(data.gameState.dealerHand, "dealerHand", true);
     });
 
     function updateBetDisplay() {
@@ -155,6 +181,9 @@ permalink: /gamify/blackjack
 
             balance = gameState.newBalance;
             updateBalanceDisplay();
+            updateBetSlider();
+
+            document.getElementById("startGame").disabled = false;
         }
 
         document.getElementById("hit").disabled = data.status === "INACTIVE";
