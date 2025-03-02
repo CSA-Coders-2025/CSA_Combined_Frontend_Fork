@@ -85,36 +85,27 @@ permalink: /gamify/blackjack
             if (!response.ok) throw new Error(`Server response: ${response.status}`);
 
             const data = await response.json();
-            if (!data || !data.uid || data.balance === undefined) {
-                throw new Error("UID or balance not found in response");
-            }
+            if (!data || !data.uid) throw new Error("UID not found in response");
 
             uid = data.uid;
-            balance = data.balance;
+            balance = data.balance; // Use actual user balance
             updateBalanceDisplay();
-            updateBetSlider();
+            updateSliderMax(); // Adjust bet slider based on balance
         } catch (error) {
-            document.getElementById("gameStatus").innerText = "Error fetching user data.";
+            document.getElementById("gameStatus").innerText = "Error fetching UID.";
         }
-    }
-
-    function updateBetSlider() {
-        const betSlider = document.getElementById("betAmount");
-        betSlider.max = balance; 
-        if (parseInt(betSlider.value) > balance) {
-            betSlider.value = balance;
-        }
-        updateBetDisplay();
     }
 
     document.getElementById("startGame").addEventListener("click", async function () {
-        await getUID(); 
+        await getUID();
         const bet = parseInt(document.getElementById("betAmount").value);
 
         if (bet > balance) {
             document.getElementById("gameStatus").innerText = "Insufficient balance!";
             return;
         }
+
+        document.getElementById("startGame").disabled = true;  // Disable to prevent flashing
 
         const requestData = { uid, betAmount: bet };
         const response = await fetch(`${API_URL}/start`, {
@@ -123,12 +114,12 @@ permalink: /gamify/blackjack
 
         if (!response.ok) {
             document.getElementById("gameStatus").innerText = "Failed to start game.";
+            document.getElementById("startGame").disabled = false;  // Re-enable if error
             return;
         }
 
         const data = await response.json();
         updateUI(data, true);
-        document.getElementById("startGame").disabled = true;
     });
 
     document.getElementById("hit").addEventListener("click", async function () {
@@ -137,11 +128,7 @@ permalink: /gamify/blackjack
             ...fetchOptions, method: "POST", body: JSON.stringify(requestData)
         });
 
-        if (!response.ok) {
-            document.getElementById("gameStatus").innerText = "Failed to hit.";
-            return;
-        }
-
+        if (!response.ok) throw new Error("Failed to hit.");
         const data = await response.json();
         updateUI(data);
     });
@@ -152,14 +139,9 @@ permalink: /gamify/blackjack
             ...fetchOptions, method: "POST", body: JSON.stringify(requestData)
         });
 
-        if (!response.ok) {
-            document.getElementById("gameStatus").innerText = "Failed to stand.";
-            return;
-        }
-
+        if (!response.ok) throw new Error("Failed to stand.");
         const data = await response.json();
-        updateUI(data, false);
-        displayCards(data.gameState.dealerHand, "dealerHand", true);
+        updateUI(data);
     });
 
     function updateBetDisplay() {
@@ -181,9 +163,7 @@ permalink: /gamify/blackjack
 
             balance = gameState.newBalance;
             updateBalanceDisplay();
-            updateBetSlider();
-
-            document.getElementById("startGame").disabled = false;
+            updateSliderMax(); // Adjust bet slider based on new balance
         }
 
         document.getElementById("hit").disabled = data.status === "INACTIVE";
@@ -209,6 +189,12 @@ permalink: /gamify/blackjack
 
     function updateBalanceDisplay() {
         document.getElementById("balance").innerText = `$${balance}`;
+    }
+
+    function updateSliderMax() {
+        let betSlider = document.getElementById("betAmount");
+        betSlider.max = Math.max(1000, balance); // Ensure at least 1000 is the max
+        updateBetDisplay();
     }
 
     document.getElementById("exit").addEventListener("click", function () {
