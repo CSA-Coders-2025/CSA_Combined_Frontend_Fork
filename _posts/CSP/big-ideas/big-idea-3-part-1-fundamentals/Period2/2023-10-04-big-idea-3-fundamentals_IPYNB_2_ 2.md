@@ -4,7 +4,7 @@ title: Programming Fundamentals - P2
 description: An introduction to College Board's Big Idea 3, part one.  This is a collection of Python lessons to help students understand the fundamental algorithm and programming elementes required by College Board's AP Computer Science Principles curriculum.
 toc: False
 comments: False
-categories: [CSP Big Ideas 3]
+categories: [CSP Big Idea 3]
 permalink: /csp/big-idea/p2/fundamentals
 courses: {'csp': {'week': 5}}
 type: ccc

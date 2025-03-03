@@ -168,44 +168,143 @@ title: Stocks Home
         .search-button:hover {
             background-color: #e07b00;
         }
+        /* Crypto History Table */
+    .crypto-history table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+    }
+    .crypto-history th, .crypto-history td {
+        padding: 12px;
+        text-align: center;
+        border: 1px solid #444;
+        word-wrap: break-word;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .crypto-history th {
+        background-color: #222;
+        font-weight: bold;
+    }
+    /* Even Column Spacing */
+    .crypto-history td:first-child { width: 20%; }
+    .crypto-history td:nth-child(2) { width: 30%; }
+    .crypto-history td:nth-child(3) { width: 25%; }
+    .crypto-history td:nth-child(4) { width: 25%; }
+    /* View Full History Button */
+    .view-full-history-btn {
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px;
+        background-color: #444;
+        color: white;
+        border: none;
+        cursor: pointer;
+        text-align: center;
+        font-size: 16px;
+        border-radius: 5px;
+    }
+    .view-full-history-btn:hover {
+        background-color: #666;
+    }
+    /* Modal Styling */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        overflow: auto;
+    }
+    .modal-content {
+        background-color: #121212;
+        color: white;
+        margin: 10% auto;
+        padding: 20px;
+        border-radius: 10px;
+        width: 80%;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    /* Close Button */
+    .close {
+        color: white;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    .close:hover {
+        color: red;
+    }
+    /* Modal Table */
+    .modal table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .modal th, .modal td {
+        padding: 10px;
+        text-align: center;
+        border-bottom: 1px solid #444;
+    }
+    .modal th {
+        background-color: #333;
+        font-weight: bold;
+    }
+    .crypto-chart-container {
+    background-color: #121212;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    }
+    .crypto-chart-container h3 {
+        color: white;
+        margin-bottom: 10px;
+    }
+    /* 🔹 Crypto Chart Container */
+    .crypto-chart-container {
+        width: 100%; /* Ensures it doesn't overflow */
+        max-width: 700px; /* Limits the chart width */
+        height: 400px; /* Set a reasonable height */
+        margin: 0 auto; /* Centers the chart */
+        padding: 10px;
+        background-color: #121212;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+    /* 🔹 Chart Canvas */
+    #cryptoBalanceChart {
+        width: 100% !important;
+        height: 100% !important;
+    }
+
     </style>
 </head>
 <body>
     <!-- Navigation Bar -->
     <nav class="navbar">
-        <div class="logo">NITD</div>
-        <div class="nav-buttons">
+          <div class="nav-buttons">
             <a href="{{site.baseurl}}/stocks/home">Home</a>
             <a href="{{site.baseurl}}/crypto/portfolio">Crypto</a>
             <a href="{{site.baseurl}}/stocks/viewer">Stocks</a>
-            <a href="{{site.baseurl}}/stocks/portfolio">Portfolio</a>
+            <a href="{{site.baseurl}}/crypto/mining">Mining</a>
             <a href="{{site.baseurl}}/stocks/buysell">Buy/Sell</a>
             <a href="{{site.baseurl}}/stocks/leaderboard">Leaderboard</a>
             <a href="{{site.baseurl}}/stocks/game">Game</a>
+            <a href="{{site.baseurl}}/stocks/portfolio">Portfolio</a>
+
         </div>
     </nav>
     <!-- Dashboard -->
     <div class="dashboard">
         <div class="dashboard-content">
             <h1 id="userIDName" class="welcome">Hi, Welcome Back</h1>
-            <p>Invest your money with small risk!</p>
-            <div class="summary-cards">
-                <div class="card card-orange">
-                    <h2>Today's Dollar</h2>
-                    <h2>Change</h2>
-                    <p id="totalGain">NA</p>
-                </div>
-                <div class="card card-purple">
-                    <h2>Today's Percent</h2>
-                    <h2>Change</h2>
-                    <p id="percentIncrease">NA</p>
-                </div>
-                <div class="card card-darkblue">
-                    <h2>Revenue</h2>
-                    <h2>Return</h2>
-                    <p id="portfolioValue">NA</p>
-                </div>
-            </div>
+            <p>Invest your money today!</p>
             <div class="search-container">
                 <input type="text" id="searchBar" placeholder="Search...">
                 <button class="search-button" onclick="getStockData()">Search</button>
@@ -215,52 +314,55 @@ title: Stocks Home
                     <canvas id="stockChart" width="475" height="375">[Graph Placeholder]</canvas>
                 </div>
             </div>
+            <div class="crypto-chart-container">
+                <h3> Portfolio Balance History</h3>
+                <canvas id="cryptoBalanceChart"></canvas>
+            </div>
             <div id="output" style="color: red; padding-top: 10px;"></div>
         </div>
         <!-- Sidebar -->
-        <div class="sidebar">
-            <div class="your-stocks">
-                <h3>Your Stocks</h3>
-                <table id="yourStocksTable">
-                    <tr>
-                        <th>Stock</th>
-                        <th>Price</th>
-                    </tr>
-                </table>
-            </div>
-            <div class="stock-table">
-                <h3>Stock Prices</h3>
-                <table>
-                    <tr>
-                        <th>Stock</th>
-                        <th>Price</th>
-                    </tr>
-                    <tr>
-                        <td>Spotify</td>
-                        <td id="SpotifyPrice">$297,408</td>
-                    </tr>
-                    <tr>
-                        <td>Apple</td>
-                        <td id="ApplePrice">$142,845</td>
-                    </tr>
-                    <tr>
-                        <td>Google</td>
-                        <td id="GooglePrice">$2,823,894</td>
-                    </tr>
-                    <tr>
-                        <td>Facebook</td>
-                        <td id="FacebookPrice">$208,123</td>
-                    </tr>
-                    <tr>
-                        <td>Microsoft</td>
-                        <td id="MicrosoftPrice">$330,456</td>
-                    </tr>
-                </table>
-            </div>
-        </div>
+        <!-- Sidebar -->
+<div class="sidebar">
+    <div class="your-stocks">
+        <h3>Your Stocks</h3>
+        <table id="yourStocksTable">
+            <tr>
+                <th>Stock</th>
+                <th>Price</th>
+            </tr>
+        </table>
     </div>
-</body>
-</html>
+<div class="crypto-history">
+    <h3>Your Crypto Transaction History</h3>
+    <table id="cryptoHistoryTable">
+        <tr>
+            <th>Type</th>
+            <th>Crypto Amount</th>
+            <th>Dollar Value</th>
+            <th>Timestamp</th>
+        </tr>
+    </table>
+    <button class="view-full-history-btn" onclick="openHistoryModal()">View Full History</button>
+</div>
+
+<!-- Modal for Full History -->
+<div id="historyModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeHistoryModal()">&times;</span>
+        <h3>Full Crypto Transaction History</h3>
+        <table id="fullCryptoHistoryTable">
+            <tr>
+                <th>Type</th>
+                <th>Crypto Amount</th>
+                <th>Dollar Value</th>
+                <th>Timestamp</th>
+            </tr>
+        </table>
+    </div>
+</div>
+
+</div>
+
 <script type="module">
     import { pythonURI, javaURI, fetchOptions } from '{{site.baseurl}}/assets/js/api/config.js';
     // Fetch user credentials and update the welcome message
@@ -278,26 +380,32 @@ title: Stocks Home
         }
     }
     // Fetch user credentials
-    function getCredentialsJava() {
-        const URL = javaURI + '/api/person/get';
-        return fetch(URL, fetchOptions)
-            .then(response => {
-                if (response.status !== 200) {
-                    console.error("HTTP status code: " + response.status);
-                    return null;
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data === null) return null;
-                console.log(data);
-                return data;
-            })
-            .catch(err => {
-                console.error("Fetch error: ", err);
-                return null;
-            });
+    async function getCredentialsJava() {
+    const URL = javaURI + '/api/person/get';
+    try {
+        const response = await fetch(URL, fetchOptions);
+        if (response.status !== 200) {
+            console.error("HTTP status code: " + response.status);
+            return null;
+        }
+
+        const data = await response.json();
+        if (!data) return null;
+
+        console.log("User Data:", data);
+
+        // Store user email for later use
+        if (data.email) {
+            localStorage.setItem("userEmail", data.email);
+        }
+
+        return data;
+    } catch (err) {
+        console.error("Fetch error: ", err);
+        return null;
     }
+}
+
    async function getUserStocks() {
     try {
         const credentials = await getCredentialsJava(); // Get user data
@@ -479,6 +587,178 @@ async function updateStockPrices() {
                 //console.log(counter);
             }
         }
+async function updateCryptoHistoryTable() {
+    try {
+        const email = localStorage.getItem("userEmail");
+        if (!email) {
+            console.warn("User email not found in localStorage.");
+            return;
+        }
+
+        console.log(`Fetching transaction history for email: ${email}`);
+
+        const response = await fetch(javaURI + `/api/crypto/history?email=${encodeURIComponent(email)}`);
+        if (!response.ok) {
+            throw new Error(`Error fetching transaction history: ${response.statusText}`);
+        }
+
+        const transactionData = await response.json();
+        console.log("Transaction History Response:", transactionData);
+
+        let cryptoHistoryString = transactionData.cryptoHistory;
+        if (!cryptoHistoryString || cryptoHistoryString.trim() === "") {
+            console.warn("No transaction history found.");
+            return;
+        }
+
+        const transactionHistory = cryptoHistoryString.split("\n").filter(entry => entry.trim() !== "");
+        console.log("Parsed Transaction History:", transactionHistory);
+
+        const table = document.getElementById("cryptoHistoryTable");
+        const fullTable = document.getElementById("fullCryptoHistoryTable");
+        if (!table || !fullTable) {
+            console.error("Table elements not found.");
+            return;
+        }
+
+        // Clear existing table rows (except header)
+        table.innerHTML = `
+            <tr>
+                <th>Type</th>
+                <th>Crypto Amount</th>
+                <th>Dollar Value</th>
+                <th>Timestamp</th>
+            </tr>`;
+        fullTable.innerHTML = table.innerHTML; // Clone structure for modal
+
+        // 🟢 **Balance Tracking Fix**
+        let runningBalance = 100000; // ✅ Start at $100,000
+        let labels = [];
+        let balances = [];
+
+        transactionHistory.forEach(transaction => {
+            const rowData = parseTransaction(transaction);
+            if (rowData) {
+                const row = createTransactionRow(rowData);
+                table.appendChild(row);
+                fullTable.appendChild(row.cloneNode(true));
+
+                // 🟢 **Apply transaction to running balance**
+                const transactionAmount = parseFloat(rowData.value.replace("$", ""));
+                runningBalance += rowData.type === "Bought" ? -transactionAmount : transactionAmount;
+
+                // Store for graph plotting
+                labels.push(rowData.timestamp);
+                balances.push(runningBalance);
+            }
+        });
+
+        // Render updated chart with correct running balance
+        renderCryptoBalanceChart(labels, balances);
+
+    } catch (error) {
+        console.error("Error updating Crypto Transaction History:", error);
+    }
+}
+
+
+/* 🛠️ Function to Parse Transaction Details */
+function parseTransaction(transaction) {
+    const regex = /(Bought|Sold)\s([\d.]+)\s([A-Z]+)\sfor\s\$([\d.]+)\sat\s([\d-:\s]+)/;
+    const match = transaction.match(regex);
+
+    if (match) {
+        return {
+            type: match[1],
+            amount: match[2] + " " + match[3], // Example: "0.5 BTC"
+            value: `$${parseFloat(match[4]).toFixed(2)}`, // Format dollar amount
+            timestamp: match[5]
+        };
+    }
+    return null;
+}
+
+/* 🛠️ Function to Create Table Row */
+function createTransactionRow({ type, amount, value, timestamp }) {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+        <td>${type}</td>
+        <td>${amount}</td>
+        <td>${value}</td>
+        <td>${timestamp}</td>
+    `;
+    return row;
+}
+
+function renderCryptoBalanceChart(labels, balances) {
+    const ctx = document.getElementById("cryptoBalanceChart").getContext("2d");
+
+    // ✅ Ensure previous chart exists before destroying
+    if (window.cryptoBalanceChart instanceof Chart) {
+        window.cryptoBalanceChart.destroy();
+    }
+
+    // ✅ Set correct Y-axis range
+    const yMin = 0;  // 🔥 Start at $100,000
+    const yMax = Math.ceil((Math.max(200000, Math.max(...balances) + 5000)) / 30000) * 30000; // Round up to nearest 30,000
+
+    // ✅ Create new chart instance
+    window.cryptoBalanceChart = new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: labels,
+            datasets: [{
+                label: "Crypto Portfolio Balance (USD)",
+                data: balances,
+                borderColor: "#FF8C00",
+                borderWidth: 2,
+                fill: true,
+                backgroundColor: "rgba(255, 140, 0, 0.2)",
+                pointRadius: 5, // Dots to make changes visible
+                tension: 0.2 // Smooth line
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false, // Ensures proper fit
+            scales: {
+                x: { 
+                    title: { display: true, text: "Date" }, 
+                    ticks: { autoSkip: true, maxTicksLimit: 10 } // Avoids overcrowding
+                },
+                y: { 
+                    title: { display: true, text: "Portfolio Balance (USD)" },
+                    min: yMin, // 🔥 Start at $100,000
+                    max: yMax,  // 🔥 Adjust dynamically if needed
+                    ticks: { stepSize: 30000 } // **🔥 Increments of 30,000**
+                }
+            },
+            plugins: {
+                legend: { display: true, position: "top" },
+                tooltip: { enabled: true, mode: "index", intersect: false }
+            }
+        }
+    });
+}
+
+
+
+/* 🖼️ Modal Functions */
+// Open Modal Function
+window.openHistoryModal = function() {
+    document.getElementById("historyModal").style.display = "block";
+}
+
+// Close Modal Function
+window.closeHistoryModal = function() {
+    document.getElementById("historyModal").style.display = "none";
+}
+
+// ✅ Call function when page loads
+document.addEventListener("DOMContentLoaded", () => {
+    updateCryptoHistoryTable();
+});
+
 async function getPortfolioPerformance() {
     try {
         // Fetch user credentials

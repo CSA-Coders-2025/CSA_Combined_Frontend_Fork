@@ -180,11 +180,13 @@ permalink: /media
                 const randomLeftImages = getRandomSubset(leftImages);
                 const randomRightImages = getRandomSubset(rightImages);
                 const randomCenterImages = getRandomSubset(centerImages);
-                return [
+                const combined = [
                     ...randomLeftImages,
                     ...randomRightImages,
                     ...randomCenterImages
                 ];
+                const shuffledFinal = combined.sort(() => 0.5 - Math.random());
+                return shuffledFinal;
             }
             const randomImages = getRandomImages(imageFiles);
             randomImages.forEach((file, index) => {

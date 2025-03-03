@@ -26,7 +26,7 @@ layout: post
         margin: 0 auto;
     }
     /* For the buttons and table in the student section */
-    #namesTableBody {
+    #namesTableBody {s
         width: 75%;
         max-height: 50px;  /* Add max height to allow for scrolling if needed */
         overflow-y: auto;
@@ -114,8 +114,60 @@ layout: post
     .shake {
         animation: shake 0.5s infinite;
     }
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 20px;
+}
+/* Hide default checkbox */
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+/* The track */
+.slider {
+    position: absolute;
+    cursor: pointer;
+    background-color: #ccc;
+    border-radius: 24px;
+    width: 100%;
+    height: 100%;
+    transition: background-color 0.3s;
+}
+/* The circular slider */
+.slider::before {
+    content: "";
+    position: absolute;
+    height: 17px;
+    width: 20px;
+    left: 1px;
+    bottom: 2px;
+    background-color: white;
+    border-radius: 50%;
+    transition: transform 0.3s;
+}
+.toggle-switch input:checked + .slider {
+    background-color: #4CAF50; /* Change background to green */
+}
+.toggle-switch input:checked + .slider::before {
+    transform: translateX(26px); /* Move the circular knob */
+}
+.message {
+    font-size: 15px;
+}
 </style>
 
+<div class="toggle-container">
+    <label class="toggle-switch">
+        <input type="checkbox" id="myToggle"/> 
+        <span class="slider"></span>
+    </label>
+    <p id="message" class="message">
+        Check the toggle to enable group submissions (add members of your group into a common submission).
+    </p>
+</div>
 <div id="modal" class="modal">
     <div class="modal-content">
         <h2>Submit here</h2>
@@ -128,39 +180,41 @@ layout: post
         <p id="time-left"></p>
     </div>
     <br><br>
-    <div>
-        <label for="searchBar">Search for a name: </label>
-        <input type="text" id="searchBar" placeholder="Search for a name..." onkeyup="filterNames()">
+    <div class="Group Submit" id="Group Submit">
+        <div>
+            <label for="searchBar">Search for a name: </label>
+            <input type="text" id="searchBar" placeholder="Search for a name..." onkeyup="filterNames()">
+        </div>
+        <div>
+            <label for="rowsPerPage">Rows per page: </label>
+            <select id="rowsPerPage" onchange="changeRowsPerPage()">
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+                <option value="200">200</option>
+                <option value="1000">1000</option>
+                <option value="1000">2000</option>
+            </select>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="namesTableBody"></tbody>
+        </table>
+        <!-- <div id="pagination-container">
+            <button id="prevPage" onclick="changePage(-1)">Previous</button>
+            <span id="pageInfo">Page 1 of 10</span>
+            <button id="nextPage" onclick="changePage(1)">Next</button>
+        </div> -->
+        <div class="Review-Group" id="Review-Group">Group Members: </div>
+        <br><br><br>
     </div>
-    <div>
-        <label for="rowsPerPage">Rows per page: </label>
-        <select id="rowsPerPage" onchange="changeRowsPerPage()">
-            <option value="5">5</option>
-            <option value="10">10</option>
-            <option value="25">25</option>
-            <option value="50">50</option>
-            <option value="100">100</option>
-            <option value="200">200</option>
-            <option value="1000">1000</option>
-            <option value="1000">2000</option>
-        </select>
-    </div>
-    <table>
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody id="namesTableBody"></tbody>
-    </table>
-<!-- <div id="pagination-container">
-    <button id="prevPage" onclick="changePage(-1)">Previous</button>
-    <span id="pageInfo">Page 1 of 10</span>
-    <button id="nextPage" onclick="changePage(1)">Next</button>
-</div> -->
-<div class="Review-Group" id="Review-Group">Group Members: </div>
-<br><br><br>
 <div>
     <label for="submissionContent" style="font-size: 18px;">Submission Content:</label>
     <input type="url" id="submissionContent" required />
@@ -209,6 +263,20 @@ layout: post
      let listofpeopleIds=new Set();
 
     document.getElementById("submit-assignment").addEventListener("click", Submit);
+    document.getElementById("myToggle").addEventListener("change", function() {
+        if (this.checked) {
+            console.log("Toggle is ON");
+            // Perform action when toggled ON
+            document.getElementById("Group Submit").style.display = "block";
+        } else {
+            console.log("Toggle is OFF");
+            // Perform action when toggled OFF
+            document.getElementById("Group Submit").style.display = "none";
+        }
+    });
+    function disableGroupSubmit(){
+         document.getElementById("Group Submit").style.display = "none";
+    }
     function Submit() {
         let urllink_submit=javaURI+"/api/submissions/submit/";
         const submissionContent = document.getElementById('submissionContent').value;
@@ -397,24 +465,29 @@ layout: post
         const urllink=javaURI+"/api/submissions/getSubmissions";
         const urllink2=javaURI+"/assignment/"+assignIndex.toString();
         const theUserId=await getUserId();
+        console.log("here");
         try {
             const response = await fetch(`${urllink}/${userId}`, fetchOptions);
             const Submissions=await response.json();
-            console.log(Submissions);
-            populateSubmissionsTable(Submissions);
+            console.log("bruh");
+            console.log(JSON.stringify(Submissions)+"------");
+            populateSubmissionsTable(JSON.stringify(Submissions));
         } catch (error) {
+            console.log("this is so skibbidi");
             console.error('Error fetching submissions:', error);
         }
     }
 
-    function populateSubmissionsTable(submissions) {
+    function populateSubmissionsTable(submissionsJson) {
+        const submissions = JSON.parse(submissionsJson);
         const tableBody = document.getElementById('submissions-table').getElementsByTagName('tbody')[0];
         tableBody.innerHTML = ''; 
     
         submissions.forEach(submission => {
             const row = document.createElement('tr');
-            console.log(submission.assignmentid+" "+assignIndex);
-            if(submission.assignmentid==assignIndex){
+            console.log(submission.assignment?.id+" "+assignIndex+"$$$$$");
+            if(submission.assignment?.id==assignIndex){
+                console.log("SKIBBBB");
                 const contentCell = document.createElement('td');
                 contentCell.textContent = submission.content || 'N/A'; 
                 row.appendChild(contentCell);
@@ -511,7 +584,7 @@ layout: post
     }
 
     fetchAllStudents();
-
+    disableGroupSubmit();
    document.addEventListener("DOMContentLoaded", async () => {
     await getUserId();
     await fetchSubmissions();

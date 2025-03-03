@@ -137,8 +137,8 @@ title: Blogs Post
         <button type="submit">Submit</button>
     </form>
     <div id="response"></div>
-    <script>
-        const javaURI = "https://spring2025.nighthawkcodingsociety.com";
+    <script type="module">
+        import {javaURI, fetchOptions} from '{{site.baseurl}}/assets/js/api/config.js';
         function isLoggedIn() {
             //get the cookie jwt_java_spring
             const token = localStorage.getItem('ghid');
@@ -157,7 +157,7 @@ title: Blogs Post
                     const author = null;
                     const title = document.getElementById('title').value;
                     const body = document.getElementById('body').value;
-                    fetch('{javaURI}/blogs/blog/post', {
+                    fetch(`${javaURI}/blogs/blog/post`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -177,7 +177,7 @@ title: Blogs Post
                 const title = document.getElementById('title').value;
                 const body = document.getElementById('body').value;
                 const author = localStorage.getItem('ghid');
-                fetch('{javaURI}/blogs/blog/post', {
+                fetch(`${javaURI}/blogs/blog/post`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -194,7 +194,7 @@ title: Blogs Post
             };
             //wait 3 seconds then send them back
             setTimeout(function() {
-                window.location.href = "{javaURI}/CSA_Combined_Frontend_Fork/studentBlogs/";
+                window.location.href = "/portfolio_2025/studentBlogs/";
             }, 3000);
         });
     </script>

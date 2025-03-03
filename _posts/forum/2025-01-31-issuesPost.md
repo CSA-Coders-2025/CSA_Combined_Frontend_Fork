@@ -137,10 +137,10 @@ title: Issues Post
         <button type="submit">Submit</button>
     </form>
     <div id="response"></div>
-    <script>
-        const javaURI = "https://spring2025.nighthawkcodingsociety.com";
+    <script type="module">
+        import {javaURI, fetchOptions} from '{{site.baseurl}}/assets/js/api/config.js';
         function isLoggedIn() {
-            const token = document.cookie.split('; ').find(row => row.startsWith('jwt_java_spring='));
+            const token = localStorage.getItem('ghid');
             return token !== undefined;
         }
         document.getElementById('issueForm').addEventListener('submit', function(event) {
@@ -156,7 +156,8 @@ title: Issues Post
                     const author = null;
                     const title = document.getElementById('title').value;
                     const context = document.getElementById('problem').value;
-                    fetch('http://localhost:8085/forum/issue/post', {
+                    fetch(`${javaURI}/forum/issue/post`, {
+                        ...fetchOptions,
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ title, context, author })
@@ -172,7 +173,8 @@ title: Issues Post
             }
             if (isLoggedIn()) {
                 const author = localStorage.getItem('ghid');
-                fetch('http://localhost:8085/forum/issue/post', {
+                fetch(`${javaURI}/forum/issue/post`, {
+                    ...fetchOptions,
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ title, context, author })
@@ -186,7 +188,7 @@ title: Issues Post
                 });
             };
             setTimeout(function() {
-                window.location.href = "http://localhost:4100/portfolio_2025/studentIssue/";
+                window.location.href = "/portfolio_2025/studentIssue";
             }, 3000);
         });
     </script>

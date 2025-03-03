@@ -505,6 +505,19 @@ body {
     border-color: rgba(59, 130, 246, 0.5);
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
 }
+@keyframes rainbow-breathe {
+    0% { background-position: 0% 50%; text-shadow: 0 0 10px #ff0000; }
+    25% { background-position: 100% 50%; text-shadow: 0 0 10px #00ff00; }
+    50% { background-position: 0% 50%; text-shadow: 0 0 10px #0000ff; }
+    75% { background-position: 100% 50%; text-shadow: 0 0 10px #ff00ff; }
+    100% { background-position: 0% 50%; text-shadow: 0 0 10px #ff0000; }
+}
+@keyframes rgb-border-breathe {
+    0% { border-color: rgba(255, 0, 0, 0.7); box-shadow: 0 -4px 15px -3px rgba(255, 0, 0, 0.4); }
+    33% { border-color: rgba(0, 255, 0, 0.7); box-shadow: 0 -4px 15px -3px rgba(0, 255, 0, 0.4); }
+    66% { border-color: rgba(0, 0, 255, 0.7); box-shadow: 0 -4px 15px -3px rgba(0, 0, 255, 0.4); }
+    100% { border-color: rgba(255, 0, 0, 0.7); box-shadow: 0 -4px 15px -3px rgba(255, 0, 0, 0.4); }
+}
 </style>
 <body class="bg-gray-900 text-white min-h-screen p-6">
     <div class="text-center mb-4 text-yellow-400">
@@ -647,6 +660,22 @@ body {
                     <!-- GPUs will be inserted here -->
                 </div>
             </div>
+            <!-- Total Cost Footer -->
+            <div id="total-cost-footer" class="fixed bottom-0 left-0 right-0 bg-gray-900 bg-opacity-90 backdrop-blur-sm p-4 flex justify-between items-center"
+                 style="border-top: 3px solid transparent;
+                        background: rgba(17, 24, 39, 0.95);
+                        animation: rgb-border-breathe 3s ease-in-out infinite;">
+                <div class="text-2xl font-bold text-white">Total Cost:</div>
+                <div class="flex items-center gap-4">
+                    <div class="text-3xl font-bold text-white">
+                        USD: <span id="shop-total-cost">0</span>
+                    </div>
+                    <button onclick="buySelectedGPUs()" 
+                            class="bg-indigo-600 hover:bg-indigo-700 px-6 py-2 rounded-lg font-medium transition-colors duration-200">
+                        Buy Selected GPUs
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
     <!-- Add this right before the closing </body> tag -->
@@ -678,17 +707,31 @@ body {
             const container = document.getElementById('active-gpus-list');
             container.innerHTML = '';
             if (!window.stats || !window.stats.gpus) return;
-            const activeGPUs = window.stats.gpus.filter(gpu => gpu.isActive);
-            activeGPUs.forEach(gpu => {
+            // Group GPUs by ID
+            const gpuGroups = {};
+            window.stats.gpus.forEach(gpu => {
+                if (gpu.isActive) {
+                    if (!gpuGroups[gpu.id]) {
+                        gpuGroups[gpu.id] = {
+                            ...gpu,
+                            quantity: gpu.quantity
+                        };
+                    }
+                }
+            });
+            Object.values(gpuGroups).forEach(gpu => {
                 const card = document.createElement('div');
                 card.className = 'gpu-card';
                 card.innerHTML = `
                     <div class="flex justify-between items-start">
                         <div class="flex-1">
-                            <h3 class="text-xl font-bold text-blue-400 mb-4">${gpu.name}</h3>
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-xl font-bold text-blue-400">${gpu.name}</h3>
+                                <span class="text-green-400 text-lg font-bold">x${gpu.quantity}</span>
+                            </div>
                             <div class="grid grid-cols-2 gap-6">
                                 <div>
-                                    <p class="text-gray-400 mb-2">Performance</p>
+                                    <p class="text-gray-400 mb-2">Performance (Per GPU)</p>
                                     <div class="space-y-2">
                                         <p class="text-white">⚡ ${gpu.hashrate.toFixed(2)} MH/s</p>
                                         <p class="text-white">🔌 ${gpu.power}W</p>
@@ -697,11 +740,11 @@ body {
                                     </div>
                                 </div>
                                 <div>
-                                    <p class="text-gray-400 mb-2">Status</p>
+                                    <p class="text-gray-400 mb-2">Total Output</p>
                                     <div class="space-y-2">
-                                        <p class="text-emerald-400">✅ Active</p>
-                                        <p class="text-white">🔋 ${((gpu.power/500)*100).toFixed(1)}% Power Usage</p>
-                                        <p class="text-white">💻 GPU #${gpu.id}</p>
+                                        <p class="text-white">⚡ ${(gpu.hashrate * gpu.quantity).toFixed(2)} MH/s</p>
+                                        <p class="text-white">🔌 ${gpu.power * gpu.quantity}W</p>
+                                        <p class="text-emerald-400">✅ All Active</p>
                                     </div>
                                 </div>
                             </div>
@@ -918,19 +961,20 @@ body {
                 showNotification('Error toggling GPU: ' + error.message);
             }
         }
-        window.buyGpu = async function(gpuId) {
+        window.buyGpu = async function(gpuId, quantity) {
             try {
                 const options = {
                     ...fetchOptions,
                     method: 'POST',
-                    cache: 'no-cache'
+                    cache: 'no-cache',
+                    body: JSON.stringify({ quantity: quantity })
                 };
                 const response = await fetch(`${javaURI}/api/mining/gpu/buy/${gpuId}`, options);
                 const result = await response.json();
                 if (response.ok) {
                     showNotification(result.message);
-                    await updateMiningStats(); // This will update the GPU inventory
-                    await loadGPUs(); // This will update the shop
+                    await updateMiningStats();
+                    await loadGPUs();
                 } else {
                     showNotification(result.message || 'Failed to buy GPU');
                 }
@@ -1015,11 +1059,12 @@ body {
             document.getElementById('power-cost').textContent = `$${(typeof stats.powerCost === 'number' ? stats.powerCost : 0).toFixed(2)}`;
             // Update GPU count display
             if (stats.gpus && stats.gpus.length > 0) {
-                const activeGPUs = stats.gpus.filter(gpu => gpu.isActive);
+                const totalGPUs = stats.gpus.reduce((sum, gpu) => sum + gpu.quantity, 0);
+                const activeGPUs = stats.gpus.reduce((sum, gpu) => gpu.isActive ? sum + gpu.quantity : sum, 0);
                 document.getElementById('current-gpu').textContent = 
-                    `${activeGPUs.length} Active GPU${activeGPUs.length !== 1 ? 's' : ''} (Click to view)`;
+                    `${activeGPUs} Active of ${totalGPUs} GPUs (Click to view)`;
             } else {
-                document.getElementById('current-gpu').textContent = 'No Active GPUs';
+                document.getElementById('current-gpu').textContent = 'No GPUs';
             }
             // Add color indicators for temperature
             const tempElement = document.getElementById('gpu-temp');
@@ -1034,16 +1079,10 @@ body {
             window.stats = stats;
         }
         function renderGpuInventory(stats) {
-            console.log('Full stats data:', stats);
             const inventoryElement = document.getElementById('gpu-inventory');
-            if (!inventoryElement) {
-                console.error('GPU inventory element not found');
-                return;
-            }
+            if (!inventoryElement) return;
             inventoryElement.innerHTML = '';
-            // Safely access gpus array
             const gpus = stats?.gpus || [];
-            console.log('Valid GPU data:', gpus);
             if (gpus.length === 0) {
                 inventoryElement.innerHTML = `
                     <div class="text-gray-400 text-center p-8 bg-gray-800 rounded-lg w-full">
@@ -1053,54 +1092,55 @@ body {
                 `;
                 return;
             }
-            // Create card container
+            // Group GPUs by ID and count quantities
+            const gpuGroups = {};
+            gpus.forEach(gpu => {
+                const gpuId = gpu.id;
+                if (!gpuGroups[gpuId]) {
+                    gpuGroups[gpuId] = {
+                        ...gpu,
+                        quantity: gpu.quantity,
+                        activeCount: gpu.isActive ? gpu.quantity : 0
+                    };
+                }
+            });
             const container = document.createElement('div');
             container.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4';
-            gpus.forEach(gpu => {
+            Object.values(gpuGroups).forEach(gpu => {
                 const gpuCard = document.createElement('div');
                 gpuCard.className = 'bg-gray-800 rounded-xl p-6 shadow-2xl transform transition-all duration-300 hover:scale-[1.02] border border-gray-700';
                 gpuCard.dataset.gpuId = gpu.id;
-                // Safely access properties
                 const hashrate = gpu.hashrate || 0;
                 const power = gpu.power || 0;
                 const temp = gpu.temp || 0;
-                const isActive = !!gpu.isActive;
-                const efficiency = (hashrate / (power || 1)).toFixed(3);
                 const dailyRevenue = hashrate * 86400 * 0.00000001;
                 const dailyPowerCost = (power * 24 / 1000 * 0.12);
                 const dailyProfit = dailyRevenue - dailyPowerCost;
                 gpuCard.innerHTML = `
                     <div class="flex flex-col h-full">
                         <div class="flex-1">
-                            <h3 class="text-xl font-bold text-white mb-4">${gpu.name}</h3>
+                            <div class="flex justify-between items-start">
+                                <h3 class="text-xl font-bold text-white">${gpu.name}</h3>
+                                <span class="text-green-400 text-lg font-bold">x${gpu.quantity}</span>
+                            </div>
+                            <p class="text-blue-400 text-sm mb-4">${gpu.activeCount} of ${gpu.quantity} Active</p>
                             <div class="grid grid-cols-2 gap-4 mt-2">
                                 <div class="text-sm">
-                                    <p class="text-gray-400">Performance</p>
+                                    <p class="text-gray-400">Performance (Per GPU)</p>
                                     <p class="text-white">⚡ ${hashrate.toFixed(2)} MH/s</p>
                                     <p class="text-white">🔌 ${power.toFixed(0)}W</p>
                                     <p class="text-white">🌡️ ${temp.toFixed(1)}°C</p>
-                                    <p class="text-white">📊 ${efficiency} MH/W</p>
                                 </div>
                                 <div class="text-sm">
-                                    <p class="text-gray-400">Daily Estimates</p>
+                                    <p class="text-gray-400">Daily Estimates (Per GPU)</p>
                                     <p class="text-green-400">💰 $${dailyRevenue.toFixed(2)}</p>
                                     <p class="text-red-400">💡 -$${dailyPowerCost.toFixed(2)}</p>
                                     <p class="text-blue-400">📈 $${dailyProfit.toFixed(2)}</p>
                                 </div>
                             </div>
-                        </div>
-                        <div class="mt-6 border-t border-gray-700 pt-4">
-                            <button onclick="toggleGPU(${gpu.id})" 
-                                    class="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 
-                                         ${isActive ? 
-                                             'bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 shadow-red-glow' : 
-                                             'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 shadow-green-glow'}
-                                         transform hover:scale-[1.02] active:scale-95 group">
-                                <span class="opacity-90 group-hover:opacity-100 transition-opacity">
-                                    ${isActive ? '⏸️' : '▶️'}
-                                </span>
-                                <span class="text-shadow">${isActive ? 'Deactivate' : 'Activate'}</span>
-                            </button>
+                            <div class="mt-4 text-sm">
+                                <p class="text-purple-400">Total Daily Profit: $${(dailyProfit * gpu.quantity).toFixed(2)}</p>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -1132,14 +1172,15 @@ body {
                 hashrateChart.update('none');
                 console.log('Hashrate chart updated');
             }
-            // Update profit chart
+            // Update profit chart with total profit (Power Cost + USD Value)
             if (profitChart) {
                 const dailyRevenue = typeof stats.dailyRevenue === 'number' ? stats.dailyRevenue : 0;
                 const powerCost = typeof stats.powerCost === 'number' ? stats.powerCost : 0;
-                const profit = dailyRevenue - powerCost;
-                console.log('Calculated profit:', { dailyRevenue, powerCost, profit });
+                const totalBalanceUSD = parseFloat(stats.totalBalanceUSD) || 0;
+                const totalProfit = totalBalanceUSD + powerCost; // Add power cost to total balance
+                console.log('Calculated total profit:', { dailyRevenue, powerCost, totalBalanceUSD, totalProfit });
                 profitChart.data.labels.push(now);
-                profitChart.data.datasets[0].data.push(profit);
+                profitChart.data.datasets[0].data.push(totalProfit);
                 if (profitChart.data.labels.length > 50) {
                     profitChart.data.labels.shift();
                     profitChart.data.datasets[0].data.shift();
@@ -1164,10 +1205,10 @@ body {
             // Group GPUs by category
             const categories = {
                 'Free Starter GPU': gpus.filter(gpu => gpu.price === 0),
-                'Budget GPUs ($50-500)': gpus.filter(gpu => gpu.price > 0 && gpu.price <= 500),
-                'Mid-Range GPUs ($500-1500)': gpus.filter(gpu => gpu.price > 500 && gpu.price <= 1500),
-                'High-End GPUs ($1500-3000)': gpus.filter(gpu => gpu.price > 1500 && gpu.price <= 3000),
-                'Premium GPUs ($3000+)': gpus.filter(gpu => gpu.price > 3000)
+                'Budget GPUs ($10000-20000)': gpus.filter(gpu => gpu.price > 0 && gpu.price <= 20000),
+                'Mid-Range GPUs ($20000-50000)': gpus.filter(gpu => gpu.price > 20000 && gpu.price <= 50000),
+                'High-End GPUs ($50000-100000)': gpus.filter(gpu => gpu.price > 50000 && gpu.price <= 100000),
+                'Premium GPUs ($100000+)': gpus.filter(gpu => gpu.price > 100000)
             };
             Object.entries(categories).forEach(([category, categoryGpus]) => {
                 if (categoryGpus.length === 0) return;
@@ -1188,17 +1229,39 @@ body {
             const dailyRevenue = (gpu.hashRate || 0) * 86400 * 0.00000001;
             const dailyPowerCost = (gpu.powerConsumption || 0) * 24 / 1000 * 0.12;
             const dailyProfit = dailyRevenue - dailyPowerCost;
-            const roi = dailyProfit > 0 ? (gpu.price / dailyProfit) : Infinity; // Avoid division by zero
+            const roi = dailyProfit > 0 ? (gpu.price / dailyProfit) : Infinity;
+            // Add quantity selector for non-starter GPUs
+            const isStarterGPU = gpu.price === 0;
+            const quantitySelector = isStarterGPU ? '' : `
+                <div class="flex flex-col items-end gap-2">
+                    <div class="flex items-center">
+                        <label class="text-gray-400 mr-2">Quantity:</label>
+                        <select id="quantity-${gpu.id}" class="bg-gray-700 rounded px-2 py-1" 
+                                data-price="${gpu.price}"
+                                data-gpu-id="${gpu.id}"
+                                onchange="updateTotalPrice(${gpu.id}, ${gpu.price}); updateShopTotalCost()">
+                            ${[0,1,2,3,4,5].map(n => `<option value="${n}">${n}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="text-gray-400">
+                        Total: $<span id="total-${gpu.id}">0</span>
+                    </div>
+                </div>
+            `;
+            // Show owned quantity if owned
+            const ownedQuantity = gpu.quantity > 0 ? 
+                `<p class="text-green-400 text-sm">Owned: ${gpu.quantity}</p>` : '';
             card.innerHTML = `
                 <div class="flex justify-between items-start">
                     <div class="flex-1">
                         <h3 class="text-lg font-bold ${getCategoryColor(category)}">${gpu.name}</h3>
+                        ${ownedQuantity}
                         <div class="grid grid-cols-2 gap-4 mt-2">
                             <div class="text-sm">
                                 <p class="text-gray-400">Performance</p>
                                 <p class="text-white">⚡ ${(gpu.hashRate || 0).toFixed(2)} MH/s</p>
                                 <p class="text-white">🔌 ${(gpu.powerConsumption || 0).toFixed(0)}W</p>
-                                <p class="text-white">🌡️ ${(gpu.temperature || 0).toFixed(1)}°C</p>
+                                <p class="text-white">🌡️ ${(gpu.temp || 0).toFixed(1)}°C</p>
                             </div>
                             <div class="text-sm">
                                 <p class="text-gray-400">Daily Estimates</p>
@@ -1212,37 +1275,46 @@ body {
                             <p class="text-gray-400">ROI: ${roi.toFixed(1)} days</p>
                         </div>
                     </div>
-                    <div class="text-right ml-4">
-                        <p class="text-xl font-bold ${getCategoryColor(category)}">
+                    <div class="text-right ml-4 flex flex-col items-end">
+                        <p class="text-xl font-bold ${getCategoryColor(category)} mb-2">
                             ${gpu.price === 0 ? 'FREE' : '$' + gpu.price.toLocaleString()}
                         </p>
-                        <button onclick="window.buyGpu(${gpu.id})" 
-                                class="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded mt-2">
-                            ${gpu.price === 0 ? 'Get Free' : 'Buy'}
-                        </button>
+                        ${quantitySelector}
                     </div>
                 </div>
             `;
+            // After creating the card, attach the event listener
+            setTimeout(() => {
+                const quantitySelect = document.getElementById(`quantity-${gpu.id}`);
+                if (quantitySelect) {
+                    quantitySelect.addEventListener('change', function() {
+                        const gpuId = this.dataset.gpuId;
+                        const basePrice = parseFloat(this.dataset.price);
+                        updateTotalPrice(gpuId, basePrice);
+                        updateShopTotalCost();
+                    });
+                }
+            }, 0);
             return card;
         }
         // Utility functions
         function getCategoryColor(category) {
             const colors = {
                 'Free Starter GPU': 'text-green-400',
-                'Budget GPUs ($50-500)': 'text-blue-400',
-                'Mid-Range GPUs ($500-1500)': 'text-purple-400',
-                'High-End GPUs ($1500-3000)': 'text-orange-400',
-                'Premium GPUs ($3000+)': 'text-red-400'
+                'Budget GPUs ($10000-20000)': 'text-blue-400',
+                'Mid-Range GPUs ($20000-50000)': 'text-purple-400',
+                'High-End GPUs ($50000-100000)': 'text-orange-400',
+                'Premium GPUs ($100000+)': 'text-red-400'
             };
             return colors[category] || 'text-white';
         }
         function getCategoryClass(category) {
             const classes = {
                 'Free Starter GPU': 'starter',
-                'Budget GPUs ($50-500)': 'budget',
-                'Mid-Range GPUs ($500-1500)': 'mid-range',
-                'High-End GPUs ($1500-3000)': 'high-end',
-                'Premium GPUs ($3000+)': 'premium'
+                'Budget GPUs ($10000-20000)': 'budget',
+                'Mid-Range GPUs ($20000-50000)': 'mid-range',
+                'High-End GPUs ($50000-100000)': 'high-end',
+                'Premium GPUs ($100000+)': 'premium'
             };
             return classes[category] || '';
         }
@@ -1277,6 +1349,50 @@ body {
                 updateInterval = null;
             }
         }
+        // Update the total price function to properly format numbers
+        function updateTotalPrice(gpuId, basePrice) {
+            const quantitySelect = document.getElementById(`quantity-${gpuId}`);
+            const totalSpan = document.getElementById(`total-${gpuId}`);
+            if (quantitySelect && totalSpan) {
+                const quantity = parseInt(quantitySelect.value);
+                const total = quantity > 0 ? basePrice * quantity : 0;
+                totalSpan.textContent = total.toLocaleString();
+            }
+        }
+        function updateShopTotalCost() {
+            let total = 0;
+            document.querySelectorAll('[id^="quantity-"]').forEach(select => {
+                const quantity = parseInt(select.value);
+                if (quantity > 0) {  // Only include if quantity is greater than 0
+                    const basePrice = parseFloat(select.dataset.price);
+                    if (!isNaN(basePrice)) {
+                        total += basePrice * quantity;
+                    }
+                }
+            });
+            document.getElementById('shop-total-cost').textContent = total.toLocaleString();
+        }
+        // Make the functions globally available
+        window.updateTotalPrice = updateTotalPrice;
+        window.updateShopTotalCost = updateShopTotalCost;
+        window.buySelectedGPUs = async function() {
+            const purchases = [];
+            document.querySelectorAll('[id^="quantity-"]').forEach(select => {
+                const quantity = parseInt(select.value);
+                const gpuId = select.dataset.gpuId;
+                if (quantity > 0) {
+                    purchases.push({ gpuId, quantity });
+                }
+            });
+            if (purchases.length === 0) {
+                showNotification('Please select at least one GPU to buy');
+                return;
+            }
+            // Process each purchase
+            for (const purchase of purchases) {
+                await buyGpu(purchase.gpuId, purchase.quantity);
+            }
+        };
     </script>
 </body>
 </html>

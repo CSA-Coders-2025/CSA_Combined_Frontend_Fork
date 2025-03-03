@@ -299,13 +299,20 @@ document.addEventListener("DOMContentLoaded", function() {
             })
                 .then(response => response.text()) // Using response.text() for a string response.
                 .then(data => {
-                    name = data; // Assigning the string data to 'name'.
-                    users[name] = barcode;
-                    saveUsers();
-                    console.log("User added: ", name);
-                    addToQueue(name);
-                    localStorage.setItem('timeout', getTime());
-                    console.log('timeout', getTime());
+                    if(data != 'Not a valid barcode')
+                    {
+                        name = data; // Assigning the string data to 'name'.
+                        users[name] = barcode;
+                        saveUsers();
+                        console.log("User added: ", name);
+                        addToQueue(name);
+                        localStorage.setItem('timeout', getTime());
+                        console.log('timeout', getTime());
+                    }
+                    else
+                    {
+                        console.log('Get outta here with that invalid id');
+                    }
                 })
                 .catch(error => console.error('Error fetching data:', error));
             
