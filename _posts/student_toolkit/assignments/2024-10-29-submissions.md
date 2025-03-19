@@ -18,7 +18,7 @@ layout: post
         font-weight: bold;
         transition: color 0.3s ease;
     }
-    select, input[type="url"], textarea, button {
+    select, input[type="url"], input[type="file"], textarea, button {
         width: 100%;
         padding: 15px; 
         font-size: 18px; 
@@ -111,6 +111,11 @@ layout: post
     </div>
     <br><br>
     <div>
+        <label for="submissionFile" style="font-size: 18px;">Upload File:</label>
+        <input type="file" id="submissionFile" />
+    </div>
+    <br><br>
+    <div>
         <label for="comments" style="font-size: 18px;">Comments:</label>
         <textarea id="comments" rows="4" style="width: 100%;"></textarea>
     </div>
@@ -125,7 +130,7 @@ layout: post
     <table id="submissions-table" style="width: 100%; margin-top: 20px;">
         <thead>
             <tr>
-                <th>Submisssion Content</th>
+                <th>Submission Content</th>
                 <th>Grade</th>
                 <th>Feedback</th>
             </tr>
@@ -154,6 +159,7 @@ layout: post
         let urllink_submit=javaURI+"/api/submissions/submit/";
         const submissionContent = document.getElementById('submissionContent').value;
         const comment=document.getElementById('comments').value;
+        const submissionFile = document.getElementById('submissionFile').files[0];
         getUserId();
         if(userId==-1){
             alert("Please login first");
@@ -166,6 +172,9 @@ layout: post
         data.append("studentId", student_id);
         data.append("content", submissionContent);
         data.append("comment", comment);
+        if (submissionFile) {
+            data.append("file", submissionFile);
+        }
 
         fetch(urllink_submit, {
             method: 'POST',
@@ -182,8 +191,6 @@ layout: post
                 outputBox.innerText = 'Failed Submission! ';
                 throw new Error('Failed to submit data: ' + response.statusText);
             }
-            
-
         })
         .then(result => {
             console.log('Submission successful:', result);
@@ -192,8 +199,6 @@ layout: post
             console.error('Error:', error);
         });
     }
-
-
 
     async function fetchAssignments() {
         try {
@@ -285,7 +290,6 @@ layout: post
         }
     }
 
-
      async function getUserId(){
         const url_persons = `${javaURI}/api/person/get`;
         await fetch(url_persons, fetchOptions)
@@ -297,16 +301,11 @@ layout: post
             })
             .then(data => {
                 userId=data.id;
-
-
             })
             .catch(error => {
                 console.error("Java Database Error:", error);
             });
     }
-
-
-    
 
     async function fetchSubmissions(){
         const urllink=javaURI+"/api/submissions/getSubmissions";
@@ -332,10 +331,9 @@ layout: post
     
         submissions.forEach(submission => {
             const row = document.createElement('tr');
-            //console.log(submission.assignmentid+" "+assignIndex);
             if(submission.assignmentid==assignIndex){
                 const contentCell = document.createElement('td');
-                contentCell.textContent = submission.content || 'N/A'; 
+                contentCell.textContent = submission.content ? (submission.file ? 'File Uploaded' : submission.content) : 'N/A'; 
                 row.appendChild(contentCell);
     
                 const gradeCell = document.createElement('td');
@@ -346,12 +344,8 @@ layout: post
                 feedbackCell.textContent = submission.feedback || 'No feedback yet'; 
                 row.appendChild(feedbackCell);
     
-    
-                
                 tableBody.appendChild(row);
             }
-    
-           
         });
     }
 
