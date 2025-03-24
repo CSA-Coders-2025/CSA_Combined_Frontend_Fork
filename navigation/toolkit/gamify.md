@@ -5,57 +5,8 @@ description:
 permalink: /gamify
 menu: nav/home.html
 ---
-<script type="module">
-  import { login, pythonURI, javaURI, fetchOptions } from '{{site.baseurl}}/assets/js/api/config.js';
-
-  async function verifyAuthentication() {
-    const URL = `${javaURI}/api/person/get`;
-    try {
-      const response = await fetch(URL, fetchOptions);
-      if (!response.ok) {
-        throw new Error(`Spring server response: ${response.status}`);
-      }
-      return true; // Successful authentication
-    } catch (error) {
-      return false; // Authentication failed
-    }
-  }
-
-  window.onload = async function() {
-    const isAuthenticated = await verifyAuthentication();
-    const loadingElement = document.getElementById('loadingElement');
-    
-    if (isAuthenticated) {
-      loadingElement.style.display = "none";  // Hide the loading screen
-    } else {
-      // Show "Please login" message and delay the redirection
-      const message = document.createElement('div');
-      message.style.position = 'absolute';
-      message.style.top = '50%';
-      message.style.left = '50%';
-      message.style.transform = 'translate(-50%, -50%)';
-      message.style.backgroundColor = '#ffcc00';
-      message.style.padding = '20px';
-      message.style.fontSize = '20px';
-      message.style.color = '#000';
-      message.style.borderRadius = '10px';
-      message.innerHTML = 'Please login';
-      
-      // Add the message on top of the loading screen
-      document.body.appendChild(message);
-
-      // Wait for 2 seconds before redirecting
-      setTimeout(() => {
-        window.location.href = "{{site.baseurl}}/login";  // Redirect to login page
-      }, 2000);  // 2000ms = 2 seconds
-    }
-  }
-</script>
 
 <div class="toolkit-buttons">
-  <div id="loadingElement" class="loading-container">
-      <div class="spinner"></div>
-  </div>  
   <!-- First Row of Buttons -->
     <a href="{{site.baseurl}}/stocks/home" class="toolkit-button" data-description="Experience real-time stock market simulation with virtual trading. Monitor popular stocks like Apple, Google, and Microsoft, manage your portfolio, and climb the leaderboard as you learn investment strategies in a risk-free environment." data-authors="Author: NITD+People">
     <img src="{{site.baseurl}}/images/toolkit-nav-buttons/stocks.png" alt="Simulation Home" />
@@ -106,52 +57,6 @@ menu: nav/home.html
 </div>
 
 <style>
-  /* Additional styling for the login prompt */
-  .login-message {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background-color: #ffcc00;
-      padding: 20px;
-      font-size: 20px;
-      color: #000;
-      border-radius: 10px;
-      z-index: 10000; /* Ensures it appears on top of other elements */
-  }
-  /* Full-screen black overlay */
-  .loading-container {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.9); /* Black background with opacity */
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999; /* Ensure it stays on top of all content */
-  }
-
-  /* Spinning circle */
-  .spinner {
-      border: 8px solid #f3f3f3; /* Light gray border */
-      border-top: 8px solid #3498db; /* Blue border-top */
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      animation: spin 2s linear infinite; /* Spinning animation */
-  }
-
-  /* Spin animation */
-  @keyframes spin {
-      0% {
-          transform: rotate(0deg);
-      }
-      100% {
-          transform: rotate(360deg);
-      }
-  }
   .toolkit-buttons {
     display: flex;
     justify-content: space-around;

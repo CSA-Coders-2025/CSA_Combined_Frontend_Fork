@@ -8,7 +8,7 @@ show_reading_time: false
 ---
 
 <div class="container">
-    <div class="student-management glowOnHover"
+    <div class="student-management glow-on-hover-search"
         onclick="location.href='{{site.baseurl}}/teacher-toolkit/period1';" style="cursor: pointer;">
         <div class="student-management-image">
             <img src="{{site.baseurl}}/images/toolkit-nav-buttons/studentmanagement.png" alt="student-management" />
@@ -63,7 +63,7 @@ show_reading_time: false
         grid-area: student-management-details;
     }
 
-    .glowOnHover {
+    .glow-on-hover-search {
         border: none;
         outline: none;
         color: #fff;
@@ -74,7 +74,7 @@ show_reading_time: false
         border-radius: 10px;
     }
 
-    .glowOnHover:before {
+    .glow-on-hover-search:before {
         content: '';
         background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
         position: absolute;
@@ -91,11 +91,11 @@ show_reading_time: false
         border-radius: 10px;
     }
 
-    .glowOnHover:hover:before {
+    .glow-on-hover-search:hover:before {
         opacity: 1;
     }
 
-    .glowOnHover:after {
+    .glow-on-hover-search:after {
         z-index: -1;
         content: '';
         position: absolute;

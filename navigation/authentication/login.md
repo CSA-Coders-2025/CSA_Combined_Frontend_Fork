@@ -115,7 +115,7 @@ show_reading_time: false
 
     }
 
-    .glowOnHover {
+    .glow-on-hover-search {
         //this makes it actually glow
         border: none;
         outline: none;
@@ -127,7 +127,7 @@ show_reading_time: false
         border-radius: 10px;
     }
 
-    .glowOnHover:before {
+    .glow-on-hover-search:before {
         content: '';
         background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
         position: absolute;
@@ -144,11 +144,11 @@ show_reading_time: false
         border-radius: 10px;
     }
 
-    .glowOnHover:hover:before {
+    .glow-on-hover-search:hover:before {
         opacity: 1;
     }
 
-    .glowOnHover:after {
+    .glow-on-hover-search:after {
         z-index: -1;
         content: '';
         position: absolute;
@@ -190,7 +190,7 @@ show_reading_time: false
                 <input type="password" class="form-input" id="password" placeholder="Password" required>
             </div>
             <p>
-                <button type="submit" class="glowOnHover submit-button">Login</button>
+                <button type="submit" class="glow-on-hover-search submit-button">Login</button>
             </p>
             <p id="message" style="color: red;"></p>
         </form>
@@ -218,7 +218,7 @@ show_reading_time: false
                 </label>
             </p>
             <p>
-                <button type="submit" class="glowOnHover submit-button">Sign Up</button>
+                <button type="submit" class="glow-on-hover-search submit-button">Sign Up</button>
             </p>
             <p id="signupMessage" style="color: green;"></p>
         </form>

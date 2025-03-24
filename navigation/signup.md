@@ -66,7 +66,7 @@ search_exclude: true
         </label>
       </p>
       <p>
-        <button type="submit" class="medium filledHighlight primary">Sign Up</button>
+        <button type="submit">Sign Up</button>
       </p>
       <p id="signupMessage" style="color: green;"></p>
     </form>

@@ -1,349 +1,87 @@
 <head>
-    <title>Site Title</title>
+    <link rel="stylesheet" href="{{ site.baseurl }}/assets/css/styles.css"> <!-- Optional external stylesheet -->
 
     <style>
-        .site-header {
-            backdrop-filter: blur(30px);
-            border-top: 0px solid;
-            border-bottom: 1px solid #404040;
-            background: rgba(50, 50, 50, 0.5);
-            font-weight: bold;
-            z-index: 999999999;
-        }
-
-        .site-nav {
-            background-color: transparent;
-        }
-
-        .site-nav .page-link {
-            color: white;
-            line-height: 1.5;
-            padding: 5px 10px;
-            margin-left: 20px;
-        }
-
-        .site-nav .page-link:not(:last-child) {
-            margin-right: 0;
-        }
-
-        #loginArea {
-            margin-left: 20px;
-        }
-
-        .site-title,
-        .site-title:visited,
-        .site-nav,
-        .page-link {
-            font-weight: bolder;
-        }
-
-
-
-        /* Define a mixin for common dropdown styles */
-        /* Apply mixin to dropdown menus */
         .dropdown {
-            position: relative;
             display: inline-block;
-            z-index: 1;
+            position: relative;
+            z-index: 9999;
+            /* Ensures it's above other elements */
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 140px;
+            /* Adjusted width */
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+            z-index: 10000;
+            /* Higher z-index ensures it's on top */
+            text-align: left;
+            /* Align text to the left */
+            margin-top: -10px;
+        }
+
+        .dropdown-content a {
+            color: black;
+            padding: 4px 6px;
+            /* Reduced padding */
+            text-decoration: none;
+            display: block;
+            font-size: 14px;
+            /* Smaller font size */
+            height: 70px;
+            margin-top: -10px;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
         }
 
         .dropdown:hover .dropdown-content {
             display: block;
-            animation: scaleIn 0.3s ease forwards;
         }
 
-        .dropdown .dropdown-content {
-            display: none;
-            position: fixed;
-            backdrop-filter: blur(30px);
-            background: rgba(50, 50, 50, 0.5);
-            border-radius: 8px;
-            box-shadow: 0px 8px 16px 0px black;
-            overflow: hidden;
-
-            text-align: left;
-            margin-top: -10px;
-            min-width: 140px;
-        }
-
-        .dropdown .dropdown-content a {
-            position: relative;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-            color: #ecf0f1;
-            transition: color 0.3s ease, background-color 0.3s ease;
-            border-radius: 8px;
-
-            font-size: 14px;
-            margin-top: -18px;
-            text-align: left;
-        }
-
-        .dropdown .dropdown-content a::after {
-            position: absolute;
-            content: "";
-            left: 0;
-            width: 100%;
-            height: 60px;
-            background: rgba(255, 255, 255, 0.5);
-            transform: scaleX(0);
-            transform-origin: right;
-            transition: transform 0.3s ease;
-            bottom: 0;
-        }
-
-        .dropdown .dropdown-content a:hover {
-            color: #95a5a6;
-            background-color: transparent;
-            border-radius: 8px;
-        }
-
-        .dropdown .dropdown-content a:hover::after {
-            transform: scaleX(1);
-            transform-origin: left;
-        }
-
-        .dropdownp1 {
-            position: relative;
-            display: inline-block;
-            z-index: 1;
-        }
-
-        .dropdownp1:hover .dropdown-content {
-            display: block;
-            animation: scaleIn 0.3s ease forwards;
-        }
-
-        .dropdownp1 .dropdown-content {
-            display: none;
-            position: fixed;
-            backdrop-filter: blur(30px);
-            background: rgba(50, 50, 50, 0.5);
-            border-radius: 8px;
-            box-shadow: 0px 8px 16px 0px black;
-            overflow: hidden;
-        }
-
-        .dropdownp1 .dropdown-content a {
-            position: relative;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-            color: #ecf0f1;
-            transition: color 0.3s ease, background-color 0.3s ease;
-            border-radius: 8px;
-        }
-
-        .dropdownp1 .dropdown-content a::after {
-            position: absolute;
-            content: "";
-            left: 0;
-            width: 100%;
-            height: 60px;
-            background: rgba(255, 255, 255, 0.5);
-            transform: scaleX(0);
-            transform-origin: right;
-            transition: transform 0.3s ease;
-            bottom: 0;
-        }
-
-        .dropdownp1 .dropdown-content a:hover {
-            color: #95a5a6;
-            background-color: transparent;
-            border-radius: 8px;
-        }
-
-        .dropdownp1 .dropdown-content a:hover::after {
-            transform: scaleX(1);
-            transform-origin: left;
-        }
-
-        .dropdownp2 {
-            position: relative;
-            display: inline-block;
-            z-index: 1;
-        }
-
-        .dropdownp2:hover .dropdown-content {
-            display: block;
-            animation: scaleIn 0.3s ease forwards;
-        }
-
-        .dropdownp2 .dropdown-content {
-            display: none;
-            position: fixed;
-            backdrop-filter: blur(30px);
-            background: rgba(50, 50, 50, 0.5);
-            border-radius: 8px;
-            box-shadow: 0px 8px 16px 0px black;
-            overflow: hidden;
-        }
-
-        .dropdownp2 .dropdown-content a {
-            position: relative;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-            color: #ecf0f1;
-            transition: color 0.3s ease, background-color 0.3s ease;
-            border-radius: 8px;
-        }
-
-        .dropdownp2 .dropdown-content a::after {
-            position: absolute;
-            content: "";
-            left: 0;
-            width: 100%;
-            height: 60px;
-            background: rgba(255, 255, 255, 0.5);
-            transform: scaleX(0);
-            transform-origin: right;
-            transition: transform 0.3s ease;
-            bottom: 0;
-        }
-
-        .dropdownp2 .dropdown-content a:hover {
-            color: #95a5a6;
-            background-color: transparent;
-            border-radius: 8px;
-        }
-
-        .dropdownp2 .dropdown-content a:hover::after {
-            transform: scaleX(1);
-            transform-origin: left;
-        }
-
-        .dropdownp3 {
-            position: relative;
-            display: inline-block;
-            z-index: 1;
-        }
-
-        .dropdownp3:hover .dropdown-content {
-            display: block;
-            animation: scaleIn 0.3s ease forwards;
-        }
-
-        .dropdownp3 .dropdown-content {
-            display: none;
-            position: fixed;
-            backdrop-filter: blur(30px);
-            background: rgba(50, 50, 50, 0.5);
-            border-radius: 8px;
-            box-shadow: 0px 8px 16px 0px black;
-            overflow: hidden;
-        }
-
-        .dropdownp3 .dropdown-content a {
-            position: relative;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-            color: #ecf0f1;
-            transition: color 0.3s ease, background-color 0.3s ease;
-            border-radius: 8px;
-        }
-
-        .dropdownp3 .dropdown-content a::after {
-            position: absolute;
-            content: "";
-            left: 0;
-            width: 100%;
-            height: 60px;
-            background: rgba(255, 255, 255, 0.5);
-            transform: scaleX(0);
-            transform-origin: right;
-            transition: transform 0.3s ease;
-            bottom: 0;
-        }
-
-        .dropdownp3 .dropdown-content a:hover {
-            color: #95a5a6;
-            background-color: transparent;
-            border-radius: 8px;
-        }
-
-        .dropdownp3 .dropdown-content a:hover::after {
-            transform: scaleX(1);
-            transform-origin: left;
-        }
-
-        .dropdownp4 {
-            position: relative;
-            display: inline-block;
-            z-index: 1;
-        }
-
-        .dropdownp4:hover .dropdown-content {
-            display: block;
-            animation: scaleIn 0.3s ease forwards;
-        }
-
-        .dropdownp4 .dropdown-content {
-            display: none;
-            position: fixed;
-            backdrop-filter: blur(30px);
-            background: rgba(50, 50, 50, 0.5);
-            border-radius: 8px;
-            box-shadow: 0px 8px 16px 0px black;
-            overflow: hidden;
-        }
-
-        .dropdownp4 .dropdown-content a {
-            position: relative;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-            color: #ecf0f1;
-            transition: color 0.3s ease, background-color 0.3s ease;
-            border-radius: 8px;
-        }
-
-        .dropdownp4 .dropdown-content a::after {
-            position: absolute;
-            content: "";
-            left: 0;
-            width: 100%;
-            height: 60px;
-            background: rgba(255, 255, 255, 0.5);
-            transform: scaleX(0);
-            transform-origin: right;
-            transition: transform 0.3s ease;
-            bottom: 0;
-        }
-
-        .dropdownp4 .dropdown-content a:hover {
-            color: #95a5a6;
-            background-color: transparent;
-            border-radius: 8px;
-        }
-
-        .dropdownp4 .dropdown-content a:hover::after {
-            transform: scaleX(1);
-            transform-origin: left;
-        }
-
-        @keyframes scaleIn {
-            0% {
-                transform: scale(0.8);
-                opacity: 0;
-            }
-
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-
-        .dropbtn {
-            border: none;
-            background-color: transparent !important;
+        .dropdown:hover .dropdown-button {
             text-decoration: underline;
-            color: #4bbaff !important;
-            font-weight: bold;
         }
 
+        .dropdown-button {
+            background-color: transparent;
+            border: none;
+            /* Ensure no border */
+            cursor: pointer;
+            font-size: inherit;
+            color: inherit;
+            outline: none;
+            /* Remove focus outline */
+        }
+
+        .dropdown-button:focus {
+            outline: none;
+            /* Remove outline when focused */
+        }
+
+        .dropdown-content a {
+            color: black;
+            padding: 4px 6px;
+            /* Reduced padding */
+            text-decoration: none;
+            display: block;
+            font-size: 14px;
+            /* Smaller font size */
+            height: 70px;
+            margin-top: -10px;
+            border: none;
+            /* Ensure no borders on the links */
+        }
+
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+            outline: none;
+            /* Remove any outline */
+        }
 
         .wrapper {
             max-width: calc(1000px - (30px));
@@ -353,22 +91,16 @@
             padding-left: 15px;
         }
 
-        #loginArea>a {
-            text-decoration: none;
-            color: #4bbaff !important
-        }
-
         a {
             text-decoration: none;
         }
 
         .site-header {
+            border-top: 5px solid #999999;
             border-bottom: 1px solid #404040;
             min-height: 55.95px;
             line-height: 54px;
-            position: fixed;
-            width: 100%;
-            top: 0px;
+            position: relative;
         }
 
         .site-title {
@@ -378,6 +110,8 @@
             margin-bottom: 0;
             float: left;
             font-weight: bold;
+
+            font-family: 'IBM Plex Mono', monospace;
         }
 
         @media screen and (max-width: 800px) {
@@ -443,6 +177,8 @@
             display: block;
             padding: 5px 10px;
             margin-left: 20px;
+
+            font-family: 'IBM Plex Mono', monospace;
         }
 
         .site-nav .page-link:not(:last-child) {
@@ -476,7 +212,7 @@
             }
 
             .site-nav .page-link:not(:last-child) {
-                margin-left: 20px;
+                margin-right: 20px;
             }
         }
     </style>
@@ -488,7 +224,7 @@
             {%- assign default_paths = site.pages | map: "path" -%}
             {%- assign page_paths = site.header_pages | default: default_paths -%}
             {%- assign titles_size = site.pages | map: 'title' | join: '' | size -%}
-            <a class="site-title glitch" rel="author" href="{{ "{{site.baseurl}}/" | relative_url }}"
+            <a class="site-title glitch" rel="author" href="{{ " /" | relative_url }}"
                 data-value="{{ site.title | escape }}">
                 {{ site.title | escape }}
             </a>
@@ -509,10 +245,14 @@
                     {%- for path in site.header_pages -%}
                     {%- assign my_page = site.pages | where: "path", path | first -%}
                     {%- if my_page.title -%}
-                    <a class="page-link" href="{{ my_page.url | relative_url }}">{{ my_page.title | escape }}</a>
+                    <a class="page-link glitch" href="{{ my_page.url | relative_url }}"
+                        data-value="{{ my_page.title | escape }}">
+                        {{ my_page.title | escape }}
+                    </a>
                     {%- endif -%}
                     {%- endfor -%}
-                    <a id="loginArea" href="{{ site.baseurl }}/login">Login</a>
+                    <a id="loginArea" class="glitch" href="{{ site.baseurl }}/login"
+                        style="font-family: 'IBM Plex Mono', monospace; font-weight: bolder; color: #0071e3;">Login</a>
                 </div>
             </nav>
             {%- endif -%}
@@ -521,3 +261,37 @@
 
     <script type="module" src="{{ site.baseurl }}/assets/js/api/login.js"></script>
 </body>
+
+<!-- cool text hover glitch effect -->
+<script>
+    const links = document.getElementsByClassName("glitch");
+    const letters = "#+©-&*0KIR1L2345";
+    const lettersLength = letters.length;
+    const regex = /\s/;
+
+    for (let i = 0; i < links.length; i++) {
+        links[i].addEventListener("mouseover", (event) => {
+            let iterations = 0;
+            const target = event.target;
+            const originalText = target.dataset.value || target.innerText;
+
+            const interval = setInterval(() => {
+                target.innerText = originalText
+                    .split("")
+                    .map((letter, index) => {
+                        if (index < iterations) {
+                            return originalText[index];
+                        }
+                        return regex.test(letter) ? letter : letters[Math.floor(Math.random() * lettersLength)];
+                    })
+                    .join("");
+
+                if (iterations >= originalText.length) {
+                    clearInterval(interval);
+                }
+
+                iterations += 1;
+            }, 100);
+        });
+    }
+</script>

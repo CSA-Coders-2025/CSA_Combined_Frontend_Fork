@@ -8,7 +8,7 @@ show_reading_time: false
 ---
 
 <div class="container">
-    <div class="bathroom glowOnHover" onclick="location.href='{{site.baseurl}}/bathroom';"
+    <div class="bathroom glow-on-hover-search" onclick="location.href='{{site.baseurl}}/bathroom';"
         style="cursor: pointer;">
         <div class="bathroom-image">
             <img src="{{site.baseurl}}/images/toolkit-nav-buttons/bathroom.png" alt="Bathroom" />
@@ -24,7 +24,7 @@ show_reading_time: false
             </ul>
         </div>
     </div>
-    <div class="screen-queue glowOnHover" onclick="location.href='{{site.baseurl}}/student-toolkit/queue';"
+    <div class="screen-queue glow-on-hover-search" onclick="location.href='{{site.baseurl}}/student-toolkit/queue';"
         style="cursor: pointer;">
         <div class="screen-queue-image">
             <img src="{{site.baseurl}}/images/toolkit-nav-buttons/group-chat.png" alt="ScreenQueue" />
@@ -40,7 +40,7 @@ show_reading_time: false
             </ul>
         </div>
     </div>
-    <div class="submissions glowOnHover" onclick="location.href='{{site.baseurl}}/student/submissions';"
+    <div class="submissions glow-on-hover-search" onclick="location.href='{{site.baseurl}}/student/submissions';"
         style="cursor: pointer;">
         <div class="submissions-image">
             <img src="{{site.baseurl}}/images/toolkit-nav-buttons/submissions.png" alt="Submissions" />
@@ -54,7 +54,7 @@ show_reading_time: false
             </ul>
         </div>
     </div>
-    <div class="seed-tracker glowOnHover" onclick="location.href='{{site.baseurl}}/student/seedtracker';"
+    <div class="seed-tracker glow-on-hover-search" onclick="location.href='{{site.baseurl}}/student/seedtracker';"
         style="cursor: pointer;">
         <div class="seed-tracker-image">
             <img src="{{site.baseurl}}/images/toolkit-nav-buttons/seedtracker.png" alt="Seed Tracker" />
@@ -67,7 +67,7 @@ show_reading_time: false
             </ul>
         </div>
     </div>
-    <div class="sagai glowOnHover" onclick="location.href='{{site.baseurl}}/student/TeamTeachToolkit';"
+    <div class="sagai glow-on-hover-search" onclick="location.href='{{site.baseurl}}/student/TeamTeachToolkit';"
         style="cursor: pointer;">
         <div class="sagai-image">
             <img src="{{site.baseurl}}/images/toolkit-nav-buttons/sagai.png" alt="TeamTeachToolkit" />
@@ -82,7 +82,7 @@ show_reading_time: false
             </ul>
         </div>
     </div>
-    <div class="view-grades glowOnHover" onclick="location.href='{{site.baseurl}}/student/view-grades';"
+    <div class="view-grades glow-on-hover-search" onclick="location.href='{{site.baseurl}}/student/view-grades';"
         style="cursor: pointer;">
         <div class="view-grades-image">
             <img src="{{site.baseurl}}/images/toolkit-nav-buttons/view-grades.png" alt="view-grades" />
@@ -263,7 +263,7 @@ show_reading_time: false
         grid-area: view-grades-details;
     }
 
-    .glowOnHover {
+    .glow-on-hover-search {
         border: none;
         outline: none;
         color: #fff;
@@ -274,7 +274,7 @@ show_reading_time: false
         border-radius: 10px;
     }
 
-    .glowOnHover:before {
+    .glow-on-hover-search:before {
         content: '';
         background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
         position: absolute;
@@ -291,11 +291,11 @@ show_reading_time: false
         border-radius: 10px;
     }
 
-    .glowOnHover:hover:before {
+    .glow-on-hover-search:hover:before {
         opacity: 1;
     }
 
-    .glowOnHover:after {
+    .glow-on-hover-search:after {
         z-index: -1;
         content: '';
         position: absolute;

@@ -114,7 +114,7 @@ search_exclude: true
 
     }
 
-    .glowOnHover {
+    .glow-on-hover-search {
         //this makes it actually glow
         border: none;
         outline: none;
@@ -126,7 +126,7 @@ search_exclude: true
         border-radius: 10px;
     }
 
-    .glowOnHover:before {
+    .glow-on-hover-search:before {
         content: '';
         background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
         position: absolute;
@@ -143,11 +143,11 @@ search_exclude: true
         border-radius: 10px;
     }
 
-    .glowOnHover:hover:before {
+    .glow-on-hover-search:hover:before {
         opacity: 1;
     }
 
-    .glowOnHover:after {
+    .glow-on-hover-search:after {
         z-index: -1;
         content: '';
         position: absolute;
@@ -228,7 +228,7 @@ search_exclude: true
             </div>
             <!-- login button -->
             <p>
-                <button type="submit" class="glowOnHover submit-button">Login</button>
+                <button type="submit" class="glow-on-hover-search submit-button">Login</button>
             </p>
             <p id="java-message" class="message"></p>
         </form>

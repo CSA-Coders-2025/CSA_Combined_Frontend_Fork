@@ -4,77 +4,7 @@ layout: aesthetihawk
 active_tab: toolkit
 ---
 
-<script type="module">
-    import { login, pythonURI, javaURI, fetchOptions } from '{{site.baseurl}}/assets/js/api/config.js';
-  
-    async function verifyAuthentication() {
-      const URL = `${javaURI}/api/person/get`;
-      try {
-        const response = await fetch(URL, fetchOptions);
-        if (!response.ok) {
-          throw new Error(`Spring server response: ${response.status}`);
-        }
-        return true; // Successful authentication
-      } catch (error) {
-        return false; // Authentication failed
-      }
-    }
-  
-    window.onload = async function() {
-      const isAuthenticated = await verifyAuthentication();
-      const loadingElement = document.getElementById('loadingElement');
-      
-      if (isAuthenticated) {
-        loadingElement.style.display = "none";  // Hide the loading screen
-      } else {
-        // Show "Please login" message and delay the redirection
-        const message = document.createElement('div');
-        message.style.position = 'absolute';
-        message.style.top = '50%';
-        message.style.left = '50%';
-        message.style.transform = 'translate(-50%, -50%)';
-        message.style.backgroundColor = '#ffcc00';
-        message.style.padding = '20px';
-        message.style.fontSize = '20px';
-        message.style.color = '#000';
-        message.style.borderRadius = '10px';
-        message.innerHTML = 'Please login';
-        
-        // Add the message on top of the loading screen
-        document.body.appendChild(message);
-  
-        // Wait for 2 seconds before redirecting
-        setTimeout(() => {
-          window.location.href = "{{site.baseurl}}/login";  // Redirect to login page
-        }, 2000);  // 2000ms = 2 seconds
-      }
-    }
-</script>
-
 <style>
-    
-  /* Additional styling for the login prompt */
-  .login-message {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background-color: #ffcc00;
-        padding: 20px;
-        font-size: 20px;
-        color: #000;
-        border-radius: 10px;
-        z-index: 10000; /* Ensures it appears on top of other elements */
-    }
-    
-    .toolkit-buttons {
-        display: flex;
-        justify-content: space-around;
-        align-items: flex-start;
-        margin: 20px 0;
-        padding: 20px;
-    }
-    
     .main-info {
         display: grid;
         grid-template-columns: 1fr;
@@ -383,10 +313,6 @@ active_tab: toolkit
         color: white;
     }
 </style>
-
-<div id="loadingElement" class="loading-container">
-    <div class="spinner"></div>
-</div>  
 
 <div class="main-info">
     <!-- the info header at the top of the page -->
