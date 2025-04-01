@@ -221,6 +221,11 @@ layout: post
 </div>
 <br><br>
 <div>
+    <label for="submissionFile" style="font-size: 18px;">Upload File:</label>
+    <input type="file" id="submissionFile" accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg,.md,.ipynb" required />
+</div>
+<br><br>
+<div>
     <label for="comments" style="font-size: 18px;">Comments:</label>
     <textarea id="comments" rows="4" style="width: 100%;"></textarea>
 </div>
@@ -277,74 +282,56 @@ layout: post
     function disableGroupSubmit(){
          document.getElementById("Group Submit").style.display = "none";
     }
+    
     function Submit() {
-        let urllink_submit=javaURI+"/api/submissions/submit/";
+        let urllink_submit = javaURI + "/api/submissions/submit/";
+        const submissionFile = document.getElementById('submissionFile').files[0]; // Get file
         const submissionContent = document.getElementById('submissionContent').value;
-        const comment=document.getElementById('comments').value;
+        const comment = document.getElementById('comments').value;
+
         getUserId();
-        if(userId==-1){
+        if (userId == -1) {
             alert("Please login first");
             return;
         }
-        const studentId=userId;
-        const assigmentId=assignments[assignIndex-1].id;
-        urllink_submit+=assigmentId.toString();
-        let isLate=false;
+
+        const studentId = userId;
+        const assignmentId = assignments[assignIndex - 1].id;
+        urllink_submit += assignmentId.toString();
+
         const now = new Date();
-        const deadlineDate = new Date(assignments[assignIndex-1].dueDate);
-        console.log(now);
-        console.log(deadlineDate);
-        console.log(deadlineDate-now);
+        const deadlineDate = new Date(assignments[assignIndex - 1].dueDate);
+        const isLate = deadlineDate - now < 0;
 
-        console.log(listofpeopleIds);
-        // const dataRequest = {
-        //     "studentId":studentId,
-        //     "content": submissionContent,
-        //     "comment": comment,
-        //     "isLate": deadlineDate - now < 0
-        // };
-        const formData =  new FormData();
-        formData.append('studentId', studentId);
-        formData.append('content', submissionContent);
-        formData.append('comment', comment);
-        formData.append('isLate', deadlineDate-now<0);
-
-        // const data;
-        console.log(Array.from(listofpeopleIds));
-        const submissionData = {
-            assignmentId: assigmentId,  
-            studentIds: Array.from(listofpeopleIds), 
-            content: submissionContent,
-            comment: comment,
-            isLate: deadlineDate - now < 0
-        };
-        console.log(JSON.stringify(submissionData));
-
-        // console.log(dataRequest);
+        const formData = new FormData();
+        formData.append("studentId", studentId);
+        formData.append("content", submissionContent);
+        formData.append("comment", comment);
+        formData.append("isLate", isLate);
+        if (submissionFile) {
+            formData.append("file", submissionFile); // Append file to FormData
+        }
 
         fetch(urllink_submit, {
-                ...fetchOptions,
-                method: "POST",
-                 body: JSON.stringify(submissionData)
-            })
+            method: "POST",
+            body: formData // Send as FormData
+        })
         .then(response => {
             const outputBox = document.getElementById('outputBox');
             if (response.ok) {
-                outputBox.innerText = 'Successful Submission! ';
+                outputBox.innerText = "Successful Submission!";
                 fetchSubmissions();
                 return response.json();
             } else {
-                outputBox.innerText = 'Failed Submission! ';
-                throw new Error('Failed to submit data: ' + response.statusText);
+                outputBox.innerText = "Failed Submission!";
+                throw new Error("Failed to submit data: " + response.statusText);
             }
-            
-
         })
         .then(result => {
-            console.log('Submission successful:', result);
+            console.log("Submission successful:", result);
         })
         .catch(error => {
-            console.error('Error:', error);
+            console.error("Error:", error);
         });
     }
 
