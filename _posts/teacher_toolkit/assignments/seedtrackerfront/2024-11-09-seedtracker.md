@@ -8,171 +8,109 @@ permalink: /student/seedtracker
 
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Weekly Project Page</title>
-    <style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Seed Tracker</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
     body {
-        font-family: Arial, sans-serif;
-        background-color:rgb(0, 0, 0);
-        margin: 0;
-        padding: 20px;
-    }
-    h1 {
-        font-size: 28px;
-        margin-bottom: 20px;
-        color:rgb(255, 255, 255);
-        text-align: center;
-    }
-    .form-group {
-        margin-bottom: 18px;
-        max-width: 600px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-    .form-group label {
-        display: block;
-        font-weight: bold;
-        margin-bottom: 8px;
-        color:rgb(255, 255, 255);
-    }
-    .form-group input,
-    .form-group textarea,
-    .form-group button {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        font-size: 14px;
-    }
-    .form-group textarea {
-        resize: vertical;
-    }
-    .form-group button {
-        background-color:rgb(255, 255, 255);
-        color: #ffffff;
-        cursor: pointer;
-        font-weight: bold;
-        font-size: 16px;
-        transition: background-color 0.3s;
-        border: none;
-    }
-    .form-group button:hover {
-        background-color:rgb(43, 37, 37);
-    }
-    .form-group input[type="range"] {
-        -webkit-appearance: none;
-        width: 100%;
-        background: transparent;
-    }
-    .form-group input[type="range"]::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 18px;
-        height: 18px;
-        border-radius: 50%;
-        background:rgb(0, 0, 0);
-        cursor: pointer;
-        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.25);
-    }
-    .container table {
-    border: none;
-    }
-    .form-group input[type="range"]::-webkit-slider-runnable-track {
-        height: 5px;
-        border-radius: 3px;
-        background: #d3d3d3;
+    background-color: black;
+    color: white;
+    padding: 20px;
     }
     .range-value {
-        font-weight: bold;
-        font-size: 18px;
-        color:rgb(245, 245, 245);
-        text-align: center;
-        margin-top: 8px;
+    font-weight: bold;
+    font-size: 18px;
+    text-align: center;
+    margin-top: 8px;
     }
-    .message {
-        font-size: 14px;
-        color:rgb(255, 255, 255);
-        text-align: center;
-        margin-top: 15px;
+    .btn-custom {
+    background-color: white;
+    color: black;
+    font-weight: bold;
     }
-</style>
+    .btn-custom:hover {
+    background-color: rgb(43, 37, 37);
+    color: white;
+    }
+    ::placeholder {
+    color: white;
+    opacity: 1;
+    }
+    </style>
+
 </head>
 <body>
-{% include nav/toolkits/seed.html %}
-<div class="container">
-    <table style="margin: 0 auto; color: white; border: none;">
-        <tr>
-            <td><label for="studentName">Student Name</label></td>
-            <td><input type="text" id="studentName" placeholder="Enter your name" required></td>
-        </tr>
-        <tr>
-            <td><label for="activityLog">Weekly Activity Log</label></td>
-            <td><textarea id="activityLog" rows="4" placeholder="Describe what you did this week..." required></textarea></td>
-        </tr>
-        <tr>
-            <td><label for="gradeRequest">Requested Grade (Seed)</label></td>
-            <td>
-                <input type="range" id="gradeRequest" min="0" max="1" step="0.1" value="0.5" oninput="updateRangeValue(this.value)">
-                <div class="range-value" id="rangeValue">0.5</div>
-            </td>
-        </tr>
-        <tr>
-            <td colspan="2">
-                <button onclick="submitEntry()">Submit Entry</button>
-                <div class="message" id="message"></div>
-            </td>
-        </tr>
-    </table>
-</div>
-<script type="module">
+  {% include nav/toolkits/seed.html %}
+  <div class="container">
+    <form class="mx-auto" style="max-width: 600px;">
+      <div class="mb-3">
+        <label for="studentName" class="form-label">Student Name</label>
+        <input type="text" class="form-control" id="studentName" placeholder="Enter your name" required>
+      </div>
+      <div class="mb-3">
+        <label for="activityLog" class="form-label">Weekly Activity Log</label>
+        <textarea class="form-control" id="activityLog" rows="4" placeholder="Describe what you did this week..." required></textarea>
+      </div>
+      <div class="mb-3">
+        <label for="gradeRequest" class="form-label">Requested Grade (Seed)</label>
+        <input type="range" class="form-range" id="gradeRequest" min="0" max="1" step="0.1" value="0.5" oninput="updateRangeValue(this.value)">
+        <div class="range-value" id="rangeValue">0.5</div>
+      </div>
+      <button type="button" class="btn btn-custom w-100" onclick="submitEntry()">Submit Entry</button>
+      <div class="text-center mt-3" id="message"></div>
+    </form>
+  </div>
+
+  <script type="module">
     import { javaURI } from '{{site.baseurl}}/assets/js/api/config.js';
+
     function updateRangeValue(value) {
-        document.getElementById('rangeValue').innerText = value;
+      document.getElementById('rangeValue').innerText = value;
     }
+
     async function submitEntry() {
-        const studentName = document.getElementById('studentName').value;
-        const activityLog = document.getElementById('activityLog').value;
-        const gradeRequest = document.getElementById('gradeRequest').value;
-        const messageElement = document.getElementById('message');
-        // Data validation
-        if (!studentName || !activityLog) {
-            messageElement.textContent = "Please fill in all fields before submitting.";
-            return;
+      const studentName = document.getElementById('studentName').value;
+      const activityLog = document.getElementById('activityLog').value;
+      const gradeRequest = document.getElementById('gradeRequest').value;
+      const messageElement = document.getElementById('message');
+
+      if (!studentName || !activityLog) {
+        messageElement.textContent = "Please fill in all fields before submitting.";
+        return;
+      }
+
+      const entryData = {
+        name: studentName,
+        comment: activityLog,
+        grade: parseFloat(gradeRequest)
+      };
+
+      try {
+        const response = await fetch(`${javaURI}/api/grades/requests/seed`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(entryData)
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          messageElement.textContent = `Entry submitted successfully! Your Entry ID is: ${result.id}`;
+        } else {
+          throw new Error("Failed to submit entry");
         }
-        // Preparing the data for submission
-        const entryData = {
-            name: studentName,
-            comment: activityLog,
-            grade: parseFloat(gradeRequest)
-        };
-        try {
-            // Post data to the backend
-            const response = await fetch(`${javaURI}/api/grades/requests/seed`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(entryData)
-            });
-            // Check if the submission was successful
-            if (response.ok) {
-                const result = await response.json();
-                const generatedId = result.id;  // Backend-generated ID
-                messageElement.textContent = `Entry submitted successfully! Your Entry ID is: ${generatedId}`;
-            } else {
-                throw new Error("Failed to submit entry");
-            }
-        } catch (error) {
-            messageElement.textContent = "Error submitting entry. Please try again.";
-            console.error("Submission error:", error);
-        }
+      } catch (error) {
+        messageElement.textContent = "Error submitting entry. Please try again.";
+        console.error("Submission error:", error);
+      }
     }
-    // Adding event listener to submit on pressing "Enter"
+
     document.getElementById('activityLog').addEventListener('keydown', function(event) {
-        if (event.key === 'Enter') {
-            event.preventDefault(); // Prevent the Enter key from creating a new line
-            submitEntry();
-        }
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        submitEntry();
+      }
     });
-</script>
+  </script>
 </body>
 </html>

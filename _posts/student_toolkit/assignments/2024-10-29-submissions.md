@@ -32,7 +32,7 @@ layout: post
     }
     #timer-container {
         text-align: center;
-        font-size: 24px;
+        font-size: 20px;
         font-family: Arial, sans-serif;
         margin-top: 20px;
     }
@@ -43,7 +43,7 @@ layout: post
     select, input[type="url"], textarea, button {
     width: 250px;         /* Set a fixed width */
     height: 40px;        /* Set a fixed height to make it square */
-    font-size: 18px;
+    font-size: 20px;
     padding: 10px;
     margin: 12px 0;
     border: 1px solid #ddd;
@@ -59,7 +59,7 @@ layout: post
     button {
         background-color: #4CAF50;
         color: white;
-        font-size: 18px; 
+        font-size: 20px; 
         font-weight: bold;
         cursor: pointer;
         transition: background-color 0.3s;
@@ -68,13 +68,13 @@ layout: post
         background-color: #45A049;
     }
     .modal-content h2 {
-        font-size: 28px; 
+        font-size: 20px; 
         color: white;
         margin-bottom: 20px;
     }
     .output-box {
         margin-top: 15px;
-        font-size: 30px;
+        font-size: 20px;
         color: #ffffff;
         animation: moving-glow2 2s infinite;
     }
@@ -83,7 +83,7 @@ layout: post
         color: white;
     }
     .Assignment-Content{
-        font-size: 16px; 
+        font-size: 20px; 
         color: white;
     }
     @keyframes moving-glow {
@@ -157,7 +157,7 @@ layout: post
         transform: translateX(26px); /* Move the circular knob */
     }
     .message {
-        font-size: 15px;
+        font-size: 20px;
     }
     /* Remove borders from the table */
     table {
@@ -187,14 +187,14 @@ layout: post
     </tr>
      <tr>
         <td><label for="searchBar">Assignment Description:</label></td>
-        <td><input type="text" id="searchBar" placeholder="..." onkeyup="filterNames()"></td>
+        <td><input type="text" id="searchBar" placeholder="" onkeyup="filterNames()"></td>
     </tr>
     <tr>
-        <td><label for="submissionContent" style="font-size: 18px;">Submission Content:</label></td>
+        <td><label for="submissionContent" style="font-size: 20px;">Submission Content:</label></td>
         <td><input type="url" id="submissionContent" required /></td>
     </tr>
     <tr>
-        <td><label for="comments" style="font-size: 18px;">Comments:</label></td>
+        <td><label for="comments" style="font-size: 20px;">Comments:</label></td>
         <td><textarea id="comments" rows="4" style="width: 100%;"></textarea></td>
     </tr>
     <tr>
