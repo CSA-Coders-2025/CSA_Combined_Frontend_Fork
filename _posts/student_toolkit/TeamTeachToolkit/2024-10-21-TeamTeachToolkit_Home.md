@@ -10,6 +10,7 @@ permalink: /student/TeamTeachToolkit
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Team Teach Toolkit</title>
+    {% include nav/toolkits/submit_assignments/menu.html %}
     <style>
         body {
             background-color: black;
@@ -41,11 +42,11 @@ permalink: /student/TeamTeachToolkit
         }
     </style>
 </head>
-
 <body>
     <div class="nav-buttons">
         <a href="{{site.baseurl}}/student/TeamTeachToolkit/grader"><button>Grader</button></a>
         <a href="{{site.baseurl}}/student/TeamTeachToolkit/generator"><button>Generator</button></a>
         <a href="{{site.baseurl}}/student/TeamTeachToolkit/review"><button>Review</button></a>
+        <a href="{{site.baseurl}}/student"><button>Toolkit Home</button></a>
     </div>
 </body>
