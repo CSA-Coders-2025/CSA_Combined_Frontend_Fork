@@ -161,11 +161,11 @@ layout: post
 
 <div class="toggle-container">
     <label class="toggle-switch">
-        <input type="checkbox" id="myToggle"/> 
+        <input type="checkbox" id="myToggle"/>
         <span class="slider"></span>
     </label>
     <p id="message" class="message">
-        Check the toggle to enable group submissions (add members of your group into a common submission).
+        Check the toggle to enable group submissions (select the groups that you're a part of).
     </p>
 </div>
 <div id="modal" class="modal">
@@ -180,40 +180,8 @@ layout: post
         <p id="time-left"></p>
     </div>
     <br><br>
-    <div class="Group Submit" id="Group Submit">
-        <div>
-            <label for="searchBar">Search for a name: </label>
-            <input type="text" id="searchBar" placeholder="Search for a name..." onkeyup="filterNames()">
-        </div>
-        <div>
-            <label for="rowsPerPage">Rows per page: </label>
-            <select id="rowsPerPage" onchange="changeRowsPerPage()">
-                <option value="5">5</option>
-                <option value="10">10</option>
-                <option value="25">25</option>
-                <option value="50">50</option>
-                <option value="100">100</option>
-                <option value="200">200</option>
-                <option value="1000">1000</option>
-                <option value="1000">2000</option>
-            </select>
-        </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody id="namesTableBody"></tbody>
-        </table>
-        <!-- <div id="pagination-container">
-            <button id="prevPage" onclick="changePage(-1)">Previous</button>
-            <span id="pageInfo">Page 1 of 10</span>
-            <button id="nextPage" onclick="changePage(1)">Next</button>
-        </div> -->
-        <div class="Review-Group" id="Review-Group">Group Members: </div>
-        <br><br><br>
+    <div class="group-list" id="group-list">
+        
     </div>
 <div>
     <label for="submissionContent" style="font-size: 18px;">Submission Content:</label>
@@ -253,74 +221,103 @@ layout: post
     let selectedTask = "";
     let tasks = "";
     let assignmentIds = [];
-    let submissions=[];
+    let submissions = [];
     let assignIndex = 0;
     let assignments;
-    let userId=-1;
+    let userId = -1;
     let StuName;
     let Student;
-     let people = [], filteredPeople = [], listofpeople = new Set(), currentPage = 1, rowsPerPage = 5, totalPages = 1;
-     let listofpeopleIds=new Set();
 
     document.getElementById("submit-assignment").addEventListener("click", Submit);
     document.getElementById("myToggle").addEventListener("change", function() {
         if (this.checked) {
             console.log("Toggle is ON");
             // Perform action when toggled ON
-            document.getElementById("Group Submit").style.display = "block";
+            document.getElementById("group-list").style.display = "block";
+            populateGroupList();
         } else {
             console.log("Toggle is OFF");
             // Perform action when toggled OFF
-            document.getElementById("Group Submit").style.display = "none";
+            document.getElementById("group-list").style.display = "none";
         }
     });
-    function disableGroupSubmit(){
-         document.getElementById("Group Submit").style.display = "none";
+
+    function groupSubmissionsIsEnabled() {
+        return document.getElementById("myToggle").checked;
     }
+
+    function disableGroupSubmit(){
+         document.getElementById("group-list").style.display = "none";
+    }
+
+    function populateGroupList() {
+        fetch(`${javaURI}/api/groups`, fetchOptions)
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error('Failed to retrieve groups (' + response.status + '): ' + response.statusText);
+            }
+            return response.json();
+        })
+        .then(groups => {
+            for (i=0; i<groups.length; i++) {
+                const groupListDiv = document.getElementById("group-list");
+                groupListDiv.innerHTML = ""; // clear existing groups
+
+                const groupDiv = document.createElement("div");
+                groupDiv.style.marginBottom = "20px";
+
+                const radio = document.createElement("input");
+                radio.type = "radio";
+                radio.value = group.id;
+                radio.name = "group";
+                radio.classList.add("group-radio");
+
+                const label = document.createElement("label");
+                label.style.marginLeft = "8px";
+                label.innerHTML = `<strong>${group.name}</strong> (Period: ${group.classPeriod})<br>Members: ${group.groupMembers.map(member => member.name).join(", ")}`;
+
+                groupDiv.appendChild(radio);
+                groupDiv.appendChild(label);
+
+                groupListDiv.appendChild(groupDiv);
+            }
+        })
+        .catch(error => {
+            alert(error);
+        })
+    }
+
     function Submit() {
-        let urllink_submit=javaURI+"/api/submissions/submit/";
         const submissionContent = document.getElementById('submissionContent').value;
-        const comment=document.getElementById('comments').value;
+        const comment = document.getElementById('comments').value;
         getUserId();
-        if(userId==-1){
+        if (userId == -1) {
             alert("Please login first");
             return;
         }
-        const studentId=userId;
-        const assigmentId=assignments[assignIndex-1].id;
-        urllink_submit+=assigmentId.toString();
-        let isLate=false;
+        const studentId = userId;
+        const assigmentId = assignments[assignIndex-1].id;
+        let isLate = false;
         const now = new Date();
         const deadlineDate = new Date(assignments[assignIndex-1].dueDate);
-        console.log(now);
-        console.log(deadlineDate);
-        console.log(deadlineDate-now);
-
-        console.log(listofpeopleIds);
-        // const dataRequest = {
-        //     "studentId":studentId,
-        //     "content": submissionContent,
-        //     "comment": comment,
-        //     "isLate": deadlineDate - now < 0
-        // };
-        const formData =  new FormData();
-        formData.append('studentId', studentId);
-        formData.append('content', submissionContent);
-        formData.append('comment', comment);
-        formData.append('isLate', deadlineDate-now<0);
-
+        
         // const data;
-        console.log(Array.from(listofpeopleIds));
+        var submissionUrl = `${javaURI}/api/submissions/${assigmentId}`;
+
+        const selectedGroupInput = document.querySelector('input[name="group"]:checked');
+        const submitter = selectedGroupInput ? selectedGroupInput.value : studentId;
+
         const submissionData = {
             assignmentId: assigmentId,  
-            studentIds: Array.from(listofpeopleIds), 
+            submitterId: submitter, 
             content: submissionContent,
             comment: comment,
-            isLate: deadlineDate - now < 0
+            isLate: deadlineDate - now < 0,
+            isGroupSubmission: groupSubmissionsIsEnabled()
         };
-        console.log(JSON.stringify(submissionData));
-
-        // console.log(dataRequest);
+        console.log(submissionData);
 
         fetch(urllink_submit, {
                 ...fetchOptions,
@@ -509,82 +506,9 @@ layout: post
            
         });
     }
-    window.filterNames = function filterNames() {
-        const searchTerm = document.getElementById("searchBar").value.toLowerCase();
-        filteredPeople = people.filter(person => person.name.toLowerCase().includes(searchTerm));
-        totalPages = Math.ceil(filteredPeople.length / rowsPerPage);
-        currentPage = 1; // Reset to first page after filtering
-        populateTable(filteredPeople.slice(0, rowsPerPage));
-    };
-
-    window.addName = function(info) {
-        console.log(info.split(","));
-        info=info.split(",");
-        console.log("Added name:", info[0]);
-        listofpeople.add(info[0]);
-        listofpeopleIds.add(Number(info[1]));
-        console.log(listofpeople);
-        const reviewGroup = document.getElementById('Review-Group');
-        reviewGroup.textContent =  "Group Members: "+Array.from(listofpeople).join(", ");
-        console.log(listofpeopleIds);
-    };
-
-    async function fetchAllStudents() {
-        try {
-            const response = await fetch(javaURI + "/api/people", fetchOptions);
-            if (!response.ok) throw new Error(`Error: ${response.status}`);
-            people = await response.json();
-            filteredPeople = people;
-            totalPages = Math.ceil(people.length / rowsPerPage);
-            populateTable(people.slice(0, rowsPerPage));
-        } catch (error) {
-            console.error("Error fetching names:", error);
-        }
-    }
-
-    window.changeRowsPerPage = function changeRowsPerPage() {
-        rowsPerPage = parseInt(document.getElementById("rowsPerPage").value);
-        currentPage = 1;
-        totalPages = Math.ceil(filteredPeople.length / rowsPerPage);
-        const startIdx = 0;
-        const endIdx = rowsPerPage;
-        populateTable(filteredPeople.slice(startIdx, endIdx));
-    };
-
-    // window.changePage = function changePage(direction) {
-    //     if (direction === 'prev' && currentPage > 1) {
-    //         currentPage--;
-    //     } else if (direction === 'next' && currentPage < totalPages) {
-    //         currentPage++;
-    //     }
-    //     const startIdx = (currentPage - 1) * rowsPerPage;
-    //     const endIdx = startIdx + rowsPerPage;
-    //     populateTable(filteredPeople.slice(startIdx, endIdx));
-    // };
-
-    window.updatePageInfo = function updatePageInfo() {
-    const pageInfo = document.getElementById("pageInfo");
-    pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
-    document.getElementById("prevPage").disabled = currentPage === 1;
-    document.getElementById("nextPage").disabled = currentPage === totalPages;
-};
 
 
-    function populateTable(names) {
-        const tableBody = document.getElementById("namesTableBody");
-        tableBody.innerHTML = "";
-        names.forEach(name => {
-            const row = document.createElement("tr");
-            let info=[name.name,name.id];
-            
-            row.innerHTML = `<td>${name.name}</td><td><button onclick="addName('${info}')">Add</button></td>`;
-            tableBody.appendChild(row);
-        });
-        updatePageInfo();
-    }
-
-    fetchAllStudents();
-    disableGroupSubmit();
+disableGroupSubmit();
    document.addEventListener("DOMContentLoaded", async () => {
     await getUserId();
     await fetchSubmissions();
