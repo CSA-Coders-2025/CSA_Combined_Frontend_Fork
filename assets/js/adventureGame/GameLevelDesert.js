@@ -1,12 +1,13 @@
 // To build GameLevels, each contains GameObjects from below imports
-import GamEnvBackground from './GameEnvBackground.js';
-import Player from './Player.js';
-import Npc from './Npc.js';
+import GamEnvBackground from './GameEngine/GameEnvBackground.js';
+import Player from './GameEngine/Player.js';
+import Npc from './GameEngine/Npc.js';
 import Quiz from './Quiz.js';
-import GameControl from './GameControl.js';
+import GameControl from './GameEngine/GameControl.js';
 import GameLevelStarWars from './GameLevelStarWars.js';
 import GameLevelMeteorBlaster from './GameLevelMeteorBlaster.js';
 import GameLevelMinesweeper from './GameLevelMinesweeper.js';
+import GameLevelEnd from './GameLevelEnd.js';
 
 class GameLevelDesert {
   constructor(gameEnv) {
@@ -49,6 +50,8 @@ class GameLevelDesert {
         hitbox: { widthPercentage: 0.45, heightPercentage: 0.2 },
         keypress: { up: 87, left: 65, down: 83, right: 68 } // W, A, S, D
     };
+
+    
 
 
     // NPC data for Tux 
@@ -133,6 +136,53 @@ class GameLevelDesert {
           quiz.openPanel(sprite_data_octocat);
         }
     }
+    
+          // NPC Data for End Portal
+          const sprite_src_endportal = path + "/images/gamify/exitportalfull.png"; // be sure to include the path
+          const sprite_greet_endportal = "Teleport to the End? Press E";
+          const sprite_data_endportal = {
+            id: 'End Portal',
+            greeting: sprite_greet_endportal,
+            src: sprite_src_endportal,
+            SCALE_FACTOR: 6,  // smaller = baller
+            ANIMATION_RATE: 100,
+            pixels: {width: 2029, height: 2025},
+            INIT_POSITION: { x: (width * 2 / 5), y: (height * 1 / 10)}, // Adjusted position
+            orientation: {rows: 1, columns: 1 },
+            down: {row: 0, start: 0, columns: 1 },  // This is the stationary npc, down is default 
+            hitbox: { widthPercentage: 0.1, heightPercentage: 0.2 },
+            /* Reaction function
+            *  This function is called when the player collides with the NPC
+            *  It displays an alert with the greeting message
+            */
+            reaction: function() {
+              alert(sprite_greet_endportal);
+            },
+            /* Interact function
+            *  This function is called when the player interacts with the NPC
+            *  It pauses the main game, creates a new GameControl instance with the End level,
+            */
+            interact: function() {
+              // Set a primary game reference from the game environment
+              let primaryGame = gameEnv.gameControl;
+              // Define the game in game level
+              let levelArray = [GameLevelEnd];
+              // Define a new GameControl instance with the End level
+              let gameInGame = new GameControl(gameEnv.game, levelArray);
+              // Pause the primary game 
+              primaryGame.pause();
+              // Start the game in game
+              gameInGame.start();
+              // Setup "callback" function to allow transition from game in game to the underlying game
+              gameInGame.gameOver = function() {
+                // Call .resume on primary game
+                primaryGame.resume();
+              }
+            }
+    
+          };
+
+
 
     const sprite_src_stocks = path + "/images/gamify/stockguy.png"; // Path to the NPC sprite
     const sprite_greet_stocks = "Darn it, I lost some money on the stock market.. come with me to help me out?";
@@ -269,20 +319,80 @@ class GameLevelDesert {
       interact: function() {
         // Set a primary game reference from the game environment
         let primaryGame = gameEnv.gameControl;
-        // Define the game in game level
         let levelArray = [GameLevelStarWars];
-        // Define a new GameControl instance with the StarWars level
-        let gameInGame = new GameControl(gameEnv.game,levelArray);
-        // Pause the primary game 
+        let gameInGame = new GameControl(gameEnv.game, levelArray);
         primaryGame.pause();
-        // Start the game in game
-        gameInGame.start();
-        // Setup "callback" function to allow transition from game in gaame to the underlying game
-        gameInGame.gameOver = function() {
-          // Call .resume on primary game
-          primaryGame.resume();
-        }
-      }
+    
+        // Create and style the fade overlay
+        const fadeOverlay = document.createElement('div');
+        Object.assign(fadeOverlay.style, {
+            position: 'absolute',
+            top: '0px',
+            left: '0px',
+            width: width + 'px',
+            height: height + 'px',
+            backgroundColor: '#0a0a1a',
+            opacity: '0',
+            transition: 'opacity 1s ease-in-out',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            flexDirection: 'column',
+            fontFamily: "'Orbitron', sans-serif",
+            color: 'white',
+            fontSize: '18px',
+            zIndex: '9999'
+        });
+    
+        const loadingText = document.createElement('div');
+        loadingText.textContent = 'Loading...';
+        fadeOverlay.appendChild(loadingText);
+    
+        const loadingBar = document.createElement('div');
+        loadingBar.style.marginTop = '10px';
+        loadingBar.style.fontFamily = 'monospace';
+        loadingBar.textContent = '';
+        fadeOverlay.appendChild(loadingBar);
+    
+        document.body.appendChild(fadeOverlay);
+    
+        // Fade in
+        requestAnimationFrame(() => {
+            fadeOverlay.style.opacity = '1';
+        });
+    
+        // Simulate loading bar
+        const totalDuration = 1000; // 1 second
+        const interval = 100;
+        const totalSteps = totalDuration / interval;
+        let currentStep = 0;
+    
+        const loadingInterval = setInterval(() => {
+            currentStep++;
+            loadingBar.textContent += '|';
+            if (currentStep >= totalSteps) {
+                clearInterval(loadingInterval);
+            }
+        }, interval);
+    
+        // After loading and fade-in, start the mini-game
+        setTimeout(() => {
+            // Start the new game
+            gameInGame.start();
+    
+            // Setup return to main game after mini-game ends
+            gameInGame.gameOver = function() {
+                primaryGame.resume();
+            };
+    
+            // Fade out
+            fadeOverlay.style.opacity = '0';
+            setTimeout(() => {
+                document.body.removeChild(fadeOverlay);
+            }, 1000); // Wait for fade-out to finish
+    
+        }, totalDuration + 200); // Delay a bit after loading bar finishes
+    }
 
     };
 
@@ -324,7 +434,8 @@ class GameLevelDesert {
       { class: Npc, data: sprite_data_r2d2 },
       { class: Npc, data: sprite_data_stocks },
       { class: Npc, data: sprite_data_crypto },
-      { class: Npc, data: sprite_data_minesweeper }  // Added Minesweeper NPC
+      { class: Npc, data: sprite_data_minesweeper },
+      { class: Npc, data: sprite_data_endportal }  // Added End Portal NPC
     ];
   }
 

@@ -5,6 +5,14 @@
         width: 125px;
     }
 
+    .pfpButton {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 125px;
+        width: 125px;
+    }
+
     /* SIDEBAR LINK STYLES */
     .sidebar ul {
         display: flex;
@@ -52,7 +60,9 @@
     }
 </style>
 
-<img src="#" alt="" class="profile-pic" id="headerPfp">
+<div class="pfpButton" onclick="openChangePfpModal()">
+    <img src="#" alt="" class="profile-pic" id="headerPfp">
+</div>
 <h1 id="headerName">Welcome,<br /> User</h1>
 
 
@@ -60,7 +70,7 @@
 <ul>
     <!-- these will show if you ARE logged in -->
     <li id="profile-link">
-        <h3><a href="{{site.baseurl}}/profilejava" id="profile-link_">Profile
+        <h3><a href="{{site.baseurl}}/profile" id="profile-link_">Profile
                 Settings</a></h3>
     </li>
 
@@ -71,7 +81,7 @@
 
     <li id="teacher-toolkit-link">
         <!-- this only shows if you are a teacher (your user has the teacher role) -->
-        <h3><a href="#">Teacher Toolkit</a></h3>
+        <h3><a href="https://spring2025.nighthawkcodingsociety.com">Teacher Toolkit</a></h3>
     </li>
 
     <li id="calendar-link">

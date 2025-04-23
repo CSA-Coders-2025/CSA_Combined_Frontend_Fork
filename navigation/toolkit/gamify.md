@@ -78,9 +78,9 @@ menu: nav/home.html
       <p>Experience real-time stock market simulation with virtual trading. Monitor popular stocks like Apple, Google, and Microsoft, manage your portfolio, and climb the leaderboard as you learn investment strategies in a risk-free environment.</p>
     </div>
   </a>
-  <a href="{{site.baseurl}}/gamify/adventureGame" class="toolkit-button" data-description="This page contains all the games developed by CSA. It includes an adventure game where you can explore endless opurtunites. Within this game you can learn how to gamble by playing the gambling game or all about stocks and crypto in our investment game!" data-authors="Author: NITD+People">
-    <img src="{{site.baseurl}}/images/toolkit-nav-buttons/adventure.png" alt="Gamify" />
-    <span class="button-name">The Adventure</span>
+  <a href="{{site.baseurl}}/gamify/fortuneFinders" class="toolkit-button" data-description="This page contains all the games developed by CSA. It includes an adventure game where you can explore endless opurtunites. Within this game you can learn how to gamble by playing the gambling game or all about stocks and crypto in our investment game!" data-authors="Author: NITD+People">
+    <img src="{{site.baseurl}}/images/toolkit-nav-buttons/fortune.png" alt="Gamify" />
+    <span class="button-name">Fortune Finders</span>
     <div class="description">
       <p>This page contains all the games developed by CSA. Starting at the adventure game, you can interact with NPCs and answer CS related questions to earn balance. With the balance, you can either gamble it away at the casino game or trade it at stocks. We also have crypto!</p>
     </div>
@@ -120,6 +120,52 @@ menu: nav/home.html
 </div>
 
 <style>
+  /* Additional styling for the login prompt */
+  .login-message {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #ffcc00;
+      padding: 20px;
+      font-size: 20px;
+      color: #000;
+      border-radius: 10px;
+      z-index: 10000; /* Ensures it appears on top of other elements */
+  }
+  /* Full-screen black overlay */
+  .loading-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.9); /* Black background with opacity */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999; /* Ensure it stays on top of all content */
+  }
+
+  /* Spinning circle */
+  .spinner {
+      border: 8px solid #f3f3f3; /* Light gray border */
+      border-top: 8px solid #3498db; /* Blue border-top */
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 2s linear infinite; /* Spinning animation */
+  }
+
+  /* Spin animation */
+  @keyframes spin {
+      0% {
+          transform: rotate(0deg);
+      }
+      100% {
+          transform: rotate(360deg);
+      }
+  }
   .toolkit-buttons {
     display: flex;
     justify-content: space-around;
