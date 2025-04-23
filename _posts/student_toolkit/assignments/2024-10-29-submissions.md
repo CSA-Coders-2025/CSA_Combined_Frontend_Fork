@@ -267,7 +267,7 @@ layout: post
             return response.json();
         })
         .then(groups => {
-            for (i=0; i<groups.length; i++) {
+            for (let i=0; i<groups.length; i++) {
                 const groupListDiv = document.getElementById("group-list");
                 groupListDiv.innerHTML = ""; // clear existing groups
 
@@ -465,6 +465,10 @@ layout: post
         console.log("here");
         try {
             const response = await fetch(`${urllink}/${userId}`, fetchOptions);
+            if (!response.ok) {
+                throw new Error(response.status + ' ' + response.statusText);
+            }
+
             const Submissions = await response.json();
             console.log("bruh");
             console.log(JSON.stringify(Submissions) + "------");
