@@ -181,6 +181,7 @@ function initSearch() {
         if (results.length > 0) {
           searchResults.classList.add('active');
           var resultsList = document.createElement('ul');
+          resultsList.style.marginLeft = '0px';
           resultsList.classList.add('search-results-list');
           searchResults.appendChild(resultsList);
   

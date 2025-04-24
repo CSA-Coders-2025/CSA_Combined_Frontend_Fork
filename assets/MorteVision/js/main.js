@@ -1,8 +1,11 @@
 let javaURI;
+let mappingURI
 if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
     javaURI = "ws://localhost:8085/websocket";
+    mappingURI = "http://localhost:8085/api/mortevision"
 } else {
     javaURI = "wss://spring2025.nighthawkcodingsociety.com/websocket";
+    mappingURI = "https://spring2025.nighthawkcodingsociety.com/api/mortevision"
 }
 
 const servers = {
@@ -164,3 +167,29 @@ socket.onclose = function (event) {
 socket.onopen = function (event) {
     console.log("WebSocket connection established.");
 };
+
+setInterval(checkForStreams, 1000);
+function checkForStreams()
+{
+    fetch(mappingURI+"/isStreamActive",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json"
+          },
+        }).then(response => {
+          if (response.ok) {
+            return response.text()
+          }
+          throw new Error("Network response failed")
+        }).then(data => {
+        document.getElementById("StreamOfflineHead").innerText = "Stream Offline"
+          if(data == "true")
+          {
+            document.getElementById("StreamOfflineHead").innerText = "A Stream Was Found!"
+          }
+        })
+        .catch(error => {
+          console.error("There was a problem with the fetch", error);
+        });
+}

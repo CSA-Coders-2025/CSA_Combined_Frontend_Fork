@@ -1,51 +1,30 @@
---- 
+---
 toc: false
 layout: post
 title: Team Teach Toolkit
-description: Grade popcorn hacks, generate hacks, or review team teach units here
+description: Grade popcorn hacks, generate hacks, review team teach units, or sign up for team teaches here
 permalink: /student/TeamTeachToolkit
 ---
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Team Teach Toolkit</title>
-    <style>
-        body {
-            background-color: black;
-            color: white;
-            font-family: Arial, sans-serif;
-            text-align: center;
-        }
-        h1 {
-            margin-top: 30px;
-            font-size: 36px;
-        }
-        h2 {
-            font-size: 16px;
-        }
-        .nav-buttons {
-            margin-top: 20px;
-        }
-        .nav-buttons button {
-            background-color: black;
-            color: white;
-            border: 1px solid white;
-            padding: 10px 20px;
-            margin: 0 10px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        .post-meta {
-            display: none;
-        }
-    </style>
-</head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Team Teach Toolkit</title>
 
-<body>
-    <div class="nav-buttons">
-        <a href="{{site.baseurl}}/student/TeamTeachToolkit/grader"><button>Grader</button></a>
-        <a href="{{site.baseurl}}/student/TeamTeachToolkit/generator"><button>Generator</button></a>
-        <a href="{{site.baseurl}}/student/TeamTeachToolkit/review"><button>Review</button></a>
+<div class="bg-black text-white font-sans text-center min-h-screen">
+    <h1 class="mt-8 text-4xl">Team Teach Toolkit</h1>
+    <h5 class="text-base mt-2">Grade popcorn hacks, generate hacks, review team teach units, or sign up for team teaches here</h5>
+    <div class="mt-6 flex justify-center space-x-4">
+        <a href="{{site.baseurl}}/student/TeamTeachToolkit/grader">
+            <button class="bg-black text-white border border-white px-6 py-2 text-base hover:bg-white hover:text-black transition">Grader</button>
+        </a>
+        <a href="{{site.baseurl}}/student/TeamTeachToolkit/generator">
+            <button class="bg-black text-white border border-white px-6 py-2 text-base hover:bg-white hover:text-black transition">Generator</button>
+        </a>
+        <a href="{{site.baseurl}}/student/TeamTeachToolkit/review">
+            <button class="bg-black text-white border border-white px-6 py-2 text-base hover:bg-white hover:text-black transition">Review</button>
+        </a>
+        <a href="{{site.baseurl}}/student/TeamTeachToolkit/signup">
+            <button class="bg-black text-white border border-white px-6 py-2 text-base hover:bg-white hover:text-black transition">Sign Up</button>
+        </a>
     </div>
-</body>
+</div>

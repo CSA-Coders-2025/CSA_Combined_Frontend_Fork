@@ -1,10 +1,13 @@
 // To build GameLevels, each contains GameObjects from below imports
-import Background from './Background.js';
-import Player from './Player.js';
-import Npc from './Npc.js';
+import GamEnvBackground from './GameEngine/GameEnvBackground.js';
+import Player from './GameEngine/Player.js';
+import Npc from './GameEngine/Npc.js';
 import Quiz from './Quiz.js';
-import GameControl from './GameControl.js';
+import GameControl from './GameEngine/GameControl.js';
 import GameLevelStarWars from './GameLevelStarWars.js';
+import GameLevelMeteorBlaster from './GameLevelMeteorBlaster.js';
+import GameLevelMinesweeper from './GameLevelMinesweeper.js';
+import GameLevelEnd from './GameLevelEnd.js';
 
 class GameLevelDesert {
   constructor(gameEnv) {
@@ -48,6 +51,8 @@ class GameLevelDesert {
         keypress: { up: 87, left: 65, down: 83, right: 68 } // W, A, S, D
     };
 
+    
+
 
     // NPC data for Tux 
     const sprite_src_tux = path + "/images/gamify/tux.png"; // be sure to include the path
@@ -85,7 +90,7 @@ class GameLevelDesert {
         interact: function() {
           let quiz = new Quiz(); // Create a new Quiz instance
           quiz.initialize();
-          quiz.openPanel(sprite_data_tux.quiz);
+          quiz.openPanel(sprite_data_tux);
           }
     
       };
@@ -128,11 +133,111 @@ class GameLevelDesert {
         interact: function() {
           let quiz = new Quiz(); // Create a new Quiz instance
           quiz.initialize();
-          quiz.openPanel(sprite_data_octocat.quiz);
+          quiz.openPanel(sprite_data_octocat);
         }
     }
-  
+    
+          // NPC Data for End Portal
+          const sprite_src_endportal = path + "/images/gamify/exitportalfull.png"; // be sure to include the path
+          const sprite_greet_endportal = "Teleport to the End? Press E";
+          const sprite_data_endportal = {
+            id: 'End Portal',
+            greeting: sprite_greet_endportal,
+            src: sprite_src_endportal,
+            SCALE_FACTOR: 6,  // smaller = baller
+            ANIMATION_RATE: 100,
+            pixels: {width: 2029, height: 2025},
+            INIT_POSITION: { x: (width * 2 / 5), y: (height * 1 / 10)}, // Adjusted position
+            orientation: {rows: 1, columns: 1 },
+            down: {row: 0, start: 0, columns: 1 },  // This is the stationary npc, down is default 
+            hitbox: { widthPercentage: 0.1, heightPercentage: 0.2 },
+            /* Reaction function
+            *  This function is called when the player collides with the NPC
+            *  It displays an alert with the greeting message
+            */
+            reaction: function() {
+              alert(sprite_greet_endportal);
+            },
+            /* Interact function
+            *  This function is called when the player interacts with the NPC
+            *  It pauses the main game, creates a new GameControl instance with the End level,
+            */
+            interact: function() {
+              // Set a primary game reference from the game environment
+              let primaryGame = gameEnv.gameControl;
+              // Define the game in game level
+              let levelArray = [GameLevelEnd];
+              // Define a new GameControl instance with the End level
+              let gameInGame = new GameControl(gameEnv.game, levelArray);
+              // Pause the primary game 
+              primaryGame.pause();
+              // Start the game in game
+              gameInGame.start();
+              // Setup "callback" function to allow transition from game in game to the underlying game
+              gameInGame.gameOver = function() {
+                // Call .resume on primary game
+                primaryGame.resume();
+              }
+            }
+    
+          };
 
+
+
+    const sprite_src_stocks = path + "/images/gamify/stockguy.png"; // Path to the NPC sprite
+    const sprite_greet_stocks = "Darn it, I lost some money on the stock market.. come with me to help me out?";
+    
+    const sprite_data_stocks = {
+        id: 'Stock-NPC',
+        greeting: sprite_greet_stocks,
+        src: sprite_src_stocks,
+        SCALE_FACTOR: 10,
+        ANIMATION_RATE: 50,
+        pixels: {height: 441, width: 339},
+        INIT_POSITION: { x: width * 0.75, y: height * 0.6 },
+        orientation: {rows: 1, columns: 1},
+        down: {row: 0, start: 0, columns: 1 },
+        hitbox: { widthPercentage: 0.1, heightPercentage: 0.2 },
+        // Reaction when player approaches NPC
+        reaction: function() {
+            alert(sprite_greet_stocks);
+        },
+        // Interact when player presses "E"
+        interact: function() {
+            const confirmTeleport = window.confirm("Teleport to the stock market?");
+            if (confirmTeleport) {
+                window.location.href = "https://nighthawkcoders.github.io/portfolio_2025/stocks/home"; // Replace with your link
+            }
+        }
+    };
+
+    const sprite_src_crypto = path + "/images/gamify/bitcoin.png"; // Path to the NPC sprite
+    const sprite_greet_crypto = "*cha-ching*";
+    
+    const sprite_data_crypto = {
+        id: 'Crypto-NPC',
+        greeting: sprite_greet_crypto,
+        src: sprite_src_crypto,
+        SCALE_FACTOR: 10,
+        ANIMATION_RATE: 50,
+        pixels: {height: 600, width: 600},
+        INIT_POSITION: { x: width / 3, y: height / 3 },
+        orientation: {rows: 1, columns: 1},
+        down: {row: 0, start: 0, columns: 1 },
+        hitbox: { widthPercentage: 0.1, heightPercentage: 0.2 },
+        // Reaction when player approaches NPC
+        reaction: function() {
+            alert(sprite_greet_crypto);
+        },
+        // Interact when player presses "E"
+        interact: function() {
+            const confirmTeleport = window.confirm("Teleport to gambling hub?");
+            if (confirmTeleport) {
+                window.location.href = "https://nighthawkcoders.github.io/portfolio_2025/gamify/casinohomepage"; // Replace with your lin
+            }
+        }
+    };
+    
     const sprite_src_robot = path + "/images/gamify/robot.png"; // be sure to include the path
     const sprite_greet_robot = "Hi I am Robot, the Jupyter Notebook mascot.  I am very happy to spend some linux shell time with you!";
     const sprite_data_robot = {
@@ -147,6 +252,7 @@ class GameLevelDesert {
       down: {row: 1, start: 0, columns: 6 },  // This is the stationary npc, down is default 
       hitbox: { widthPercentage: 0.1, heightPercentage: 0.2 },
       // Linux command quiz
+
       quiz: { 
         title: "Jupyter Notebook Command Quiz",
         questions: [
@@ -165,10 +271,23 @@ class GameLevelDesert {
       reaction: function() {
         alert(sprite_greet_robot);
       },
+
       interact: function() {
-        let quiz = new Quiz(); // Create a new Quiz instance
-        quiz.initialize();
-        quiz.openPanel(sprite_data_robot.quiz);
+        // Set a primary game reference from the game environment
+        let primaryGame = gameEnv.gameControl;
+        // Define the game in game level
+        let levelArray = [GameLevelMeteorBlaster];
+        // Define a new GameControl instance with the StarWars level
+        let gameInGame = new GameControl(gameEnv.game, levelArray);
+        // Pause the primary game 
+        primaryGame.pause();
+        // Start the game in game
+        gameInGame.start();
+        // Setup "callback" function to allow transition from game in gaame to the underlying game
+        gameInGame.gameOver = function() {
+          // Call .resume on primary game
+          primaryGame.resume();
+        }
       }
     }
 
@@ -200,33 +319,124 @@ class GameLevelDesert {
       interact: function() {
         // Set a primary game reference from the game environment
         let primaryGame = gameEnv.gameControl;
-        // Define the game in game level
         let levelArray = [GameLevelStarWars];
-        // Define a new GameControl instance with the StarWars level
-        let gameInGame = new GameControl(gameEnv.game,levelArray);
-        // Pause the primary game 
+        let gameInGame = new GameControl(gameEnv.game, levelArray);
         primaryGame.pause();
-        // Start the game in game
+    
+        // Create and style the fade overlay
+        const fadeOverlay = document.createElement('div');
+        Object.assign(fadeOverlay.style, {
+            position: 'absolute',
+            top: '0px',
+            left: '0px',
+            width: width + 'px',
+            height: height + 'px',
+            backgroundColor: '#0a0a1a',
+            opacity: '0',
+            transition: 'opacity 1s ease-in-out',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            flexDirection: 'column',
+            fontFamily: "'Orbitron', sans-serif",
+            color: 'white',
+            fontSize: '18px',
+            zIndex: '9999'
+        });
+    
+        const loadingText = document.createElement('div');
+        loadingText.textContent = 'Loading...';
+        fadeOverlay.appendChild(loadingText);
+    
+        const loadingBar = document.createElement('div');
+        loadingBar.style.marginTop = '10px';
+        loadingBar.style.fontFamily = 'monospace';
+        loadingBar.textContent = '';
+        fadeOverlay.appendChild(loadingBar);
+    
+        document.body.appendChild(fadeOverlay);
+    
+        // Fade in
+        requestAnimationFrame(() => {
+            fadeOverlay.style.opacity = '1';
+        });
+    
+        // Simulate loading bar
+        const totalDuration = 1000; // 1 second
+        const interval = 100;
+        const totalSteps = totalDuration / interval;
+        let currentStep = 0;
+    
+        const loadingInterval = setInterval(() => {
+            currentStep++;
+            loadingBar.textContent += '|';
+            if (currentStep >= totalSteps) {
+                clearInterval(loadingInterval);
+            }
+        }, interval);
+    
+        // After loading and fade-in, start the mini-game
+        setTimeout(() => {
+            // Start the new game
+            gameInGame.start();
+    
+            // Setup return to main game after mini-game ends
+            gameInGame.gameOver = function() {
+                primaryGame.resume();
+            };
+    
+            // Fade out
+            fadeOverlay.style.opacity = '0';
+            setTimeout(() => {
+                document.body.removeChild(fadeOverlay);
+            }, 1000); // Wait for fade-out to finish
+    
+        }, totalDuration + 200); // Delay a bit after loading bar finishes
+    }
+
+    };
+
+    const sprite_src_minesweeper = path + "/images/gamify/robot.png"; // Using robot sprite for Minesweeper NPC
+    const sprite_greet_minesweeper = "Want to play a game of Minesweeper? Right-click to flag mines!";
+    const sprite_data_minesweeper = {
+      id: 'Minesweeper',
+      greeting: sprite_greet_minesweeper,
+      src: sprite_src_minesweeper,
+      SCALE_FACTOR: 10,
+      ANIMATION_RATE: 100,
+      pixels: {height: 316, width: 627},
+      INIT_POSITION: { x: (width * 2 / 3), y: (height * 2 / 3)},
+      orientation: {rows: 3, columns: 6},
+      down: {row: 1, start: 0, columns: 6},
+      hitbox: { widthPercentage: 0.1, heightPercentage: 0.2 },
+      reaction: function() {
+        alert(sprite_greet_minesweeper);
+      },
+      interact: function() {
+        let primaryGame = gameEnv.gameControl;
+        let levelArray = [GameLevelMinesweeper];
+        let gameInGame = new GameControl(gameEnv.game, levelArray);
+        primaryGame.pause();
         gameInGame.start();
-        // Setup "callback" function to allow transition from game in gaame to the underlying game
         gameInGame.gameOver = function() {
-          // Call .resume on primary game
           primaryGame.resume();
         }
       }
-
     };
 
     // List of objects defnitions for this level
     this.classes = [
-      { class: Background, data: image_data_desert },
+      { class: GamEnvBackground, data: image_data_desert },
       { class: Player, data: sprite_data_chillguy },
       { class: Npc, data: sprite_data_tux },
       { class: Npc, data: sprite_data_octocat },
       { class: Npc, data: sprite_data_robot },
       { class: Npc, data: sprite_data_r2d2 },
+      { class: Npc, data: sprite_data_stocks },
+      { class: Npc, data: sprite_data_crypto },
+      { class: Npc, data: sprite_data_minesweeper },
+      { class: Npc, data: sprite_data_endportal }  // Added End Portal NPC
     ];
-    
   }
 
 }

@@ -5,24 +5,66 @@ active_tab: profile
 ---
 
 <style>
-    .main-info {
-        display: grid;
-        /* grid-template-columns: 500px 500px; */
-        grid-template-columns: repeat(auto-fit, minmax(300px, 500px)); /* Responsive grid */
-        grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
-        gap: 30px 30px;
-        grid-auto-flow: row;
-        grid-template-areas:
-            "header header"
-            "name-info uid-info"
-            "email-info password-info"
-            "kasm-info class-info"
-            "pfp-info dummy";
-        grid-area: main-info;
+    /* Base styles for the switch */
+    .switch {
+        display: inline-block;
+        position: relative;
+        width: 50px;
+        height: 25px;
+    }
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: 0.4s;
+        border-radius: 25px;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 19px;
+        width: 19px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: 0.4s;
+        border-radius: 50%;
+    }
+
+    input:checked+.slider {
+        background-color: #2196F3;
+    }
+
+    input:checked+.slider.green {
+        background-color: #4CAF50;
+    }
+
+    input:checked+.slider:before {
+        transform: translateX(25px);
+    }
+
+    .label-text {
+        margin-left: 10px;
+        font-size: 16px;
+        vertical-align: middle;
     }
 
     @media (min-width: 1400PX) {
-    .cards { grid-template-columns: repeat(2, 1fr); }
+        .cards {
+            grid-template-columns: repeat(2, 1fr);
+        }
     }
 
     .header {
@@ -209,7 +251,7 @@ active_tab: profile
 
     .change-info-card {
         /* colors */
-        backdrop-filter: blur(30px);
+        background-color: hsla(240, 3%, 12%, 0.90);
 
         /* border */
         border-radius: 10px;
@@ -329,53 +371,64 @@ active_tab: profile
         -ms-transform: rotate(45deg);
         transform: rotate(45deg);
     }
+
+    /* fancy user panel css */
+    .userPanel {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        /* 2 columns of equal width */
+        grid-template-rows: repeat(3, auto);
+        /* 3 rows with height based on content */
+        gap: 20px;
+        /* Adjust spacing between items */
+        grid-auto-flow: row;
+        /* Fill rows first */
+        justify-content: center;
+        /* Center the grid horizontally */
+        align-items: start;
+        /* Align items to the top */
+        border: 2px solid hsla(240, 6%, 30%, 0.63);
+        /* Add a visible border */
+        border-radius: 15px;
+        /* Rounded corners */
+        background-color: hsla(240, 3%, 20%, 0.5);
+        /* Subtle background */
+        padding: 20px;
+        /* Some space inside */
+        margin-top: 20px;
+        /* Spacing from other content */
+    }
+
+    .class-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 30px;
+    }
+
+    .kasm-toggle-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        /* Adjust spacing between the toggle and the text */
+    }
+
+    .kasm-toggle-container .label-text {
+        margin: 0;
+        /* Remove any default margin */
+        font-size: 16px;
+        /* Ensure consistent font size */
+        vertical-align: middle;
+        /* Align text vertically with the toggle */
+    }
 </style>
 
-<!-- change name box -->
-<div id="change-name" class="change-info-card" style="visibility: hidden;">
-    <ion-icon name="person-outline" size="large"></ion-icon>
-    <h1>Name</h1>
-    <form onsubmit="return changeName(event)">
-        <input type="text" id="nameInput" placeholder="Enter new name.">
-        <input type="submit" value="Save changes">
-    </form>
-    <div class="close" onclick="document.getElementById('change-name').style.visibility = 'hidden'">
-        <ion-icon name="close-outline" size="large" class="close"></ion-icon>
-    </div>
-</div>
-
-<!-- change user ID box -->
-<div id="change-uid" class="change-info-card" style="visibility: hidden;">
-    <ion-icon name="id-card-outline" size="large"></ion-icon>
-    <h1>User ID</h1>
-    <form onsubmit="return changeUid(event)">
-        <input type="text" id="uidInput" placeholder="Enter new user ID.">
-        <input type="submit" value="Save changes">
-    </form>
-    <div class="close" onclick="document.getElementById('change-uid').style.visibility = 'hidden'">
-        <ion-icon name="close-outline" size="large" class="close"></ion-icon>
-    </div>
-</div>
-
-<!-- change email box -->
-<div id="change-email" class="change-info-card" style="visibility: hidden;">
-    <ion-icon name="mail-outline" size="large"></ion-icon>
-    <h1>Email</h1>
-    <form onsubmit="return changeEmail(event)">
-        <input type="text" id="emailInput" placeholder="Enter new email.">
-        <input type="submit" value="Save changes">
-    </form>
-    <div class="close" onclick="document.getElementById('change-email').style.visibility = 'hidden'">
-        <ion-icon name="close-outline" size="large" class="close"></ion-icon>
-    </div>
-</div>
-
-<!-- change password box -->
-<div id="change-password" class="change-info-card" style="visibility: hidden;">
-    <ion-icon name="mail-outline" size="large"></ion-icon>
-    <h1>Password</h1>
-    <form onsubmit="return changePassword(event)">
-        <input type="password" id="passwordInput" placeholder="Enter new password.">
+<!-- change class box -->
+<div id="change-class" class="change-info-card" style="visibility: hidden;">
+    <ion-icon name="school-outline" size="large"></ion-icon>
+    <h1>Student Id</h1>
+    <form onsubmit="return changeSid(event)">
+        <input type="text" id="sidInput" placeholder="Enter new Student Id">
         <input type="submit" value="Save changes">
     </form>
     <div class="close" onclick="document.getElementById('change-password').style.visibility = 'hidden'">
@@ -383,42 +436,6 @@ active_tab: profile
     </div>
 </div>
 
-<!-- change kasm box -->
-<div id="change-kasm" class="change-info-card" style="visibility: hidden;">
-    <ion-icon name="server-outline" size="large"></ion-icon>
-    <h1>Kasm</h1>
-    <form>
-        <label class="container-checkbox" style="white-space: nowrap;">I need a Kasm server.
-            <input type="checkbox" checked="checked" id="kasm-checkbox" onchange="window.changeKasmServerStatus(event)">
-            <span class="checkmark"></span>
-        </label>
-    </form>
-    <div class="close" onclick="document.getElementById('change-kasm').style.visibility = 'hidden'">
-        <ion-icon name="close-outline" size="large" class="close"></ion-icon>
-    </div>
-</div>
-
-
-<!-- change class box -->
-<div id="change-class" class="change-info-card" style="visibility: hidden;">
-    <ion-icon name="school-outline" size="large"></ion-icon>
-    <h1>Class Info</h1>
-    <form onsubmit="return changeClass(event)">
-        <select id="classInput" name="class">
-            <option value="CSA">Computer Science Advanced</option>
-            <option value="CSP">Computer Science Principles</option>
-            <option value="CSSE">Computer Science and Software Engineering</option>
-            <option value="Robotics">Engineering Robotics</option>
-        </select>
-
-        <input type="text" id="classInputYear" placeholder="Enter class year (YYYY).">
-
-        <input type="submit" value="Save changes">
-    </form>
-    <div class="close" onclick="document.getElementById('change-class').style.visibility = 'hidden'">
-        <ion-icon name="close-outline" size="large" class="close"></ion-icon>
-    </div>
-</div>
 
 <!-- change profile pic box -->
 <div id="change-pfp" class="change-info-card" style="visibility: hidden;">
@@ -433,7 +450,6 @@ active_tab: profile
         </label>
         <input type="submit" value="Save changes">
         <br>
-        <p><em>Note: you will have to reload the page after uploading the file.</em></p>
     </form>
     <div class="close" onclick="document.getElementById('change-pfp').style.visibility = 'hidden'">
         <ion-icon name="close-outline" size="large" class="close"></ion-icon>
@@ -450,87 +466,57 @@ active_tab: profile
             more.</p>
     </div>
 
-    <!-- name card -->
-    <div class="name-info card" onclick="document.getElementById('change-name').style.visibility = 'visible'" data-tilt
-        data-tilt-reverse="true" data-tilt-perspective="10000" data-tilt-glare data-tilt-max-glare="0.5">
-        <div class="name-details">
-            <h3>Name</h3>
-            <p id="name"></p>
+    <!-- Fancy total panel  -->
+    <div class="userPanel">
+        <div class="userPanel_name">
+            <h2 id="name">Name</h2>
+            <form onsubmit="return changeName(event)">
+                <input type="text" id="nameChangeInput" value="Loading name..." />
+                <input type="submit" value="Save changes" />
+            </form>
         </div>
-        <div class="name-icon">
-            <ion-icon name="person-outline" size="large"></ion-icon>
+        <div class="userPanel_uid">
+            <h2 id="uid">User ID</h2>
+            <form onsubmit="return changeUid(event)">
+                <input type="text" id="uidChangeInput" value="Loading UID..." />
+                <input type="submit" value="Save changes" />
+            </form>
         </div>
-    </div>
-
-    <!-- uid card -->
-    <div class="uid-info card" onclick="document.getElementById('change-uid').style.visibility = 'visible'" data-tilt
-        data-tilt-reverse="true" data-tilt-perspective="10000" data-tilt-glare data-tilt-max-glare="0.5">
-        <div class="uid-details">
-            <h3>User ID</h3>
-            <p id="uid"></p>
+        <div class="userPanel_password">
+            <h2 id="password">Password</h2>
+            <form onsubmit="return changePassword(event)">
+                <input type="password" id="passwordChangeInput" placeholder="Enter new password.">
+                <input type="submit" value="Save changes">
+            </form>
         </div>
-        <div class="uid-icon">
-            <ion-icon name="id-card-outline" size="large"></ion-icon>
+        <div class="userPanel_email">
+            <h2 id="email">Email</h2>
+            <form onsubmit="return changeEmail(event)">
+                <input type="text" id="emailChangeInput" value="Loading email..." />
+                <input type="submit" value="Save changes" />
+            </form>
         </div>
-    </div>
-
-    <!-- email card -->
-    <div class="email-info card" onclick="document.getElementById('change-email').style.visibility = 'visible'"
-        data-tilt data-tilt-reverse="true" data-tilt-perspective="10000" data-tilt-glare data-tilt-max-glare="0.5">
-        <div class="email-details">
-            <h3>Email</h3>
-            <p id="email"></p>
+        <div class="userPanel_kasm">
+            <h2 id="kasm">Kasm</h2>
+            <form class="kasm-toggle-container">
+                <label class="switch">
+                    <span class="toggle">
+                        <input type="checkbox" id="kasmNeeded" onchange="changeKasmServerStatus(event)">
+                        <span class="slider"></span>
+                    </span>
+                </label>
+                <span class="label-text">Kasm Server</span>
+            </form>
         </div>
-        <div class="email-icon">
-            <ion-icon name="mail-outline" size="large"></ion-icon>
-        </div>
-    </div>
-
-    <!-- password card -->
-    <div class="password-info card" onclick="document.getElementById('change-password').style.visibility = 'visible'" data-tilt
-        data-tilt-reverse="true" data-tilt-perspective="10000" data-tilt-glare data-tilt-max-glare="0.5">
-        <div class="password-details">
-            <h3>Password</h3>
-            <p>Click to change your password.</p>
-        </div>
-        <div class="password-icon">
-            <ion-icon name="lock-closed-outline" size="large"></ion-icon>
-        </div>
-    </div>
-
-    <!-- kasm card -->
-    <div class="kasm-info card" onclick="document.getElementById('change-kasm').style.visibility = 'visible'" data-tilt
-        data-tilt-reverse="true" data-tilt-perspective="10000" data-tilt-glare data-tilt-max-glare="0.5">
-        <div class="kasm-details">
-            <h3>Kasm</h3>
-            <p id="kasm"></p>
-        </div>
-        <div class="kasm-icon">
-            <ion-icon name="server-outline" size="large"></ion-icon>
-        </div>
-    </div>
-
-    <!-- class card -->
-    <div class="class-info card" onclick="document.getElementById('change-class').style.visibility = 'visible'"
-        data-tilt data-tilt-reverse="true" data-tilt-perspective="10000" data-tilt-glare data-tilt-max-glare="0.5">
-        <div class="class-details">
-            <h3>Class Info</h3>
-            <p>CSA 2025</p>
-        </div>
-        <div class="class-icon">
-            <ion-icon name="school-outline" size="large"></ion-icon>
-        </div>
-    </div>
-
-    <!-- pfp card -->
-    <div class="pfp-info card" onclick="document.getElementById('change-pfp').style.visibility = 'visible'" data-tilt
-        data-tilt-reverse="true" data-tilt-perspective="10000" data-tilt-glare data-tilt-max-glare="0.5">
-        <div class="pfp-details">
-            <h3>Profile Picture</h3>
-            <p>Click to change or add your profile picture.</p>
-        </div>
-        <div class="pfp-icon">
-            <ion-icon name="image-outline" size="large"></ion-icon>
+        <div class="userPanel_class">
+            <h2 id="class">Class Info</h2>
+            <div class="class-actions">
+                <div class="class-details">
+                    <a id="classDisplayedInfo">CSA 2025</a>
+                </div>
+                <input type="submit" value="Change class"
+                    onclick="document.getElementById('change-class').style.visibility = 'visible'">
+            </div>
         </div>
     </div>
 </div>
@@ -544,94 +530,226 @@ active_tab: profile
 
 <script type="module">
     import { javaURI, fetchOptions } from '{{site.baseurl}}/assets/js/api/config.js';
+    // Import fetchOptions from config.js
+    import { pythonURI } from '{{site.baseurl}}/assets/js/api/config.js';
+    // Import functions from config.js
     import { putUpdate, postUpdate, deleteData, logoutUserJava } from "{{site.baseurl}}/assets/js/api/profile.js";
 
     // this runs on page load
-    document.addEventListener('DOMContentLoaded', async function () {
-        localStorage.setItem('activeTab', 'profile');
-
+    document.addEventListener("DOMContentLoaded", async () => {
         try {
-            await loadUserData();
+            await window.loadUserData();
         } catch (error) {
-            console.error('Initialization error:', error.message);
+            console.error("Error initializing user data:", error.message);
         }
     });
+
+    // Function to continuously fetch user data until all values are loaded
+    async function continuouslyLoadUserData() {
+        const nameInput = document.getElementById("nameChangeInput");
+        const uidInput = document.getElementById("uidChangeInput");
+        const emailInput = document.getElementById("emailChangeInput");
+
+        // Helper function to check if all values are loaded
+        function isDataLoaded() {
+            return (
+                nameInput.value !== "Loading name..." &&
+                uidInput.value !== "Loading UID..." &&
+                emailInput.value !== "Loading email..."
+            );
+        }
+
+        // Retry logic
+        async function fetchAndUpdateData() {
+            try {
+                // Fetch name and UID from Python backend
+                const name = await window.fetchName();
+                const uid = await window.fetchUid();
+
+                // Fetch email from Java backend
+                const email = await window.fetchEmail();
+
+                // Update placeholders if data is available
+                if (name) nameInput.value = name;
+                if (uid) uidInput.value = uid;
+                if (email) emailInput.value = email;
+
+                // Log success if all data is loaded
+                if (isDataLoaded()) {
+                    console.log("All user data loaded successfully.");
+                    return; // Stop retrying
+                }
+            } catch (error) {
+                console.error("Error fetching user data:", error.message);
+            }
+
+            // Retry after 3 seconds if data is still not fully loaded
+            setTimeout(fetchAndUpdateData, 3000);
+        }
+
+        // Start the first fetch attempt
+        fetchAndUpdateData();
+    }
+
+    // Call the function on page load
+    document.addEventListener("DOMContentLoaded", continuouslyLoadUserData);
+
+    // make it run constantly to check for esc key press
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+            document.getElementById('change-pfp').style.visibility = 'hidden';
+            document.getElementById('change-class').style.visibility = 'hidden';
+        }
+    });
+
+    // Attach the function to the global window object
+    window.openChangePfpModal = function () {
+        const changePfpBox = document.getElementById('change-pfp');
+        console.log("Change pfp button clicked");
+        if (changePfpBox) {
+            changePfpBox.style.visibility = 'visible'; // Make the modal visible
+        } else {
+            console.error('Change PFP modal not found in the DOM.');
+        }
+    };
+
+    window.changeSteve = async function () {
+        const name = await window.fetchName();
+        if (/steve/i.test(name)) {
+            const profileImageBox = document.getElementById('headerPfp');
+            const currentProfilePicture = profileImageBox.querySelector('img')?.src;
+
+            // Check if the profile picture is already set to steve.jpeg
+            if (!currentProfilePicture || !currentProfilePicture.includes('steve.png')) {
+                // Set the profile picture to steve.jpeg
+                const steveImagePath = "{{site.baseurl}}/images/jokes/steve.png";
+                profileImageBox.innerHTML = `<img src="${steveImagePath}" alt="Profile Picture">`;
+
+                // Save the profile picture to the database
+                await window.changeProfilePictureWithPath(steveImagePath);
+                //reload the page
+                location.reload();
+            }
+        }
+    }
+
+    window.changeProfilePictureWithPath = async function (imagePath) {
+        try {
+            // Fetch the image and convert it to a Blob
+            const response = await fetch(imagePath);
+            const blob = await response.blob();
+
+            // Convert the Blob to a base64 string
+            const base64String = await convertToBase64(blob);
+
+            // Send the base64 image to the backend
+            await sendProfilePicture(base64String);
+            console.log('Profile picture updated to steve.png successfully!');
+        } catch (error) {
+            console.error('Error updating profile picture to steve.png:', error.message);
+        }
+    };
 
     // loading the user data to display
     window.loadUserData = async function () {
         try {
-            // fetch the data
+            // Fetch name and UID from Python backend
             const name = await window.fetchName();
             const uid = await window.fetchUid();
+
+            // Fetch email and Kasm status from Java backend
             const email = await window.fetchEmail();
             const kasm = await window.fetchKasmStatus();
 
-            // if the fetch failed, set that as the text content; otherwise show
-            if (name == null) {
-                document.getElementById("name").textContent = "Failed to load. Are you logged in?";
+            // Update the name and UID placeholders
+            const nameInput = document.getElementById("nameChangeInput");
+            const uidInput = document.getElementById("uidChangeInput");
+            const emailInput = document.getElementById("emailChangeInput");
+
+            if (name) {
+                nameInput.value = name;
+                await window.changeSteve();
+            } else {
+                nameInput.placeholder = "Failed to load name";
             }
-            else {
-                document.getElementById("name").textContent = name;
+
+            if (uid) {
+                uidInput.placeholder = uid;
+            } else {
+                uidInput.placeholder = "Failed to load UID";
             }
-            if (uid == null) {
-                document.getElementById("uid").textContent = "Failed to load. Are you logged in?";
+
+            if (email) {
+                emailInput.placeholder = email;
+            } else {
+                emailInput.placeholder = "Failed to load email";
             }
-            else {
-                document.getElementById("uid").textContent = uid;
-            }
-            if (email == null) {
-                document.getElementById("email").textContent = "Failed to load. Are you logged in?";
-            }
-            else {
-                document.getElementById("email").textContent = email;
-            }
-            if (kasm == null) {
-                document.getElementById("kasm").textContent = "Failed to load. Are you logged in?";
+
+            // Update the Kasm status
+            const kasmCheckbox = document.getElementById("kasmNeeded");
+            if (kasmCheckbox) { // Ensure the checkbox exists
+                kasmCheckbox.checked = kasm; // Set the checkbox state directly
+                document.getElementById("kasm").textContent = kasm ? "Kasm Enabled" : "Kasm Disabled"; // Update the label
+            } else {
+                console.error("Kasm checkbox not found in the DOM.");
             }
         } catch (error) {
-            console.error('Error setting placeholders:', error.message);
+            console.error("Error setting placeholders:", error.message);
         }
-    }
+    };
 
     // FETCH COMMANDS ========
     window.fetchName = async function () {
-        const URL = javaURI + "/api/person/get"; // Adjusted endpoint
+        const URL = pythonURI + "/api/id"; // Adjusted endpoint
 
         try {
             const response = await fetch(URL, fetchOptions);
-
             if (!response.ok) {
                 throw new Error(`Failed to fetch Name: ${response.status}`);
             }
 
             const data = await response.json();
             return data.name;
-        }
-        catch (error) {
-            document.getElementById("name").textContent = "Failed to load. Are you logged in?";
+        } catch (error) {
             console.error('Error fetching Name:', error.message);
             return null;
         }
     };
 
     window.fetchUid = async function () {
-        const URL = javaURI + "/api/person/get"; // Adjusted endpoint
+        const URL = pythonURI + "/api/id"; // Adjusted endpoint
+
         try {
             const response = await fetch(URL, fetchOptions);
-
             if (!response.ok) {
-                throw new Error(`Failed to fetch Name: ${response.status}`);
+                throw new Error(`Failed to fetch UID: ${response.status}`);
             }
 
             const data = await response.json();
             return data.uid;
-        }
-        catch (error) {
-            document.getElementById("uid").textContent = "Failed to load. Are you logged in?";
-            console.error('Error fetching Name:', error.message);
+        } catch (error) {
+            console.error('Error fetching UID:', error.message);
             return null;
         }
     };
+
+    window.fetchSid = async function () {
+        const URL = javaURI + "/api/person/get"; // Adjusted endpoint
+
+        try {
+            const response = await fetch(URL, fetchOptions);
+            if (!response.ok) {
+                throw new Error(`Failed to fetch UID: ${response.status}`);
+            }
+
+            const data = await response.json();
+            return data.sid;
+        } catch (error) {
+            console.error('Error fetching UID:', error.message);
+            return null;
+        }
+    };
+  
 
     window.fetchEmail = async function () {
         const URL = javaURI + "/api/person/get"; // Adjusted endpoint
@@ -669,11 +787,11 @@ active_tab: profile
             // Update checkbox state based on fetched value
             if (kasmServerNeeded) {
                 document.getElementById("kasm").textContent = "Kasm Enabled";
-                document.getElementById('kasm-checkbox').checked = kasmServerNeeded;
+                document.getElementById("kasmNeeded").checked = true; // Set checkbox to checked
             }
             else {
                 document.getElementById("kasm").textContent = "Kasm Disabled";
-                document.getElementById('kasm-checkbox').checked = kasmServerNeeded;
+                document.getElementById("kasmNeeded").checked = false; // Set checkbox to unchecked
             }
 
             return kasmServerNeeded;
@@ -686,59 +804,76 @@ active_tab: profile
 
     // UPDATE COMMANDS =======
     window.changeName = async function (event) {
-        event.preventDefault(); // Prevent the form from refreshing the page
-
-        const name = document.getElementById("nameInput").value.trim(); // Get and trim input value
-
-        // send the post request
-        if (name) {
-            const URL = javaURI + "/api/person/update";
-            const options = {
-                URL,
-                body: { name },
-                callback: () => {
-                    console.log('Name updated successfully!');
-                }
-            };
-            try {
-                await postUpdate(options);
-            } catch (error) {
-                console.error('Error updating Name:', error.message);
-            }
+        // Ensure the input element is selected
+        const nameChangeInput = document.getElementById("nameChangeInput");
+        if (!nameChangeInput) {
+            console.error("Input element not found.");
+            return;
         }
 
-        document.getElementById("name").textContent = name; //reload the content
-    }
+        // Get value from the input field
+        const name = nameChangeInput.value.trim(); // Trim to remove accidental spaces
+        if (!name) {
+            console.error("Name input is empty.");
+            return;
+        } else {
+            console.log("Name input:", name);
+        }
+
+        // send the post request
+        const URL = pythonURI + "/api/user";
+        const options = {
+            URL,
+            body: { name },
+            message: 'name-message',
+            callback: () => {
+                console.log('Name updated successfully!');
+                window.updateNameField(name);
+            }
+        };
+        try {
+            await putUpdate(options);
+        } catch (error) {
+            console.error('Error updating Name:', error.message);
+            document.getElementById('name-message').textContent = 'Error updating Name: ' + error.message;
+        }
+    };
 
     window.changeUid = async function (event) {
-        event.preventDefault(); // Prevent the form from refreshing the page
-
-        const uid = document.getElementById("uidInput").value.trim(); // Get and trim input value
+        const uid = document.getElementById("uidChangeInput").value.trim(); // Get and trim input value
 
         // send the post request
         if (uid) {
-            const URL = javaURI + "/api/person/update";
+            const URL = pythonURI + "/api/user"; // Adjusted endpoint
+
             const options = {
                 URL,
                 body: { uid },
+                message: 'uid-message', // Adjust the message area as needed
                 callback: () => {
-                    console.log('Uid updated successfully!');
+                    alert("You updated your Github ID, so you will automatically be logged out. Be sure to remember your new github id to log in!");
+                    console.log('UID updated successfully!');
+                    window.updateUidField(uid);
+                    window.location.href = '{{site.baseurl}}/duallogin';
                 }
             };
+
             try {
-                await postUpdate(options);
+                await putUpdate(options);
             } catch (error) {
-                console.error('Error updating uid:', error.message);
+                console.error('Error updating UID:', error.message);
+                document.getElementById('uid-message').textContent = 'Error updating UID: ' + error.message;
             }
         }
-
         document.getElementById("uid").textContent = uid; //reload the content
+
     }
+
 
     window.changeEmail = async function (event) {
         event.preventDefault(); // Prevent the form from refreshing the page
 
-        const email = document.getElementById("emailInput").value.trim(); // Get and trim input value
+        const email = document.getElementById("emailChangeInput").value.trim(); // Get and trim input value
 
         // send the post request
         if (email) {
@@ -763,24 +898,28 @@ active_tab: profile
     window.changePassword = async function (event) {
         event.preventDefault(); // Prevent the form from refreshing the page
 
-        const password = document.getElementById("passwordInput").value.trim(); // Get and trim input value
+        const password = document.getElementById("passwordChangeInput").value.trim(); // Get and trim input value
 
         if (password) {
-            const URL = javaURI + "/api/person/update"; // Adjusted endpoint
+            const URL = pythonURI + "/api/user"; // Adjusted endpoint
+
             const options = {
                 URL,
-                body: { password }, // Adjust the message area as needed
+                body: { password },
+                message: 'password-message', // Adjust the message area as needed
                 callback: () => {
                     console.log('Password updated successfully!');
-                    window.location.href = '/portfolio_2025/toolkit-login'
+                    window.location.href = '{{site.baseurl}}/duallogin';
                 }
             };
+
             try {
                 alert("You updated your password, so you will automatically be logged out. Be sure to remember your password!");
-                await postUpdate(options);
-                await logoutUserJava();
+                await putUpdate(options);
+                await logoutUser();
             } catch (error) {
                 console.error('Error updating password:', error.message);
+                document.getElementById('password-message').textContent = 'Error updating password: ' + error.message;
             }
         }
     }
@@ -816,10 +955,13 @@ active_tab: profile
 
     window.changeClass = async function (event) {
         event.preventDefault(); // Prevent the form from refreshing the page
-
-        // no java code on profile java for this; collaboration with mort required
+        // change the class info p box
+        const classInput = document.getElementById("classInput").value;
+        const classInputYear = document.getElementById("classInputYear").value;
+        const classDisplayedInfo = document.getElementById("classDisplayedInfo");
+        classDisplayedInfo.textContent = classInput + " " + classInputYear;
     }
-    
+
 
     window.changeProfilePicture = async function (event) {
         event.preventDefault(); // Prevent the form from refreshing the page
@@ -851,17 +993,15 @@ active_tab: profile
     }
 
     // helper function to convert a file to base64 for payload
-    async function convertToBase64(file) {
+    async function convertToBase64(fileOrBlob) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = () => resolve(reader.result.split(',')[1]);
             reader.onerror = error => reject(error);
-            reader.readAsDataURL(file);
+            reader.readAsDataURL(fileOrBlob);
         });
     }
 
-
-    // helper function to send the new pfp given the base64 data
     async function sendProfilePicture(base64String) {
         const URL = javaURI + "/api/person/update"; // Adjust endpoint as needed
 
@@ -872,7 +1012,6 @@ active_tab: profile
             message: 'profile-message', // Adjust the message area as needed
             callback: () => {
                 console.log('Profile picture uploaded successfully!');
-                // Handle success response as needed
             }
         };
 

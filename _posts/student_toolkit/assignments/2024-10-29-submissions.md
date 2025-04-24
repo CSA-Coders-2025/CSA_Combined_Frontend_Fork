@@ -8,10 +8,14 @@ layout: post
 
 <title>Submission Form</title>
 <style>
-    #searchBar, #rowsPerPage {
-    width: auto; /* Automatically adjust to content size */
-    max-width: 250px; /* Limit max width */
-}
+    #searchBar,
+    #rowsPerPage {
+        width: auto;
+        /* Automatically adjust to content size */
+        max-width: 250px;
+        /* Limit max width */
+    }
+
     /* Container for search bar and rows per page */
     #search-container {
         display: flex;
@@ -20,155 +24,148 @@ layout: post
         margin-top: 20px;
         margin-bottom: 20px;
     }
+
     /* Adjust submission section size */
     #submission-section {
         max-width: 600px;
         margin: 0 auto;
     }
+
     /* For the buttons and table in the student section */
-    #namesTableBody {s
+    #namesTableBody {
         width: 75%;
-        max-height: 50px;  /* Add max height to allow for scrolling if needed */
+        max-height: 50px;
         overflow-y: auto;
     }
+
     #timer-container {
         text-align: center;
         font-size: 24px;
         font-family: Arial, sans-serif;
         margin-top: 20px;
     }
+
     #time-left {
         font-weight: bold;
         transition: color 0.3s ease;
     }
-    select, input[type="url"], textarea, button {
+
+    select,
+    input[type="url"],
+    textarea,
+    button {
         width: 100%;
-        padding: 15px; 
-        font-size: 18px; 
-        margin: 12px 0; 
+        padding: 15px;
+        font-size: 18px;
+        margin: 12px 0;
         border: 1px solid #ddd;
-        border-radius: 6px; 
+        border-radius: 6px;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
+
     textarea {
         resize: vertical;
-        min-height: 150px; 
+        min-height: 150px;
     }
-    button {
-        background-color: #4CAF50;
-        color: white;
-        font-size: 18px; 
-        font-weight: bold;
-        cursor: pointer;
-        transition: background-color 0.3s;
-    }
-    button:hover {
-        background-color: #45A049;
-    }
+
     .modal-content h2 {
-        font-size: 28px; 
+        font-size: 28px;
         color: white;
         margin-bottom: 20px;
     }
+
     .output-box {
         margin-top: 15px;
         font-size: 30px;
         color: #ffffff;
         animation: moving-glow2 2s infinite;
     }
-    .Assignment-Name{
-        font-size: 20px; 
+
+    .Assignment-Name {
+        font-size: 20px;
         color: white;
     }
-    .Assignment-Content{
-        font-size: 16px; 
+
+    .Assignment-Content {
+        font-size: 16px;
         color: white;
     }
+
     @keyframes moving-glow {
         0% {
             box-shadow: 0 0 10px rgba(81, 0, 255, 0.8);
         }
+
         50% {
             box-shadow: 0 0 30px rgba(81, 0, 255, 0.8);
         }
+
         100% {
             box-shadow: 0 0 10px rgba(81, 0, 255, 0.8);
         }
     }
+
     @keyframes moving-glow2 {
         0% {
             box-shadow: 0 0 10px rgba(0, 255, 162, 0.8);
         }
+
         50% {
             box-shadow: 0 0 30px rgba(0, 255, 162, 0.8);
         }
+
         100% {
             box-shadow: 0 0 10px rgba(0, 255, 162, 0.8);
         }
     }
+
     @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-        20%, 40%, 60%, 80% { transform: translateX(5px); }
+
+        0%,
+        100% {
+            transform: translateX(0);
+        }
+
+        10%,
+        30%,
+        50%,
+        70%,
+        90% {
+            transform: translateX(-5px);
+        }
+
+        20%,
+        40%,
+        60%,
+        80% {
+            transform: translateX(5px);
+        }
     }
+
     .shake {
         animation: shake 0.5s infinite;
     }
-.toggle-switch {
-    position: relative;
-    display: inline-block;
-    width: 50px;
-    height: 20px;
-}
-/* Hide default checkbox */
-.toggle-switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-/* The track */
-.slider {
-    position: absolute;
-    cursor: pointer;
-    background-color: #ccc;
-    border-radius: 24px;
-    width: 100%;
-    height: 100%;
-    transition: background-color 0.3s;
-}
-/* The circular slider */
-.slider::before {
-    content: "";
-    position: absolute;
-    height: 17px;
-    width: 20px;
-    left: 1px;
-    bottom: 2px;
-    background-color: white;
-    border-radius: 50%;
-    transition: transform 0.3s;
-}
-.toggle-switch input:checked + .slider {
-    background-color: #4CAF50; /* Change background to green */
-}
-.toggle-switch input:checked + .slider::before {
-    transform: translateX(26px); /* Move the circular knob */
-}
-.message {
-    font-size: 15px;
-}
+
+    .message {
+        font-size: 15px;
+    }
 </style>
 
+<!-- toggle switch -->
 <div class="toggle-container">
-    <label class="toggle-switch">
-        <input type="checkbox" id="myToggle"/> 
-        <span class="slider"></span>
+    <label class="switch">
+        <span class="toggle">
+            <input type="checkbox" id="myToggle">
+            <span class="slider"></span>
+        </span>
+        <span class="label-text">Enable group submissions</span>
     </label>
-    <p id="message" class="message">
-        Check the toggle to enable group submissions (add members of your group into a common submission).
-    </p>
 </div>
+
+<!-- submission form -->
+
 <div id="modal" class="modal">
+    <!-- assignment select -->
     <div class="modal-content">
         <h2>Submit here</h2>
         <select id="assignment-select">
@@ -176,13 +173,16 @@ layout: post
         </select>
     </div>
     <div class="Assignment-Content" id="Assignment-Content">Assignment-Content</div>
+
+    <!-- time left -->
     <div id="timer-container">
         <p id="time-left"></p>
     </div>
     <br><br>
+
+    <!-- group submitting -->
     <div class="Group Submit" id="Group Submit">
         <div>
-            <label for="searchBar">Search for a name: </label>
             <input type="text" id="searchBar" placeholder="Search for a name..." onkeyup="filterNames()">
         </div>
         <div>
@@ -215,55 +215,62 @@ layout: post
         <div class="Review-Group" id="Review-Group">Group Members: </div>
         <br><br><br>
     </div>
-<div>
-    <label for="submissionContent" style="font-size: 18px;">Submission Content:</label>
-    <input type="url" id="submissionContent" required />
-</div>
-<br><br>
-<div>
-    <label for="comments" style="font-size: 18px;">Comments:</label>
-    <textarea id="comments" rows="4" style="width: 100%;"></textarea>
-</div>
-<br><br>
-<button id="submit-assignment">Submit Assignment</button>
-<br><br>
-<div class="output-box" id="outputBox"></div>
-<br><br>
-<h1>Previous Submissions for: </h1>
-<div class="Assignment-Name" id="Assignment-name">Assignment-Content</div>
-<br><br>
-<table id="submissions-table" style="width: 100%; margin-top: 20px;">
-    <thead>
-        <tr>
-            <th>Submisssion Content</th>
-            <th>Grade</th>
-            <th>Feedback</th>
-        </tr>
-    </thead>
-    <tbody>
-        <!-- Submissions will be populated here -->
-    </tbody>
-</table>
+
+    <!-- submission contents (ex: link) -->
+    <div>
+        <label for="submissionContent" style="font-size: 18px;">Submission Content:</label>
+        <input type="url" id="submissionContent" required />
+    </div>
+    <br><br>
+
+    <!-- comments you might have -->
+    <div>
+        <label for="comments" style="font-size: 18px;">Comments:</label>
+        <textarea id="comments" rows="4" style="width: 100%;"></textarea>
+    </div>
+    <br><br>
+
+    <!-- submit it -->
+    <button id="submit-assignment" class="large filledHighlight primary">Submit Assignment</button>
+    <br><br>
+    <div class="output-box" id="outputBox"></div>
+    <br><br>
+
+    <!-- previous submissions -->
+    <h1>Previous Submissions for: </h1>
+    <div class="Assignment-Name" id="Assignment-name">Assignment-Content</div>
+    <br><br>
+    <table id="submissions-table" style="width: 100%; margin-top: 20px;">
+        <thead>
+            <tr>
+                <th>Submisssion Content</th>
+                <th>Grade</th>
+                <th>Feedback</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Submissions will be populated here -->
+        </tbody>
+    </table>
 
 </div>
-
 
 <script type="module">
     import { javaURI, fetchOptions } from '{{site.baseurl}}/assets/js/api/config.js';
     let selectedTask = "";
     let tasks = "";
     let assignmentIds = [];
-    let submissions=[];
+    let submissions = [];
     let assignIndex = 0;
     let assignments;
-    let userId=-1;
+    let userId = -1;
     let StuName;
     let Student;
-     let people = [], filteredPeople = [], listofpeople = new Set(), currentPage = 1, rowsPerPage = 5, totalPages = 1;
-     let listofpeopleIds=new Set();
+    let people = [], filteredPeople = [], listofpeople = new Set(), currentPage = 1, rowsPerPage = 5, totalPages = 1;
+    let listofpeopleIds = new Set();
 
     document.getElementById("submit-assignment").addEventListener("click", Submit);
-    document.getElementById("myToggle").addEventListener("change", function() {
+    document.getElementById("myToggle").addEventListener("change", function () {
         if (this.checked) {
             console.log("Toggle is ON");
             // Perform action when toggled ON
@@ -274,27 +281,27 @@ layout: post
             document.getElementById("Group Submit").style.display = "none";
         }
     });
-    function disableGroupSubmit(){
-         document.getElementById("Group Submit").style.display = "none";
+    function disableGroupSubmit() {
+        document.getElementById("Group Submit").style.display = "none";
     }
     function Submit() {
-        let urllink_submit=javaURI+"/api/submissions/submit/";
+        let urllink_submit = javaURI + "/api/submissions/submit/";
         const submissionContent = document.getElementById('submissionContent').value;
-        const comment=document.getElementById('comments').value;
+        const comment = document.getElementById('comments').value;
         getUserId();
-        if(userId==-1){
+        if (userId == -1) {
             alert("Please login first");
             return;
         }
-        const studentId=userId;
-        const assigmentId=assignments[assignIndex-1].id;
-        urllink_submit+=assigmentId.toString();
-        let isLate=false;
+        const studentId = userId;
+        const assigmentId = assignments[assignIndex - 1].id;
+        urllink_submit += assigmentId.toString();
+        let isLate = false;
         const now = new Date();
-        const deadlineDate = new Date(assignments[assignIndex-1].dueDate);
+        const deadlineDate = new Date(assignments[assignIndex - 1].dueDate);
         console.log(now);
         console.log(deadlineDate);
-        console.log(deadlineDate-now);
+        console.log(deadlineDate - now);
 
         console.log(listofpeopleIds);
         // const dataRequest = {
@@ -303,17 +310,17 @@ layout: post
         //     "comment": comment,
         //     "isLate": deadlineDate - now < 0
         // };
-        const formData =  new FormData();
+        const formData = new FormData();
         formData.append('studentId', studentId);
         formData.append('content', submissionContent);
         formData.append('comment', comment);
-        formData.append('isLate', deadlineDate-now<0);
+        formData.append('isLate', deadlineDate - now < 0);
 
         // const data;
         console.log(Array.from(listofpeopleIds));
         const submissionData = {
-            assignmentId: assigmentId,  
-            studentIds: Array.from(listofpeopleIds), 
+            assignmentId: assigmentId,
+            studentIds: Array.from(listofpeopleIds),
             content: submissionContent,
             comment: comment,
             isLate: deadlineDate - now < 0
@@ -323,37 +330,34 @@ layout: post
         // console.log(dataRequest);
 
         fetch(urllink_submit, {
-                ...fetchOptions,
-                method: "POST",
-                 body: JSON.stringify(submissionData)
+            ...fetchOptions,
+            method: "POST",
+            body: JSON.stringify(submissionData)
+        })
+            .then(response => {
+                const outputBox = document.getElementById('outputBox');
+                if (response.ok) {
+                    outputBox.innerText = 'Successful Submission! ';
+                    fetchSubmissions();
+                    return response.json();
+                } else {
+                    outputBox.innerText = 'Failed Submission! ';
+                    throw new Error('Failed to submit data: ' + response.statusText);
+                }
+
             })
-        .then(response => {
-            const outputBox = document.getElementById('outputBox');
-            if (response.ok) {
-                outputBox.innerText = 'Successful Submission! ';
-                fetchSubmissions();
-                return response.json();
-            } else {
-                outputBox.innerText = 'Failed Submission! ';
-                throw new Error('Failed to submit data: ' + response.statusText);
-            }
-            
-
-        })
-        .then(result => {
-            console.log('Submission successful:', result);
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
+            .then(result => {
+                console.log('Submission successful:', result);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
     }
-
-
 
     async function fetchAssignments() {
         try {
-            const response = await fetch(javaURI+"/api/assignments/debug", fetchOptions);
-            assignments=await response.json();
+            const response = await fetch(javaURI + "/api/assignments/debug", fetchOptions);
+            assignments = await response.json();
             populateAssignmentDropdown(assignments);
         } catch (error) {
             console.error('Error fetching tasks:', error);
@@ -370,15 +374,15 @@ layout: post
             assignmentIds.push(assignment.id);
         });
     }
-    
-    document.getElementById("assignment-select").addEventListener("change", function() {
+
+    document.getElementById("assignment-select").addEventListener("change", function () {
         selectedTask = this.value;
         assignIndex = this.selectedIndex;
-        document.getElementById("Assignment-Content").innerText=assignments[assignIndex-1].description;
-        console.log(assignments[assignIndex-1].dueDate);
-        console.log(calculateTimeLeft(assignments[assignIndex-1].dueDate));
-        console.log(assignments[assignIndex-1].timestamp);
-        document.getElementById("Assignment-name").innerText= this.value;
+        document.getElementById("Assignment-Content").innerText = assignments[assignIndex - 1].description;
+        console.log(assignments[assignIndex - 1].dueDate);
+        console.log(calculateTimeLeft(assignments[assignIndex - 1].dueDate));
+        console.log(assignments[assignIndex - 1].timestamp);
+        document.getElementById("Assignment-name").innerText = this.value;
         fetchSubmissions();
     });
 
@@ -391,15 +395,15 @@ layout: post
             const days = Math.floor(diff / (1000 * 60 * 60 * 24));
             const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        
-            const totalTime = deadlineDate - new Date(deadline);  
+
+            const totalTime = deadlineDate - new Date(deadline);
             const timeLeft = deadlineDate - now;
             const percentageLeft = (timeLeft / totalTime) * 100;
-            updateTimeText(days,hours,minutes);
+            updateTimeText(days, hours, minutes);
 
             return `${days}d ${hours}h ${minutes}m left`;
         } else {
-            updateTimeText(-0.5,-0.5,-0.5); 
+            updateTimeText(-0.5, -0.5, -0.5);
             return "Deadline Passed";
         }
     }
@@ -435,8 +439,7 @@ layout: post
         }
     }
 
-
-     async function getUserId(){
+    async function getUserId() {
         const url_persons = `${javaURI}/api/person/get`;
         await fetch(url_persons, fetchOptions)
             .then(response => {
@@ -446,13 +449,12 @@ layout: post
                 return response.json();
             })
             .then(data => {
-                userId=data.id;
-                console.log("here",data);
-                StuName=data.name;
-                let info=data.name+","+String(data.id);
+                userId = data.id;
+                console.log("here", data);
+                StuName = data.name;
+                let info = data.name + "," + String(data.id);
                 console.log(info);
                 addName(info);
-
 
             })
             .catch(error => {
@@ -460,17 +462,16 @@ layout: post
             });
     }
 
-
-    async function fetchSubmissions(){
-        const urllink=javaURI+"/api/submissions/getSubmissions";
-        const urllink2=javaURI+"/assignment/"+assignIndex.toString();
-        const theUserId=await getUserId();
+    async function fetchSubmissions() {
+        const urllink = javaURI + "/api/submissions/getSubmissions";
+        const urllink2 = javaURI + "/assignment/" + assignIndex.toString();
+        const theUserId = await getUserId();
         console.log("here");
         try {
             const response = await fetch(`${urllink}/${userId}`, fetchOptions);
-            const Submissions=await response.json();
+            const Submissions = await response.json();
             console.log("bruh");
-            console.log(JSON.stringify(Submissions)+"------");
+            console.log(JSON.stringify(Submissions) + "------");
             populateSubmissionsTable(JSON.stringify(Submissions));
         } catch (error) {
             console.log("this is so skibbidi");
@@ -480,33 +481,30 @@ layout: post
 
     function populateSubmissionsTable(submissionsJson) {
         const submissions = JSON.parse(submissionsJson);
-        const tableBody = document.getElementById('submissions-table').getElementsByTagName('tbody')[0];
-        tableBody.innerHTML = ''; 
-    
+        const tableBody = document.getElementById('submissions-table').getElementsByTagName['tbody'](0);
+        tableBody.innerHTML = '';
+
         submissions.forEach(submission => {
             const row = document.createElement('tr');
-            console.log(submission.assignment?.id+" "+assignIndex+"$$$$$");
-            if(submission.assignment?.id==assignIndex){
+            console.log(submission.assignment?.id + " " + assignIndex + "$$$$$");
+            if (submission.assignment?.id == assignIndex) {
                 console.log("SKIBBBB");
                 const contentCell = document.createElement('td');
-                contentCell.textContent = submission.content || 'N/A'; 
+                contentCell.textContent = submission.content || 'N/A';
                 row.appendChild(contentCell);
-    
+
                 const gradeCell = document.createElement('td');
-                gradeCell.textContent = submission.grade || 'Ungraded'; 
+                gradeCell.textContent = submission.grade || 'Ungraded';
                 row.appendChild(gradeCell);
                 console.log(submission.grade);
-    
+
                 const feedbackCell = document.createElement('td');
-                feedbackCell.textContent = submission.feedback || 'No feedback yet'; 
+                feedbackCell.textContent = submission.feedback || 'No feedback yet';
                 row.appendChild(feedbackCell);
-    
-    
-                
+
                 tableBody.appendChild(row);
             }
-    
-           
+
         });
     }
     window.filterNames = function filterNames() {
@@ -517,15 +515,15 @@ layout: post
         populateTable(filteredPeople.slice(0, rowsPerPage));
     };
 
-    window.addName = function(info) {
+    window.addName = function (info) {
         console.log(info.split(","));
-        info=info.split(",");
+        info = info.split(",");
         console.log("Added name:", info[0]);
         listofpeople.add(info[0]);
         listofpeopleIds.add(Number(info[1]));
         console.log(listofpeople);
         const reviewGroup = document.getElementById('Review-Group');
-        reviewGroup.textContent =  "Group Members: "+Array.from(listofpeople).join(", ");
+        reviewGroup.textContent = "Group Members: " + Array.from(listofpeople).join(", ");
         console.log(listofpeopleIds);
     };
 
@@ -563,20 +561,19 @@ layout: post
     // };
 
     window.updatePageInfo = function updatePageInfo() {
-    const pageInfo = document.getElementById("pageInfo");
-    pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
-    document.getElementById("prevPage").disabled = currentPage === 1;
-    document.getElementById("nextPage").disabled = currentPage === totalPages;
-};
-
+        const pageInfo = document.getElementById("pageInfo");
+        pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+        document.getElementById("prevPage").disabled = currentPage === 1;
+        document.getElementById("nextPage").disabled = currentPage === totalPages;
+    };
 
     function populateTable(names) {
         const tableBody = document.getElementById("namesTableBody");
         tableBody.innerHTML = "";
         names.forEach(name => {
             const row = document.createElement("tr");
-            let info=[name.name,name.id];
-            
+            let info = [name.name, name.id];
+
             row.innerHTML = `<td>${name.name}</td><td><button onclick="addName('${info}')">Add</button></td>`;
             tableBody.appendChild(row);
         });
@@ -585,10 +582,10 @@ layout: post
 
     fetchAllStudents();
     disableGroupSubmit();
-   document.addEventListener("DOMContentLoaded", async () => {
-    await getUserId();
-    await fetchSubmissions();
-    await fetchAssignments();
-});
+    document.addEventListener("DOMContentLoaded", async () => {
+        await getUserId();
+        await fetchSubmissions();
+        await fetchAssignments();
+    });
 
 </script>

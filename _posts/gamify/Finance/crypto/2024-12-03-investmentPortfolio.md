@@ -1,11 +1,10 @@
 ---
-layout: base
+layout: finance
 title: Crypto Portfolio
 type: issues
 permalink: /crypto/portfolio
 ---
 
-<link rel="stylesheet" href="{{site.baseurl}}/assets/css/portfolio.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
@@ -194,19 +193,6 @@ permalink: /crypto/portfolio
     }
 </style>
 
-<!-- Navigation Bar -->
-<nav class="navbar">
-    <div class="nav-buttons">
-        <a href="{{site.baseurl}}/stocks/home">Home</a>
-        <a href="{{site.baseurl}}/crypto/portfolio">Crypto</a>
-        <a href="{{site.baseurl}}/stocks/viewer">Stocks</a>
-        <a href="{{site.baseurl}}/crypto/mining">Mining</a>
-        <a href="{{site.baseurl}}/stocks/buysell">Buy/Sell</a>
-        <a href="{{site.baseurl}}/stocks/leaderboard">Leaderboard</a>
-        <a href="{{site.baseurl}}/stocks/game">Game</a>
-        <a href="{{site.baseurl}}/stocks/portfolio">Portfolio</a>
-    </div>
-</nav>
 
 <div class="container">
     <div class="balance-container">
@@ -237,6 +223,30 @@ permalink: /crypto/portfolio
 
         <button class="btn btn-close" onclick="closeModal()">Close</button>
     </div>
+        <!-- Search Bar -->
+    <div class="container">
+        <input type="text" id="crypto-search" placeholder="Search Crypto..." oninput="searchCrypto()">
+        <div id="search-results"></div>
+    </div>
+</div>
+<!-- Comparison Section in Modal -->
+<div class="modal" id="compare-modal">
+    <div class="modal-content">
+        <span class="modal-close" onclick="closeCompareModal()">&times;</span>
+        <h2>Crypto Comparison</h2>
+        <div class="compare-inputs">
+            <input type="text" id="crypto-compare-1" placeholder="Enter first crypto symbol">
+            <input type="text" id="crypto-compare-2" placeholder="Enter second crypto symbol">
+            <input type="number" id="compare-days" placeholder="Number of days">
+            <button class="btn btn-buy" onclick="compareCryptos()">Compare</button>
+        </div>
+        <div id="compare-result"></div>
+        <button class="btn btn-close" onclick="closeCompareModal()">Close</button>
+    </div>
+</div>
+<!-- Button to trigger comparison modal -->
+<div class="container">
+    <button class="btn btn-buy" onclick="openCompareModal()">Compare Cryptos</button>
 </div>
 
 <script type="module">
@@ -265,11 +275,69 @@ permalink: /crypto/portfolio
         }
     }
 
+        // Make sure this function is in the global scope
+    async function searchCrypto() {
+        const query = document.getElementById('crypto-search').value.trim();
+        const resultsContainer = document.getElementById('search-results');
+        if (query.length < 2) {
+            resultsContainer.innerHTML = "";
+            return;
+        }
+        try {
+            const response = await fetch(`${javaURI}/api/crypto/search?cryptoId=${encodeURIComponent(query)}`, fetchOptions);
+            if (!response.ok) {
+                resultsContainer.innerHTML = "<p>No results found</p>";
+                return;
+            }
+            const crypto = await response.json();
+            resultsContainer.innerHTML = `
+                <div class="crypto-item" onclick="openModal(${JSON.stringify(crypto)})">
+                    <strong>${crypto.name} (${crypto.symbol})</strong><br>
+                    Price: $${crypto.price.toFixed(2)}
+                </div>
+            `;
+        } catch (error) {
+            console.error("Error searching crypto:", error);
+        }
+    }
+    window.searchCrypto = searchCrypto;
+
+// Make sure your HTML uses the function correctly, like this:
+// <input type="text" id="crypto-search" oninput="searchCrypto()" placeholder="Search cryptocurrencies...">
     function updateBalance(balance) {
         const formattedBalance = parseFloat(balance).toFixed(2);
         document.getElementById('user-balance').innerText = formattedBalance;
         localStorage.setItem("userBalance", formattedBalance);
     }
+    window.openCompareModal = function () {
+        document.getElementById('compare-modal').style.display = 'flex';
+    };
+    window.closeCompareModal = function () {
+        document.getElementById('compare-modal').style.display = 'none';
+        document.getElementById('compare-result').innerHTML = "";
+    };
+    window.compareCryptos = async function () {
+        const cryptoId1 = document.getElementById('crypto-compare-1').value.trim();
+        const cryptoId2 = document.getElementById('crypto-compare-2').value.trim();
+        const days = document.getElementById('compare-days').value;
+        if (!cryptoId1 || !cryptoId2 || !days) {
+            alert("Please fill all fields.");
+            return;
+        }
+        try {
+            const response = await fetch(`${javaURI}/api/crypto/compare?cryptoId1=${encodeURIComponent(cryptoId1)}&cryptoId2=${encodeURIComponent(cryptoId2)}&days=${days}`, fetchOptions);
+            if (!response.ok) throw new Error("Failed to fetch comparison data.");
+            const data = await response.json();
+            const resultDiv = document.getElementById('compare-result');
+            resultDiv.innerHTML = `
+                <p><strong>${data.cryptoId1}:</strong> ${data.cryptoId1ChangePercent.toFixed(2)}%</p>
+                <p><strong>${data.cryptoId2}:</strong> ${data.cryptoId2ChangePercent.toFixed(2)}%</p>
+            `;
+        } catch (error) {
+            console.error("Error comparing cryptos:", error);
+            alert("Error fetching comparison data.");
+        }
+    };
 
     async function fetchUserBalance() {
         if (!userEmail) {

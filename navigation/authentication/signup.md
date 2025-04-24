@@ -132,47 +132,75 @@ show_reading_time: false
          pythonDatabase();
     };
 </script>
-
+ 
 <script type="module">
   import { javaURI, pythonURI, fetchOptions } from '{{ site.baseurl }}/assets/js/api/config.js';
-window.signup = function(){
-    // clones and replaces method
-    const signupOptions = {
+window.signup = function () {
+    const signupButton = document.querySelector(".signup-card button");
+    // Disable the button and change its color
+    signupButton.disabled = true;
+    signupButton.style.backgroundColor = '#d3d3d3'; // Light gray to indicate disabled state
+
+    const signupData = {
+        email: document.getElementById("signupUid").value,
+        dob: "11-01-2024", // You can dynamically get this
+        name: document.getElementById("name").value,
+        password: document.getElementById("signupPassword").value,
+        kasmServerNeeded: document.getElementById("kasmNeeded").checked,
+    };
+
+    // First, make the request to the Python backend
+    const pythonSignupOptions = {
+        URL: `${pythonURI}/api/user`,
+        method: "POST",
+        cache: "no-cache",
+        headers: new Headers({
+            "Content-Type": "application/json"
+        }),
+        body: JSON.stringify(signupData),
+    };
+
+    // Second, make the request to the Java backend
+    const javaSignupOptions = {
         URL: `${javaURI}/api/person/create`,
         method: "POST",
         cache: "no-cache",
-        headers: (new Headers({"Content-Type":"application/json"})),
-        body: JSON.stringify({
-                email:  document.getElementById("signupUid").value,//later add to signup
-                dob: "11-01-2024",
-                name: document.getElementById("name").value,
-                password: document.getElementById("signupPassword").value,
-                kasmServerNeeded: document.getElementById("kasmNeeded").checked,
-            
+        headers: new Headers({
+            "Content-Type": "application/json"
         }),
+        body: JSON.stringify(signupData),
     };
-    // fetch the API
-    fetch(signupOptions.URL, signupOptions)
-    // response is a RESTful "promise" on any successful fetch
-    .then(response => {
-        
-      if (!response.ok){
-        throw new Error("response error: " + response.status);
-        return; //api failure
-      }
-      // valid response will have JSON data
-      response.json().then(data => {
-          console.log(data);
-      })
-    })
-    // catch fetch errors (ie Nginx ACCESS to server blocked)
-    .catch(err => {
-      error(err + " " + signupOptions.URL);
-    });
-  
-  }
+
+    // Perform the fetch to both servers in parallel using Promise.all
+    Promise.all([
+        fetch(pythonSignupOptions.URL, pythonSignupOptions),
+        fetch(javaSignupOptions.URL, javaSignupOptions),
+    ])
+        .then(responses => {
+            // Check if both requests were successful
+            return Promise.all(responses.map(response => {
+                if (!response.ok) {
+                    throw new Error(`Signup failed on one or both backends: ${response.status}`);
+                }
+                return response.json();
+            }));
+        })
+        .then(data => {
+            document.getElementById("signupMessage").textContent = "Signup successful on both backends!";
+            // Optionally redirect to the profile page or handle the response data as needed
+            // window.location.href = '{{site.baseurl}}/profile';
+        })
+        .catch(error => {
+            console.error("Signup Error:", error);
+            document.getElementById("signupMessage").textContent = `Signup Error: ${error.message}`;
+            // Re-enable the button if there is an error
+            signupButton.disabled = false;
+            signupButton.style.backgroundColor = ''; // Reset to default color
+        });
+};
+
   // Something went wrong with actions or responses
-  function error(err) {
+ function error(err) {
     // log as Error in console
     console.error(err);
     // append error to resultContainer
@@ -182,4 +210,54 @@ window.signup = function(){
     tr.appendChild(td);
     document.getElementById("login-container").appendChild(tr);
   }
+</script>
+
+<script type="module">
+  import { javaURI, pythonURI, fetchOptions } from '{{ site.baseurl }}/assets/js/api/config.js';
+
+  window.login = function() {
+    const loginUid = document.getElementById("signupUid").value;
+    const loginPassword = document.getElementById("signupPassword").value;
+
+    // Define login options for both Python and Java backends
+    const pythonLoginOptions = {
+      URL: `${pythonURI}/api/login`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ uid: loginUid, password: loginPassword }),
+    };
+
+    const javaLoginOptions = {
+      URL: `${javaURI}/api/person/login`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: loginUid, password: loginPassword }),
+    };
+
+    // Perform both login requests simultaneously
+    Promise.all([
+      fetch(pythonLoginOptions.URL, pythonLoginOptions).then(response => {
+        if (!response.ok) throw new Error(`Python login failed: ${response.status}`);
+        return response.json();
+      }),
+      fetch(javaLoginOptions.URL, javaLoginOptions).then(response => {
+        if (!response.ok) throw new Error(`Java login failed: ${response.status}`);
+        return response.json();
+      }),
+    ])
+      .then(([pythonData, javaData]) => {
+        // Set JWT cookie from Python backend
+        document.cookie = `jwt=${pythonData.token}; path=/; secure; HttpOnly`;
+
+        // Optionally handle Java backend response if needed
+        console.log("Java login successful:", javaData);
+
+        // Redirect user to profile page
+        window.location.href = '{{site.baseurl}}/profile';
+      })
+      .catch(error => {
+        console.error("Login Error:", error);
+        document.getElementById("signupMessage").textContent = `Login Error: ${error.message}`;
+      });
+  };
 </script>
