@@ -53,3 +53,20 @@ Topics:
       - <a href = "https://nighthawkcoders.github.io/portfolio_2025/student/TeamTeachToolkit/signup" target = "_blank">Team Teach Management</a>
     subtitle: "Student Lesson Sign-ups"
     description: "This assignments sub-feature helps students sign-up for student lessons called 'team teaches'. These team teaches are registered in the assignments page."
+  - title: "Bathroom Pass"
+    image: "/docs/bathroompass.png"
+    link: "/docs/bathroompass"
+    alt: "Bathroom Pass"
+    keyPoints:
+      - <a href = "https://nighthawkcoders.github.io/portfolio_2025/bathroom/scanner" target = "_blank">Bathroom Scanner</a>
+    subtitle: "Bathroom Pass System"
+    description: "This feature allows staff to track when students leave and return from the bathroom, logging time spent out of class and overall usage frequency. The system helps identify potential issues like excessive time or repeated trips, supporting both classroom management and student well-being."
+  # - title: "Hall Pass"
+  #   image: "/docs/hallpass.png"
+  #   link: "/docs/hallpass"
+  #   alt: "Hall Pass"
+  #   keyPoints:
+  #     - <a href = "https://nighthawkcoders.github.io/portfolio_2025/hallpass" target = "_blank">Hall Pass Viewer</a>
+  #     - <a href = "https://nighthawkcoders.github.io/portfolio_2025/hallpass/requestpass" target = "_blank">Request Hall Pass</a>
+  #   subtitle: "Hall Pass System"
+  #   description: ""
