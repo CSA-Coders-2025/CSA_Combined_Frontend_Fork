@@ -1,5 +1,5 @@
 ---
-layout: base
+layout: finance
 title: Crypto Mining Simulator BACKUP
 type: issueshen i
 permalink: /crypto/miningbackup
@@ -9,7 +9,6 @@ permalink: /crypto/miningbackup
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crypto Mining Simulator BACKUP</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/2.0.1/chartjs-plugin-zoom.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
@@ -19,10 +18,11 @@ permalink: /crypto/miningbackup
 <style>
 /* Reset base styles */
 body {
+    font-family: Arial, sans-serif;
+    background-color: #0f0f0f;
+    color: #fff;
     margin: 0;
     padding: 0;
-    background-color: #1a1a1a;
-    min-height: 100vh;
 }
 /* Main content area */
 .main-content {
@@ -866,32 +866,12 @@ body.modal-open {
 <body>
     <div id="notification" class="notification"></div>
     <div class="main-content">
-        <!-- Page title -->
-        <h1 class="page-title">Crypto Mining Simulator</h1>
-        <!-- Warning messages -->
-        <div class="text-center mb-4 text-yellow-400">
-            *** note: If the stats number are not showing, try to stop the mining and start again... <br>
-            *** note: If it says "Error loading mining state. Please try again.", please check if you are logged in or no...
-        </div>
         <!-- Tutorial Help Button -->
         <div class="tutorial-help-button" title="Interactive Tutorial">
             <button onclick="startTutorial()" class="bg-gray-800 hover:bg-gray-700 text-green-500 w-8 h-8 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 border border-green-500/30">
                 <span class="text-lg font-bold">?</span>
             </button>
         </div>
-        <!-- Navigation Bar -->
-        <nav class="navbar">
-            <div class="nav-buttons">
-                <a href="{{site.baseurl}}/stocks/home">Home</a>
-                <a href="{{site.baseurl}}/crypto/portfolio">Crypto</a>
-                <a href="{{site.baseurl}}/stocks/viewer">Stocks</a>
-                <a href="{{site.baseurl}}/crypto/mining">Mining</a>
-                <a href="{{site.baseurl}}/stocks/buysell">Buy/Sell</a>
-                <a href="{{site.baseurl}}/stocks/game">Game</a>
-                <a href="{{site.baseurl}}/stocks/portfolio">Portfolio</a>
-                <div class="balance-display">Balance: $<span id="user-balance">Loading...</span></div>
-            </div>
-        </nav>
         <div class="container mx-auto">
             <!-- Core Stats Cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
