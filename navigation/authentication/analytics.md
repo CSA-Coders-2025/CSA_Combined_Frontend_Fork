@@ -198,7 +198,7 @@ search_exclude: true
                     </tr>
                 </tbody>
             </table>
-            <canvas id="bathroomChart" width="400" height="200"></canvas> </div>
+            <canvas id="bathroomChart" width="400" height="200"></canvas>
         </div>
     </div>
 </div>
