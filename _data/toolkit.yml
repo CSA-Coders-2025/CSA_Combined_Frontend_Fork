@@ -11,7 +11,7 @@ links:
     submenu:
       - id: hallpass
         href: hallpass
-        label: Hall Pass
+        label: Bathroom
       - id: requestpass
         href: hallpass/requestpass
         label: Request Pass
