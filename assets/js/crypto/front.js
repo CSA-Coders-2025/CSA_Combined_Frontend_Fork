@@ -148,32 +148,102 @@ function updateActiveGPUsList() {
   });
 }
 
-// Make toggleMining globally available
-window.toggleMining = async function () {
-  try {
-    const options = {
-      ...fetchOptions,
-      method: 'POST',
-      cache: 'no-cache'
-    };
-    const response = await fetch(`${javaURI}/api/mining/toggle`, options);
-    const result = await response.json();
-    console.log('Mining toggle result:', result);
+let countdownInterval;
+let miningTimeLeft = 900; // 15 minutes in seconds
 
-    updateMiningButton(result.isMining);
-    if (result.isMining) {
-      startPeriodicUpdates();
-      showNotification('Mining started successfully');
-    } else {
-      stopPeriodicUpdates();
-      showNotification('Mining stopped');
+function formatTime(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+}
+
+function startCountdown() {
+    const countdownElement = document.getElementById('mining-countdown');
+    const timerElement = document.getElementById('countdown-timer');
+    const miningButton = document.getElementById('start-mining');
+    
+    countdownElement.classList.remove('hidden');
+    countdownElement.classList.add('visible');
+    miningButton.classList.add('loading');
+    
+    miningTimeLeft = 900; // Reset to 15 minutes
+    timerElement.textContent = formatTime(miningTimeLeft);
+    
+    if (countdownInterval) clearInterval(countdownInterval);
+    
+    countdownInterval = setInterval(() => {
+        miningTimeLeft--;
+        timerElement.textContent = formatTime(miningTimeLeft);
+        
+        if (miningTimeLeft <= 0) {
+            clearInterval(countdownInterval);
+            countdownElement.classList.remove('visible');
+            countdownElement.classList.add('hidden');
+            miningButton.classList.remove('loading');
+            updateMiningStats();
+            startCountdown(); // Restart countdown for next cycle
+        }
+    }, 1000);
+}
+
+function stopCountdown() {
+    if (countdownInterval) {
+        clearInterval(countdownInterval);
+        countdownInterval = null;
     }
-    await updateMiningStats();
-  } catch (error) {
-    console.error('Error toggling mining:', error);
-    showNotification('Error toggling mining state');
-  }
+    
+    const countdownElement = document.getElementById('mining-countdown');
+    const miningButton = document.getElementById('start-mining');
+    
+    countdownElement.classList.remove('visible');
+    countdownElement.classList.add('hidden');
+    miningButton.classList.remove('loading');
+}
+
+// Update the toggleMining function
+window.toggleMining = async function () {
+    try {
+        const options = {
+            ...fetchOptions,
+            method: 'POST',
+            cache: 'no-cache'
+        };
+        const response = await fetch(`${javaURI}/api/mining/toggle`, options);
+        const result = await response.json();
+        console.log('Mining toggle result:', result);
+
+        updateMiningButton(result.isMining);
+        if (result.isMining) {
+            startPeriodicUpdates();
+            startCountdown();
+            showNotification('Mining started successfully');
+        } else {
+            stopPeriodicUpdates();
+            stopCountdown();
+            showNotification('Mining stopped');
+        }
+        await updateMiningStats();
+    } catch (error) {
+        console.error('Error toggling mining:', error);
+        showNotification('Error toggling mining state');
+    }
 };
+
+// Update the updateMiningButton function
+function updateMiningButton(isActive) {
+    const button = document.getElementById('start-mining');
+    if (button) {
+        if (isActive) {
+            button.textContent = 'Stop Mining';
+            button.className = 'mining-button start-mining active loading';
+        } else {
+            button.textContent = 'Start Mining';
+            button.className = 'mining-button start-mining';
+        }
+    } else {
+        console.error('Mining button not found');
+    }
+}
 
 let hashrateChart, profitChart;
 let updateInterval;
@@ -254,6 +324,41 @@ function initializeCharts() {
     }
   });
 }
+
+async function fetchCurrentEnergyPlan() {
+    try {
+        const response = await fetch(`${javaURI}/api/mining/energy`, {
+            ...fetchOptions,
+            method: 'GET',
+            credentials: 'include'
+        });
+        
+        if (!response.ok) {
+            if (response.status === 401) {
+                throw new Error('Please log in to view energy plan');
+            } else {
+                throw new Error(`Failed to fetch energy plan (Status: ${response.status})`);
+            }
+        }
+        
+        const data = await response.json();
+        const energyPlanElement = document.getElementById('current-energy-plan');
+        
+        if (data && data.supplierName) {
+            energyPlanElement.textContent = `${data.supplierName} (${data.EEM || '0.00'} EEM)`;
+            energyPlanElement.className = 'stat-value text-green-400';
+        } else {
+            energyPlanElement.textContent = 'No Energy Plan';
+            energyPlanElement.className = 'stat-value text-red-400';
+        }
+    } catch (error) {
+        console.error('Error fetching energy plan:', error);
+        const energyPlanElement = document.getElementById('current-energy-plan');
+        energyPlanElement.textContent = 'Error Loading Plan';
+        energyPlanElement.className = 'stat-value text-red-400';
+    }
+}
+
 async function initializeMiningState() {
     try {
         const options = {
@@ -275,11 +380,14 @@ async function initializeMiningState() {
         if (state.isMining) {
             startPeriodicUpdates();
         }
+        // Fetch current energy plan
+        await fetchCurrentEnergyPlan();
     } catch (error) {
         console.error('Error initializing mining state:', error);
         showNotification('Error loading mining state. Please try again.');
     }
 }
+
 async function startPeriodicUpdates() {
     if (updateInterval) clearInterval(updateInterval);
     updateInterval = setInterval(async () => {
@@ -306,6 +414,7 @@ async function startPeriodicUpdates() {
         }
     }, 900000);
 }
+
 // API Calls
 async function loadGPUs() {
     try {
@@ -322,6 +431,7 @@ async function loadGPUs() {
         console.error('Error loading GPUs:', error);
     }
 }
+
 window.toggleGPU = async function (gpuId) {
     try {
         const options = {
@@ -353,6 +463,7 @@ window.toggleGPU = async function (gpuId) {
         showNotification('Error toggling GPU: ' + error.message);
     }
 }
+
 window.buyGpu = async function (gpuId, quantity) {
     try {
         const options = {
@@ -375,6 +486,7 @@ window.buyGpu = async function (gpuId, quantity) {
         showNotification('Error buying GPU: ' + error.message);
     }
 }
+
 async function updateMiningStats() {
     // Get current cryptocurrency from localStorage or default to BTC
     let currentSymbol = localStorage.getItem('currentMiningCrypto') || 'BTC';
@@ -437,6 +549,7 @@ async function updateMiningStats() {
         showNotification('Failed to fetch mining data, check your connection');
     }
 }
+
 // UI Updates
 function updateDisplay(stats) {
     // Log incoming data
@@ -505,6 +618,7 @@ function updateDisplay(stats) {
     // Store stats globally for modal access
     window.stats = stats;
 }
+
 function renderGpuInventory(stats) {
     const inventoryElement = document.getElementById('gpu-inventory');
     if (!inventoryElement) return;
@@ -580,6 +694,7 @@ function renderGpuInventory(stats) {
     });
     inventoryElement.appendChild(container);
 }
+
 function updateCharts(stats) {
     if (!stats) {
         console.warn('updateCharts called without stats');
@@ -621,20 +736,7 @@ function updateCharts(stats) {
         console.log('Profit chart updated');
     }
 }
-function updateMiningButton(isActive) {
-    const button = document.getElementById('start-mining');
-    if (button) {
-        if (isActive) {
-            button.textContent = 'Stop Mining';
-            button.className = 'mining-button start-mining active';
-        } else {
-            button.textContent = 'Start Mining';
-            button.className = 'mining-button start-mining';
-        }
-    } else {
-        console.error('Mining button not found');
-    }
-}
+
 function renderGpuShop(gpus) {
     const gpuListElement = document.getElementById('gpu-list');
     if (!gpuListElement) {
@@ -666,6 +768,7 @@ function renderGpuShop(gpus) {
         });
     });
 }
+
 function createGpuCard(gpu, category) {
     const card = document.createElement('div');
     card.className = `gpu-card mb-4 ${getCategoryClass(category)}`;
@@ -741,6 +844,7 @@ function createGpuCard(gpu, category) {
     }, 0);
     return card;
 }
+
 // Utility functions
 function getCategoryColor(category) {
     const colors = {
@@ -752,6 +856,7 @@ function getCategoryColor(category) {
     };
     return colors[category] || 'text-white';
 }
+
 function getCategoryClass(category) {
     const classes = {
         'Free Starter GPU': 'starter',
@@ -762,27 +867,32 @@ function getCategoryClass(category) {
     };
     return classes[category] || '';
 }
+
 function openGpuShop() {
     const modal = document.getElementById('gpu-shop-modal');
     modal.classList.remove('hidden');
     loadGPUs(); // Load GPUs when opening the shop
 }
+
 window.closeGpuShop = function() {
     const modal = document.getElementById('gpu-shop-modal');
     modal.classList.add('hidden');
 };
+
 // Close modal when clicking outside
 document.getElementById('gpu-shop-modal').addEventListener('click', (e) => {
     if (e.target.id === 'gpu-shop-modal') {
         e.target.classList.add('hidden');
     }
 });
+
 function stopPeriodicUpdates() {
     if (updateInterval) {
         clearInterval(updateInterval);
         updateInterval = null;
     }
 }
+
 // Update the total price function to properly format numbers
 function updateTotalPrice(gpuId, basePrice) {
     const quantitySelect = document.getElementById(`quantity-${gpuId}`);
@@ -793,6 +903,7 @@ function updateTotalPrice(gpuId, basePrice) {
         totalSpan.textContent = total.toLocaleString();
     }
 }
+
 function updateShopTotalCost() {
     let total = 0;
     document.querySelectorAll('[id^="quantity-"]').forEach(select => {
@@ -806,9 +917,11 @@ function updateShopTotalCost() {
     });
     document.getElementById('shop-total-cost').textContent = total.toLocaleString();
 }
+
 // Make the functions globally available
 window.updateTotalPrice = updateTotalPrice;
 window.updateShopTotalCost = updateShopTotalCost;
+
 window.buySelectedGPUs = async function () {
     const purchases = [];
     document.querySelectorAll('[id^="quantity-"]').forEach(select => {
@@ -827,6 +940,7 @@ window.buySelectedGPUs = async function () {
         await buyGpu(purchase.gpuId, purchase.quantity);
     }
 };
+
 // Add sell functionality
 function showSellModal(gpuId, gpuName, maxQuantity, sellPrice) {
     const modal = document.getElementById('sellModal');
@@ -861,14 +975,17 @@ function showSellModal(gpuId, gpuName, maxQuantity, sellPrice) {
     modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
     updateSellTotal(sellPrice);
 }
+
 function updateSellTotal(sellPrice) {
     const quantity = parseInt(document.getElementById('sellQuantity').value) || 0;
     const total = (sellPrice * quantity).toFixed(2);
     document.getElementById('totalSellValue').textContent = total;
 }
+
 function closeSellModal() {
     document.getElementById('sellModal').style.display = 'none';
 }
+
 // Update the confirmSell function with proper headers
 window.confirmSell = async function (gpuId) {
     const quantity = parseInt(document.getElementById('sellQuantity').value);
@@ -897,6 +1014,7 @@ window.confirmSell = async function (gpuId) {
         window.showNotification('Error selling GPU: ' + error.message, true);
     }
 };
+
 window.toggleMining = toggleMining;
 window.showSellModal = showSellModal;
 window.updateSellTotal = updateSellTotal;

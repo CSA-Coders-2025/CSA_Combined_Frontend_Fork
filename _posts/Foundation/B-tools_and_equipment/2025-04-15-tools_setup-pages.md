@@ -13,6 +13,12 @@ breadcrumbs: True
 
 ## Installation Hack
 
+New plan... Start with [VSCode Online](https://vscode.dev/).   The objective is to do some edits before tools install and get the actions working without the dependency of start with tools.
+
+Everything below needs to be restructured and ensure it is not duplicated in future sections.
+
+-------
+
 Welcome to your journey of creating your own blogging website! This setup process will guide you through working in a Linux terminal, managing folders, cloning a project, adding packages, and embarking on the `Software Development Lifecycle (SDLC)`. This is a fundamental skill for any developer, and while it may seem challenging at first, remember that every expert was once a beginner. Let's dive in and conquer this iconic struggle together!
 
 ## Visual Representation of the Workflow
@@ -32,7 +38,6 @@ Development journey begins with a lot of setup. After these initial steps, we ar
                              Files and Folders              repository from            the tools required              workflow 
                                 Management                  version control             (Ruby, Python)               (SDLC) phases
 ```
-
 
 ### Shell Commands
 

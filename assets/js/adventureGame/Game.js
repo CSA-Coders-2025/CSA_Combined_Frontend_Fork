@@ -2,225 +2,98 @@ import GameControl from './GameEngine/GameControl.js';
 import Quiz from './Quiz.js';
 import Inventory from "./Inventory.js";
 import { defaultItems } from "./items.js";
+import GameLevelEnd from './GameLevelEnd.js';
 
-class Game {
-    constructor() {
-        // initialize user and launch GameControl 
-        this.main(environment);
-        console.log("Initializing game inventory...");
-        this.inventory = Inventory.getInstance();
-        
-        // Give starting items to the player
-        this.giveStartingItems();
-    }
-
-    // initialize user and launch GameControl 
-    static main(environment) {
-        // setting Web Application path
-        this.environment = environment;
-        this.path = environment.path;
-
-        // setting Element IDs
-        this.gameContainer = environment.gameContainer;
-        this.gameCanvas = environment.gameCanvas;
-
-        // setting API environment variables 
-        this.pythonURI = environment.pythonURI;
-        this.javaURI = environment.javaURI;
-        this.fetchOptions = environment.fetchOptions;
-
-        // prepare user data for scoring and stats 
-        this.uid;
-        this.id;
-        this.initUser();
+class StatsManager {
+    constructor(game) {
+        this.game = game;
         this.initStatsUI();
-
-        this.gname = null;
-
-        // start the game immediately
-        const gameLevelClasses = environment.gameLevelClasses;
-        new GameControl(this, gameLevelClasses).start();
+        this.createStopwatch();
     }
 
-    static initUser() {
-        const pythonURL = this.pythonURI + '/api/id';
-        fetch(pythonURL, this.fetchOptions)
-            .then(response => {
-                if (response.status !== 200) {
-                    console.error("HTTP status code: " + response.status);
-                    return null;
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (!data) return;
-                this.uid = data.uid;
-                console.log("User ID:", this.uid);
-
-                const javaURL = this.javaURI + '/rpg_answer/person/' + this.uid;
-                return fetch(javaURL, this.fetchOptions);
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`Spring server response: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (!data) return;
-                this.id = data.id;
-                this.fetchStats(data.id);
-            })
-            .catch(error => {
-                console.error("Error:", error);
-            });
-    }
-
-    static fetchStats(personId) {
+    async fetchStats(personId) {
         const endpoints = {
-            balance: this.javaURI + '/rpg_answer/getBalance/' + personId,
-            questionAccuracy: this.javaURI + '/rpg_answer/getQuestionAccuracy/' + personId
+            balance: this.game.javaURI + '/rpg_answer/getBalance/' + personId,
+            questionAccuracy: this.game.javaURI + '/rpg_answer/getQuestionAccuracy/' + personId
         };
     
         for (let [key, url] of Object.entries(endpoints)) {
-            fetch(url, this.fetchOptions)
-                .then(response => response.json())
-                .then(data => {
-                    if (key === "questionAccuracy") {
-                        const accuracyPercent = Math.round((data ?? 0) * 100);
-                        document.getElementById(key).innerHTML = `${accuracyPercent}%`;
-                        localStorage.setItem(key, `${accuracyPercent}%`);
-                    } else {
-                        document.getElementById(key).innerHTML = data ?? 0;
-                        localStorage.setItem(key, data ?? 0);
-                    }
-                })
-                .catch(err => console.error(`Error fetching ${key}:`, err));
+            try {
+                const response = await fetch(url, this.game.fetchOptions);
+                const data = await response.json();
+                
+                if (key === "questionAccuracy") {
+                    const accuracyPercent = Math.round((data ?? 0) * 100);
+                    document.getElementById(key).innerHTML = `${accuracyPercent}%`;
+                    localStorage.setItem(key, `${accuracyPercent}%`);
+                } else {
+                    document.getElementById(key).innerHTML = data ?? 0;
+                    localStorage.setItem(key, data ?? 0);
+                }
+            } catch (err) {
+                console.error(`Error fetching ${key}:`, err);
+            }
         }
     }
 
-    static async createStats(stats, gname, uid) {
+    async createStats(stats, gname, uid) {
         try {
-            const response = await fetch(`${this.javaURI}/createStats`, {
+            const response = await fetch(`${this.game.javaURI}/createStats`, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ uid, gname, stats })
             });
 
-            if (!response.ok) {
-                throw new Error("Network response was not ok");
-            }
-
-            const data = await response.json();
-            return data;
+            if (!response.ok) throw new Error("Network response was not ok");
+            return await response.json();
         } catch (error) {
             console.error("Error creating stats:", error);
             return "Error creating stats";
         }
     }
 
-    static async getStats(uid) {
+    async getStats(uid) {
         try {
-            const response = await fetch(`${this.javaURI}/getStats/${uid}`, {
+            const response = await fetch(`${this.game.javaURI}/getStats/${uid}`, {
                 method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                }
+                headers: { "Content-Type": "application/json" }
             });
 
-            if (!response.ok) {
-                throw new Error("Network response was not ok");
-            }
-
-            const data = await response.json();
-            return data;
+            if (!response.ok) throw new Error("Network response was not ok");
+            return await response.json();
         } catch (error) {
             console.error("Error fetching stats:", error);
             return "Error fetching stats";
         }
     }
 
-    static async updateStats(stats, gname, uid) {
+    async updateStats(stats, gname, uid) {
         try {
-            const response = await fetch(`${this.javaURI}/updateStats`, {
+            const response = await fetch(`${this.game.javaURI}/updateStats`, {
                 method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ uid, gname, stats })
             });
 
-            if (!response.ok) {
-                throw new Error("Network response was not ok");
-            }
-
-            const data = await response.json();
-            return data;
+            if (!response.ok) throw new Error("Network response was not ok");
+            return await response.json();
         } catch (error) {
             console.error("Error updating stats:", error);
             return "Error updating stats";
         }
     }
 
-    static async fetchQuestionByCategory(category) {
-        try {
-            const personId = this.id;
-            const response = await fetch(
-                `${this.javaURI}/rpg_answer/getQuestion?category=${category}&personid=${personId}`, 
-                this.fetchOptions
-            );
-    
-            if (!response.ok) {
-                throw new Error("Failed to fetch questions");
-            }
-    
-            const questions = await response.json();
-            console.log(questions);
-            return questions;
-        } catch (error) {
-            console.error("Error fetching question by category:", error);
-            return null;
-        }
-    }
-    
-    static async attemptQuizForNpc(npcCategory, callback = null) {
-        const personId = this.id;
-    
-        try {
-            const response = await this.fetchQuestionByCategory(npcCategory);
-            const allQuestions = response?.questions || [];
-    
-            if (allQuestions.length === 0) {
-                alert(`✅ You've already completed all of ${npcCategory}'s questions!`);
-                return;
-            }
-    
-            const quiz = new Quiz();
-            quiz.initialize();
-            quiz.openPanel(npcCategory, callback, allQuestions);
-    
-        } catch (error) {
-            console.error("Error during NPC quiz attempt:", error);
-            alert("⚠️ There was a problem loading the quiz. Please try again.");
-        }
-    }
-    
-    static async updateStatsMCQ(questionId, choiceId, personId) {
+    async updateStatsMCQ(questionId, choiceId, personId) {
         try {
             console.log("Submitting answer with:", { questionId, choiceId, personId });
-
-            const response = await fetch(this.javaURI + '/rpg_answer/submitMCQAnswer', {
+            
+            const response = await fetch(this.game.javaURI + '/rpg_answer/submitMCQAnswer', {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ questionId, personId, choiceId })
             });
 
-            if (!response.ok) {
-                throw new Error("Network response was not ok");
-            }
-
+            if (!response.ok) throw new Error("Network response was not ok");
             return response;
         } catch (error) {
             console.error("Error submitting MCQ answer:", error);
@@ -228,284 +101,23 @@ class Game {
         }
     }
 
-    static async transitionToWallstreet(personId) {
+    async transitionToWallstreet(personId) {
         try {
-            const response = await fetch(`${this.javaURI}/question/transitionToWallstreet/${personId}`, this.fetchOptions);
-            if (!response.ok) {
-                throw new Error("Failed to fetch questions");
-            }
+            const response = await fetch(`${this.game.javaURI}/question/transitionToWallstreet/${personId}`, this.game.fetchOptions);
+            if (!response.ok) throw new Error("Failed to fetch questions");
             const questionsAnswered = await response.json();
-            return questionsAnswered >=6;
+            return questionsAnswered >= 12;
         } catch (error) {
-            console.error("Error transitioning to Paradise:", error);
+            console.error("Error transitioning to Wallstreet:", error);
             return null;
         }
     }
 
-    // Static properties for tracking progress
-    static npcInteractions = new Set();
-    static totalNpcs = 6;
-    static npcOrder = [
-        { id: 'Fidelity', hint: 'Talk to Fidelity to learn about investments' },
-        { id: 'Schwab', hint: 'Visit Schwab for more financial wisdom' },
-        { id: 'Tech Owl', hint: 'Check the Tech Owl for market updates' },
-        { id: 'Investor', hint: 'Meet the Investor to discuss trading' },
-        { id: 'Market Computer', hint: 'Use the Market Computer for real-time data' },
-        { id: 'Pilot', hint: 'Ready to move on! Talk to the Pilot to proceed' }
-    ];
-    static gameSteps = [
-        { id: 'start', text: 'Start Adventure', completed: true },
-        { id: 'talk_npcs', text: 'Talk to NPCs', completed: false },
-        { id: 'meteor_key', text: 'Get Meteor Key', completed: false },
-        { id: 'complete_quizzes', text: 'Complete Quizzes', completed: false },
-        { id: 'reach_paradise', text: 'Reach Paradise', completed: false }
-    ];
-
-    static setCookie(name, value, days = 365) {
-        const d = new Date();
-        d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
-        const expires = "expires=" + d.toUTCString();
-        document.cookie = name + "=" + value + ";" + expires + ";path=/";
-    }
-
-    static getCookie(name) {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop().split(';').shift();
-        return null;
-    }
-
-    static loadProgressFromCookies() {
-        // Load NPC interactions
-        const npcCookie = this.getCookie('npc_interactions');
-        if (npcCookie) {
-            this.npcInteractions = new Set(JSON.parse(npcCookie));
-        }
-
-        // Load game steps
-        const stepsCookie = this.getCookie('game_steps');
-        if (stepsCookie) {
-            const savedSteps = JSON.parse(stepsCookie);
-            this.gameSteps.forEach((step, index) => {
-                if (savedSteps[index]) {
-                    step.completed = savedSteps[index].completed;
-                }
-            });
-        }
-
-        // Check for meteor key
-        const gameKeyCookie = this.getCookie('gameKey');
-        if (gameKeyCookie) {
-            this.gameSteps[2].completed = true;
-        }
-
-        // Check for paradise
-        const paradiseCookie = this.getCookie('paradise_reached');
-        if (paradiseCookie) {
-            this.gameSteps[4].completed = true;
-        }
-
-        // Update talk_npcs step based on NPC interactions
-        this.gameSteps[1].completed = this.npcInteractions.size > 0;
-        this.gameSteps[3].completed = this.npcInteractions.size >= this.totalNpcs;
-    }
-
-    static saveProgressToCookies() {
-        // Save NPC interactions
-        this.setCookie('npc_interactions', JSON.stringify([...this.npcInteractions]));
-
-        // Save game steps
-        this.setCookie('game_steps', JSON.stringify(this.gameSteps));
-
-        // Save paradise progress if completed
-        if (this.gameSteps[4].completed) {
-            this.setCookie('paradise_reached', 'true');
-        }
-    }
-
-    static getNextStep() {
-        // If no NPCs talked to yet, direct to first NPC
-        if (this.npcInteractions.size === 0) {
-            return {
-                type: 'npc',
-                message: `Next Step: ${this.npcOrder[0].hint}`,
-                target: this.npcOrder[0].id
-            };
-        }
-
-        // If not all NPCs visited, find next unvisited NPC
-        if (this.npcInteractions.size < this.totalNpcs - 1) { // -1 because Pilot is last
-            for (let npc of this.npcOrder) {
-                if (!this.npcInteractions.has(npc.id) && npc.id !== 'Pilot') {
-                    return {
-                        type: 'npc',
-                        message: `Next Step: ${npc.hint}`,
-                        target: npc.id
-                    };
-                }
-            }
-        }
-
-        // If all NPCs except Pilot visited, direct to Pilot
-        if (this.npcInteractions.size >= this.totalNpcs - 1 && !this.npcInteractions.has('Pilot')) {
-            return {
-                type: 'pilot',
-                message: 'Next Step: You\'ve learned enough! Talk to the Pilot to continue your journey',
-                target: 'Pilot'
-            };
-        }
-
-        return {
-            type: 'complete',
-            message: 'You\'ve completed all steps in this area!',
-            target: null
-        };
-    }
-
-    static updateProgressUI() {
-        const statsContainer = document.getElementById('stats-container');
-        if (!statsContainer) return;
-
-        // Update NPC progress
-        const npcProgressEl = statsContainer.querySelector('.npc-progress-fill');
-        const npcCountEl = statsContainer.querySelector('.npc-count');
-        if (npcProgressEl && npcCountEl) {
-            const progress = (this.npcInteractions.size / this.totalNpcs) * 100;
-            npcProgressEl.style.width = `${progress}%`;
-            npcCountEl.textContent = `${this.npcInteractions.size}/${this.totalNpcs}`;
-            console.log('Updating NPC progress:', this.npcInteractions.size, 'of', this.totalNpcs);
-        }
-
-        // Update game progress
-        const completedSteps = this.gameSteps.filter(step => step.completed).length;
-        const gameProgressEl = statsContainer.querySelector('.game-progress-fill');
-        const gameCountEl = statsContainer.querySelector('.game-count');
-        if (gameProgressEl && gameCountEl) {
-            const progress = (completedSteps / this.gameSteps.length) * 100;
-            gameProgressEl.style.width = `${progress}%`;
-            gameCountEl.textContent = `${completedSteps}/${this.gameSteps.length}`;
-        }
-
-        // Update step indicators
-        this.gameSteps.forEach((step, index) => {
-            const stepEl = statsContainer.querySelector(`.game-step:nth-child(${index + 1})`);
-            if (stepEl) {
-                if (step.completed) {
-                    stepEl.classList.add('completed');
-                } else {
-                    stepEl.classList.remove('completed');
-                }
-            }
-        });
-
-        // Force a reflow to ensure the UI updates
-        statsContainer.style.display = 'none';
-        statsContainer.offsetHeight; // Force reflow
-        statsContainer.style.display = 'block';
-    }
-
-    static updateProgress(npcId) {
-        console.log('Updating progress for NPC:', npcId);
+    initStatsUI() {
+        // Create theme colors for consistent UI
+        const themeColor = '#4a86e8'; // Main theme color (blue)
+        const themeShadow = 'rgba(74, 134, 232, 0.7)'; // Shadow color matching theme
         
-        // Add NPC to interactions set if not already added
-        if (!this.npcInteractions.has(npcId)) {
-            this.npcInteractions.add(npcId);
-            console.log('Current NPC interactions:', [...this.npcInteractions]);
-            
-            // Update game steps
-            if (this.gameSteps) {
-                const talkNpcsStep = this.gameSteps.find(step => step.id === 'talk_npcs');
-                const completeQuizzesStep = this.gameSteps.find(step => step.id === 'complete_quizzes');
-                
-                if (talkNpcsStep) talkNpcsStep.completed = true;
-                if (completeQuizzesStep) completeQuizzesStep.completed = this.npcInteractions.size >= this.totalNpcs;
-
-                // Save progress to cookies
-                this.saveProgressToCookies();
-
-                // Update the UI
-                this.updateProgressUI();
-
-                // Show next step guidance
-                this.showNextStepGuidance();
-            } else {
-                console.error('Game steps not properly initialized');
-            }
-        }
-    }
-
-    static showNextStepGuidance() {
-        const nextStep = this.getNextStep();
-        
-        // Remove any existing guidance
-        const existingGuidance = document.getElementById('next-step-guidance');
-        if (existingGuidance) {
-            existingGuidance.remove();
-        }
-
-        // Create new guidance element
-        const guidance = document.createElement('div');
-        guidance.id = 'next-step-guidance';
-        guidance.style.cssText = `
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.8);
-            color: #ffd700;
-            padding: 15px 25px;
-            border-radius: 8px;
-            font-family: 'Press Start 2P', monospace;
-            font-size: 12px;
-            border: 2px solid #ffd700;
-            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
-            z-index: 9999;
-            text-align: center;
-            animation: fadeInUp 0.5s ease-out;
-        `;
-
-        // Add animation styles if not already present
-        if (!document.getElementById('next-step-styles')) {
-            const styles = document.createElement('style');
-            styles.id = 'next-step-styles';
-            styles.textContent = `
-                @keyframes fadeInUp {
-                    from {
-                        opacity: 0;
-                        transform: translate(-50%, 20px);
-                    }
-                    to {
-                        opacity: 1;
-                        transform: translate(-50%, 0);
-                    }
-                }
-                @keyframes pulse {
-                    0% { transform: scale(1); }
-                    50% { transform: scale(1.05); }
-                    100% { transform: scale(1); }
-                }
-            `;
-            document.head.appendChild(styles);
-        }
-
-        guidance.innerHTML = `
-            <div style="margin-bottom: 5px; color: #fff; font-size: 10px;">NEXT OBJECTIVE</div>
-            <div style="animation: pulse 2s infinite">${nextStep.message}</div>
-        `;
-
-        document.body.appendChild(guidance);
-
-        // Remove guidance after 5 seconds
-        setTimeout(() => {
-            guidance.style.animation = 'fadeOut 0.5s ease-in forwards';
-            setTimeout(() => guidance.remove(), 500);
-        }, 5000);
-    }
-
-    static initStatsUI() {
-        // Load saved progress before initializing UI
-        this.loadProgressFromCookies();
-
         const statsContainer = document.createElement('div');
         statsContainer.id = 'stats-container';
         statsContainer.style.position = 'fixed';
@@ -513,125 +125,289 @@ class Game {
         statsContainer.style.right = '10px';
         statsContainer.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
         statsContainer.style.color = 'white';
-        statsContainer.style.padding = '10px';
-        statsContainer.style.borderRadius = '5px';
-        statsContainer.style.minWidth = '200px';
-        statsContainer.style.fontFamily = "'Press Start 2P', monospace";
-        statsContainer.style.fontSize = '10px';
-        statsContainer.style.border = '2px solid #ffd700';
-        statsContainer.style.boxShadow = '0 0 15px rgba(255, 215, 0, 0.3)';
-
-        // Inject progress bar styles
-        if (!document.getElementById('progress-bar-styles')) {
-            const styleSheet = document.createElement('style');
-            styleSheet.id = 'progress-bar-styles';
-            styleSheet.textContent = `
-                .progress-container {
-                    margin: 8px 0;
-                }
-                .progress-label {
-                    display: flex;
-                    justify-content: space-between;
-                    margin-bottom: 4px;
-                    font-size: 8px;
-                    color: #ffd700;
-                }
-                .progress-bar {
-                    width: 100%;
-                    height: 8px;
-                    background: rgba(255, 255, 255, 0.1);
-                    border-radius: 4px;
-                    overflow: hidden;
-                }
-                .progress-fill {
-                    height: 100%;
-                    background: #ffd700;
-                    transition: width 0.3s ease;
-                    border-radius: 4px;
-                }
-                .stats-divider {
-                    height: 1px;
-                    background: rgba(255, 215, 0, 0.3);
-                    margin: 8px 0;
-                }
-                .game-step {
-                    font-size: 8px;
-                    color: #fff;
-                    margin: 4px 0;
-                    opacity: 0.7;
-                    transition: all 0.3s ease;
-                }
-                .game-step.completed {
-                    color: #ffd700;
-                    opacity: 1;
-                }
-                .game-step:before {
-                    content: '○';
-                    margin-right: 5px;
-                }
-                .game-step.completed:before {
-                    content: '●';
-                    color: #ffd700;
-                }
-            `;
-            document.head.appendChild(styleSheet);
-        }
-
-        const cookies = document.cookie.split(';');
-        const gameKeyCookie = cookies.find(cookie => cookie.trim().startsWith('gameKey='));
-        
-
-        // Calculate initial progress
-        if (gameKeyCookie) {
-            this.gameSteps[2].completed = true;
-        }
-
-        const completedSteps = this.gameSteps.filter(step => step.completed).length;
-        const npcCount = this.npcInteractions.size;
-
+        statsContainer.style.padding = '15px';
+        statsContainer.style.borderRadius = '10px';
+        statsContainer.style.border = `2px solid ${themeColor}`;
+        statsContainer.style.boxShadow = `0 0 15px ${themeShadow}`;
+        statsContainer.style.fontFamily = "'Montserrat', sans-serif";
+    
         statsContainer.innerHTML = `
-            <div style="margin-bottom: 10px;">Balance: <span id="balance" style="color: #ffd700;">0</span></div>
-            <div style="margin-bottom: 10px;">Accuracy: <span id="questionAccuracy" style="color: #ffd700;">0%</span></div>
-            
-            
-            <div class="stats-divider"></div>
-            
-            <div class="progress-container">
-                <div class="progress-label">
-                    <span>NPCs Interacted</span>
-                    <span class="npc-count">${npcCount}/${this.totalNpcs}</span>
-                </div>
-                <div class="progress-bar">
-                    <div class="progress-fill npc-progress-fill" style="width: ${(npcCount / this.totalNpcs) * 100}%"></div>
-                </div>
+            <div style="font-size: 14px; margin-bottom: 8px; display: flex; align-items: center;">
+                <span style="margin-right: 8px;">💰</span>
+                <span>Balance: <span id="balance" style="color: ${themeColor}; font-weight: bold;">0</span></span>
             </div>
-
-            <div class="progress-container">
-                <div class="progress-label">
-                    <span>Game Progress</span>
-                    <span class="game-count">${completedSteps}/${this.gameSteps.length}</span>
-                </div>
-                <div class="progress-bar">
-                    <div class="progress-fill game-progress-fill" style="width: ${(completedSteps / this.gameSteps.length) * 100}%"></div>
-                </div>
+            <div style="font-size: 14px; display: flex; align-items: center;">
+                <span style="margin-right: 8px;">📊</span>
+                <span>Accuracy: <span id="questionAccuracy" style="color: ${themeColor}; font-weight: bold;">0%</span></span>
             </div>
-
-            <div class="stats-divider"></div>
-            
-            ${this.gameSteps.map(step => `
-                <div class="game-step ${step.completed ? 'completed' : ''}">
-                    ${step.text}
-                </div>
-            `).join('')}
         `;
-
+        
+        // Add Google font for better typography
+        const fontLink = document.createElement('link');
+        fontLink.href = 'https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap';
+        fontLink.rel = 'stylesheet';
+        document.head.appendChild(fontLink);
+        
         document.body.appendChild(statsContainer);
 
         // Show initial guidance
         this.showNextStepGuidance();
     }
+    
+    // Create a styled stopwatch
+    createStopwatch() {
+        // Use the theme color for consistent design
+        const themeColor = '#4a86e8';
+        const themeShadow = 'rgba(74, 134, 232, 0.7)';
+        
+        const stopwatchContainer = document.createElement('div');
+        stopwatchContainer.id = 'stopwatch-container';
+        stopwatchContainer.style.position = 'fixed';
+        stopwatchContainer.style.top = '10px';
+        stopwatchContainer.style.left = '50%';
+        stopwatchContainer.style.transform = 'translateX(-50%)';
+        stopwatchContainer.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+        stopwatchContainer.style.borderRadius = '20px';
+        stopwatchContainer.style.padding = '12px 25px';
+        stopwatchContainer.style.boxShadow = `0 0 15px ${themeShadow}`;
+        stopwatchContainer.style.zIndex = '1000';
+        stopwatchContainer.style.display = 'none'; // Start hidden, will be shown in GameLevelEnd
+        stopwatchContainer.style.flexDirection = 'column';
+        stopwatchContainer.style.alignItems = 'center';
+        stopwatchContainer.style.justifyContent = 'center';
+        stopwatchContainer.style.border = `2px solid ${themeColor}`;
+        stopwatchContainer.style.fontFamily = "'Montserrat', sans-serif";
+        
+        // Create the display for the timer
+        const timerDisplay = document.createElement('div');
+        timerDisplay.id = 'timer-display';
+        timerDisplay.style.fontFamily = "'Digital-7', monospace";
+        timerDisplay.style.fontSize = '32px';
+        timerDisplay.style.fontWeight = 'bold';
+        timerDisplay.style.color = themeColor;
+        timerDisplay.style.textShadow = `0 0 10px ${themeShadow}`;
+        timerDisplay.textContent = '00:00.0';
+        
+        // Create a small container for best time display
+        const bestTimeContainer = document.createElement('div');
+        bestTimeContainer.id = 'best-time-container';
+        bestTimeContainer.style.fontSize = '12px';
+        bestTimeContainer.style.color = '#cccccc';
+        bestTimeContainer.style.marginTop = '5px';
+        
+        // Get best time from localStorage
+        const bestTime = localStorage.getItem('bestCompletionTime');
+        if (bestTime) {
+            const formattedBestTime = this.formatTime(parseFloat(bestTime));
+            bestTimeContainer.textContent = `BEST: ${formattedBestTime}`;
+        } else {
+            bestTimeContainer.textContent = 'BEST: --:--.-';
+        }
+        
+        // Label for the stopwatch
+        const timerLabel = document.createElement('div');
+        timerLabel.textContent = 'TIME';
+        timerLabel.style.fontSize = '12px';
+        timerLabel.style.fontWeight = 'bold';
+        timerLabel.style.color = 'white';
+        timerLabel.style.marginBottom = '5px';
+        timerLabel.style.letterSpacing = '1px';
+        
+        // Add custom font for digital look
+        const fontLink = document.createElement('link');
+        fontLink.href = 'https://fonts.cdnfonts.com/css/digital-7-mono';
+        fontLink.rel = 'stylesheet';
+        document.head.appendChild(fontLink);
+        
+        // Assemble the stopwatch
+        stopwatchContainer.appendChild(timerLabel);
+        stopwatchContainer.appendChild(timerDisplay);
+        stopwatchContainer.appendChild(bestTimeContainer);
+        document.body.appendChild(stopwatchContainer);
+    }
+    
+    // Helper method to format time consistently
+    formatTime(time) {
+        const minutes = Math.floor(time / 60);
+        const seconds = Math.floor(time % 60);
+        const tenths = Math.floor((time * 10) % 10);
+        return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${tenths}`;
+    }
+}
 
-    // Add method to give items to player
+class TimeManager {
+    constructor(game) {
+        this.game = game;
+        this.gameTimer = 0;
+        this.timerInterval = null;
+        this.currentLevelInstance = null;
+        this.isStopwatch = true;
+        this.isActive = false; // Track if timer is active
+    }
+
+    setCurrentLevelInstance(instance) {
+        this.currentLevelInstance = instance;
+        console.log("Current level instance set:", instance);
+        
+        // Check if we're in the GameLevelEnd level
+        if (instance && instance.constructor.name === 'GameLevelEnd') {
+            // Only start the timer in GameLevelEnd level
+            this.startStopwatch();
+        } else {
+            // Stop timer in other levels
+            this.stopStopwatch(false); // false = don't show success screen
+        }
+    }
+    
+    // Start the stopwatch - only called for GameLevelEnd
+        
+    startStopwatch() {
+        console.log("Starting stopwatch in GameLevelEnd");
+        
+        // Get the elements
+        const timerDisplay = document.getElementById('timer-display');
+        const stopwatchContainer = document.getElementById('stopwatch-container');
+        
+        if (!timerDisplay || !stopwatchContainer) {
+            console.error("Timer elements not found in the DOM");
+            console.log("Creating stopwatch elements directly");
+            
+            // Create stopwatch container if it doesn't exist
+            const newStopwatchContainer = document.createElement('div');
+            newStopwatchContainer.id = 'stopwatch-container';
+            newStopwatchContainer.style.position = 'fixed';
+            newStopwatchContainer.style.top = '10px';
+            newStopwatchContainer.style.left = '50%';
+            newStopwatchContainer.style.transform = 'translateX(-50%)';
+            newStopwatchContainer.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+            newStopwatchContainer.style.color = 'white';
+            newStopwatchContainer.style.padding = '10px 20px';
+            newStopwatchContainer.style.borderRadius = '10px';
+            newStopwatchContainer.style.zIndex = '9999';
+            newStopwatchContainer.style.fontFamily = 'monospace';
+            newStopwatchContainer.style.fontSize = '20px';
+            newStopwatchContainer.style.fontWeight = 'bold';
+            newStopwatchContainer.style.border = '2px solid #4a86e8';
+            newStopwatchContainer.style.boxShadow = '0 0 10px rgba(74, 134, 232, 0.7)';
+            newStopwatchContainer.textContent = '00:00.0';
+            document.body.appendChild(newStopwatchContainer);
+            
+            // Use this new container
+            stopwatchContainer = newStopwatchContainer;
+            timerDisplay = newStopwatchContainer;
+        }
+        
+        // Make stopwatch visible - use inline style to override any CSS
+        stopwatchContainer.style.display = 'block';
+        
+        // Clear any existing interval
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+        }
+        
+        // Set timer to 0
+        this.gameTimer = 0;
+        if (timerDisplay !== stopwatchContainer) {
+            this.updateTimerDisplay(timerDisplay, this.gameTimer);
+        } else {
+            stopwatchContainer.textContent = '00:00.0';
+        }
+        
+        // Mark timer as active
+        this.isActive = true;
+        
+        // Start the stopwatch (updating every 100ms for smoother display)
+        this.timerInterval = setInterval(() => {
+            if (this.isActive) {
+                this.gameTimer += 0.1;
+                
+                // Update timer display every 100ms
+                if (timerDisplay !== stopwatchContainer) {
+                    this.updateTimerDisplay(timerDisplay, this.gameTimer);
+                } else {
+                    const minutes = Math.floor(this.gameTimer / 60);
+                    const seconds = Math.floor(this.gameTimer % 60);
+                    const tenths = Math.floor((this.gameTimer * 10) % 10);
+                    stopwatchContainer.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${tenths}`;
+                }
+            }
+        }, 100);
+    }
+    
+    // Stop the stopwatch
+    stopStopwatch(completed = true) {
+        // Clear the timer interval
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+            this.timerInterval = null;
+        }
+        
+        // Mark timer as inactive
+        this.isActive = false;
+        
+        // Hide stopwatch if not in GameLevelEnd
+        if (!completed && this.currentLevelInstance?.constructor.name !== 'GameLevelEnd') {
+            const stopwatchContainer = document.getElementById('stopwatch-container');
+            if (stopwatchContainer) {
+                stopwatchContainer.style.display = 'none';
+            }
+        }
+        
+        // If completed, save the time
+        if (completed) {
+            this.saveCompletionTime(this.gameTimer);
+        }
+    }
+    
+    updateTimerDisplay(display, time) {
+        const minutes = Math.floor(time / 60);
+        const seconds = Math.floor(time % 60);
+        const tenths = Math.floor((time * 10) % 10);
+        
+        display.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${tenths}`;
+    }
+    
+    saveCompletionTime(time) {
+        // Get the current best time from localStorage
+        const currentBestTime = localStorage.getItem('bestCompletionTime');
+        
+        // If there's no current best time or the new time is better, save it
+        if (!currentBestTime || time < parseFloat(currentBestTime)) {
+            localStorage.setItem('bestCompletionTime', time.toString());
+            console.log(`New best time saved: ${time} seconds`);
+            
+            // Return true if this is a new best time
+            return true;
+        }
+        
+        // Return false if this is not a new best time
+        return false;
+    }
+    
+    getFormattedBestTime() {
+        const bestTime = localStorage.getItem('bestCompletionTime');
+        if (!bestTime) return 'None';
+        
+        const time = parseFloat(bestTime);
+        return this.formatTime(time);
+    }
+    
+    formatTime(time) {
+        const minutes = Math.floor(time / 60);
+        const seconds = Math.floor(time % 60);
+        const tenths = Math.floor((time * 10) % 10);
+        
+        return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${tenths}`;
+    }
+}
+
+class InventoryManager {
+    constructor(game) {
+        this.game = game;
+        this.inventory = Inventory.getInstance();
+        this.giveStartingItems();
+    }
+
     giveItem(itemId, quantity = 1) {
         console.log("Giving item:", itemId, "quantity:", quantity);
         const item = defaultItems[itemId];
@@ -649,23 +425,19 @@ class Game {
         return this.inventory.addItem(itemToAdd);
     }
 
-    // Add method to remove items from player
     removeItem(itemId, quantity = 1) {
-        return Inventory.getInstance().removeItem(itemId, quantity);
+        return this.inventory.removeItem(itemId, quantity);
     }
 
-    // Add method to check if player has an item
     hasItem(itemId) {
-        return Inventory.getInstance().items.some(item => item.id === itemId);
+        return this.inventory.items.some(item => item.id === itemId);
     }
 
-    // Add method to get item quantity
     getItemQuantity(itemId) {
-        const item = Inventory.getInstance().items.find(item => item.id === itemId);
+        const item = this.inventory.items.find(item => item.id === itemId);
         return item ? item.quantity : 0;
     }
 
-    // Add method to give starting items
     giveStartingItems() {
         console.log("Giving starting items to player...");
         
@@ -690,4 +462,202 @@ class Game {
         this.giveItem('roi_calculator', 1);     // 1 ROI Calculator
     }
 }
+
+class QuizManager {
+    constructor(game) {
+        this.game = game;
+    }
+
+    async fetchQuestionByCategory(category) {
+        try {
+            const personId = this.game.id;
+            const response = await fetch(
+                `${this.game.javaURI}/rpg_answer/getQuestion?category=${category}&personid=${personId}`, 
+                this.game.fetchOptions
+            );
+    
+            if (!response.ok) throw new Error("Failed to fetch questions");
+            const questions = await response.json();
+            console.log(questions);
+            return questions;
+        } catch (error) {
+            console.error("Error fetching question by category:", error);
+            return null;
+        }
+    }
+    
+    async attemptQuizForNpc(npcCategory, callback = null) {
+        try {
+            const response = await this.fetchQuestionByCategory(npcCategory);
+            const allQuestions = response?.questions || [];
+    
+            if (allQuestions.length === 0) {
+                alert(`✅ You've already completed all of ${npcCategory}'s questions!`);
+                return;
+            }
+    
+            const quiz = new Quiz();
+            quiz.initialize();
+            quiz.openPanel(npcCategory, callback, allQuestions);
+    
+        } catch (error) {
+            console.error("Error during NPC quiz attempt:", error);
+            alert("⚠️ There was a problem loading the quiz. Please try again.");
+        }
+    }
+}
+
+class Game {
+    constructor() {
+        console.log("Initializing game...");
+        this.environment = null;
+        this.path = null;
+        this.gameContainer = null;
+        this.gameCanvas = null;
+        this.pythonURI = null;
+        this.javaURI = null;
+        this.fetchOptions = null;
+        this.uid = null;
+        this.id = null;
+        this.gname = null;
+        this.gameControl = null;
+
+        // Manager instances
+        this.statsManager = null;
+        this.timeManager = null;
+        this.inventoryManager = null;
+        this.quizManager = null;
+    }
+
+    // Main initialization method
+    main(environment) {
+        console.log("Setting up game environment...");
+        // Store environment properties
+        this.environment = environment;
+        this.path = environment.path;
+        this.gameContainer = environment.gameContainer;
+        this.gameCanvas = environment.gameCanvas;
+        this.pythonURI = environment.pythonURI;
+        this.javaURI = environment.javaURI;
+        this.fetchOptions = environment.fetchOptions;
+
+        // Initialize managers
+        this.statsManager = new StatsManager(this);
+        this.timeManager = new TimeManager(this);
+        this.inventoryManager = new InventoryManager(this);
+        this.quizManager = new QuizManager(this);
+
+        // Initialize user and game components
+        this.initUser();
+        
+        // Initialize the Game static reference
+        this.initialize();
+        
+        // Start the game
+        const gameLevelClasses = environment.gameLevelClasses;
+        this.gameControl = new GameControl(this, gameLevelClasses);
+        this.gameControl.start();
+    }
+    
+    // Initialize static reference for GameLevelEnd to access
+    initialize() {
+        // Create a reference to timeManager that GameLevelEnd can access
+        Game.timeManager = this.timeManager;
+    }
+
+    // Initialize user data
+    initUser() {
+        const pythonURL = this.pythonURI + '/api/id';
+        fetch(pythonURL, this.fetchOptions)
+            .then(response => {
+                if (response.status !== 200) {
+                    console.error("HTTP status code: " + response.status);
+                    return null;
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data) return;
+                this.uid = data.uid;
+                console.log("User ID:", this.uid);
+
+                const javaURL = this.javaURI + '/rpg_answer/person/' + this.uid;
+                return fetch(javaURL, this.fetchOptions);
+            })
+            .then(response => {
+                if (!response || !response.ok) {
+                    throw new Error(`Spring server response: ${response?.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data) return;
+                this.id = data.id;
+                this.statsManager.fetchStats(data.id);
+            })
+            .catch(error => {
+                console.error("Error:", error);
+            });
+    }
+
+    // Static methods to delegate to appropriate managers
+    static main(environment) {
+        const game = new Game();
+        game.main(environment);
+        return game;
+    }
+
+    static setCurrentLevelInstance(instance) {
+        if (Game.timeManager) {
+            Game.timeManager.setCurrentLevelInstance(instance);
+        }
+    }
+
+    // Delegate methods to appropriate managers
+    giveItem(itemId, quantity = 1) {
+        return this.inventoryManager.giveItem(itemId, quantity);
+    }
+
+    removeItem(itemId, quantity = 1) {
+        return this.inventoryManager.removeItem(itemId, quantity);
+    }
+
+    hasItem(itemId) {
+        return this.inventoryManager.hasItem(itemId);
+    }
+
+    getItemQuantity(itemId) {
+        return this.inventoryManager.getItemQuantity(itemId);
+    }
+
+    attemptQuizForNpc(npcCategory, callback = null) {
+        return this.quizManager.attemptQuizForNpc(npcCategory, callback);
+    }
+
+    // API wrapper methods
+    async createStats(stats, gname, uid) {
+        return this.statsManager.createStats(stats, gname, uid);
+    }
+
+    async getStats(uid) {
+        return this.statsManager.getStats(uid);
+    }
+
+    async updateStats(stats, gname, uid) {
+        return this.statsManager.updateStats(stats, gname, uid);
+    }
+
+    async updateStatsMCQ(questionId, choiceId, personId) {
+        return this.statsManager.updateStatsMCQ(questionId, choiceId, personId);
+    }
+
+    async transitionToWallstreet(personId) {
+        return this.statsManager.transitionToWallstreet(personId);
+    }
+
+    async fetchQuestionByCategory(category) {
+        return this.quizManager.fetchQuestionByCategory(category);
+    }
+}
+
 export default Game;

@@ -1,7 +1,4 @@
 ---
-
-layout: fortunefinders
-
 layout: finance
 title: Crypto Mining Simulator
 type: issueshen i
@@ -42,6 +39,7 @@ permalink: /crypto/mining
                         <div>
                             <div class="stat-label">Pending Crypto Balance</div>
                             <div class="stat-value text-yellow-400" id="pending-balance">0.00000000</div>
+                            <script type="module" src="{{site.baseurl}}/assets/js/crypto/portfolio.js"></script>
                             <span class="text-sm text-blue-400 cursor-pointer hover:underline mt-1 inline-block" onclick="openCryptoDetailsModal()">View all crypto balances &rarr;</span>
                         </div>
                         <div>
@@ -49,8 +47,8 @@ permalink: /crypto/mining
                             <div class="stat-value text-green-400" id="usd-value">$0.00</div>
                         </div>
                         <div>
-                            <div class="stat-label" id="pool-info">Min. Payout</div>
-                            <div class="stat-value text-yellow-400" id="pool-info">0.001 BTC</div>
+                            <div class="stat-label" id="pool-info"></div>
+                            <div class="stat-value text-yellow-400" id="pool-info"></div>
                         </div>
                     </div>
                 </div>
@@ -88,6 +86,10 @@ permalink: /crypto/mining
                             <div class="stat-label">Power Draw</div>
                             <div class="stat-value text-blue-400" id="power-draw">0W</div>
                         </div>
+                        <div>
+                            <div class="stat-label">Current Energy Plan</div>
+                            <div class="stat-value text-green-400" id="current-energy-plan">Loading...</div>
+                        </div>
                     </div>
                 </div>
                 <!-- Profitability -->
@@ -106,7 +108,7 @@ permalink: /crypto/mining
                 </div>
             </div>
             <!-- Mining Controls -->
-            <div class="flex justify-center mt-8 mb-8">
+            <div class="flex flex-col items-center mt-8 mb-8">
                 <div class="flex justify-between items-center gap-4">
                     <a href="{{site.baseurl}}/crypto/energy" class="mining-button energy-plan">
                         <span>Energy Plan</span>
@@ -118,6 +120,13 @@ permalink: /crypto/mining
                     <a href="{{site.baseurl}}/crypto/energy-store" class="mining-button energy-store">
                         <span>Energy Store</span>
                     </a>
+                </div>
+                <!-- Mining Countdown Timer -->
+                <div id="mining-countdown" class="mt-4 hidden">
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 rounded-full bg-red-500 animate-pulse"></div>
+                        <span class="text-lg font-mono text-red-400">Next Reward in: <span id="countdown-timer">15:00</span></span>
+                    </div>
                 </div>
             </div>
             <!-- Performance Charts -->
@@ -246,5 +255,4 @@ permalink: /crypto/mining
                 </div>
             </div>
         </div>
-        <script src="{{site.baseurl}}/assets/js/crypto/portfolio.js"></script>
     </div>

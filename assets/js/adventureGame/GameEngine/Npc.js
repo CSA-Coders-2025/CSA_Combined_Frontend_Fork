@@ -1,5 +1,6 @@
+// Npc.js with DialogueSystem integration
 import Character from "./Character.js";
-import Game from "../Game.js";
+import DialogueSystem from "../DialogueSystem.js";
 
 class Npc extends Character {
     constructor(data = null, gameEnv = null) {
@@ -7,227 +8,88 @@ class Npc extends Character {
         this.interact = data?.interact; // Interact function
         this.currentQuestionIndex = 0;
         this.alertTimeout = null;
-        this.proximityRadius = 150; // Distance in pixels to show popup
-        this.hasInteracted = false;
+        this.isInteracting = false; // Flag to track if currently interacting
+        this.handleKeyDownBound = this.handleKeyDown.bind(this);
+        this.handleKeyUpBound = this.handleKeyUp.bind(this);
         this.bindInteractKeyListeners();
-        this.injectStyles();
-        this.createPopup();
-
-        // Add highlight effect if this is the next NPC to talk to
-        this.checkIfNextTarget();
-    }
-
-    checkIfNextTarget() {
-        const nextStep = Game.getNextStep();
-        if (nextStep && nextStep.target === this.spriteData.id) {
-            this.addHighlight();
-        } else {
-            this.removeHighlight();
-        }
-    }
-
-    addHighlight() {
-        if (!this.highlightEffect) {
-            this.highlightEffect = document.createElement('div');
-            this.highlightEffect.style.position = 'absolute';
-            this.highlightEffect.style.border = '2px solid gold';
-            this.highlightEffect.style.borderRadius = '50%';
-            this.highlightEffect.style.animation = 'pulse 1.5s infinite';
-            this.highlightEffect.style.pointerEvents = 'none';
-            document.body.appendChild(this.highlightEffect);
-        }
-        this.updateHighlightPosition();
-    }
-
-    updateHighlightPosition() {
-        if (this.highlightEffect && this.canvas) {
-            const rect = this.canvas.getBoundingClientRect();
-            const scale = this.spriteData.SCALE_FACTOR || 1;
-            const width = (this.spriteData.pixels.width / scale) * 1.2;
-            const height = (this.spriteData.pixels.height / scale) * 1.2;
-            
-            this.highlightEffect.style.width = `${width}px`;
-            this.highlightEffect.style.height = `${height}px`;
-            this.highlightEffect.style.left = `${rect.left + this.position.x - width/4}px`;
-            this.highlightEffect.style.top = `${rect.top + this.position.y - height/4}px`;
-        }
-    }
-
-    removeHighlight() {
-        if (this.highlightEffect) {
-            this.highlightEffect.remove();
-            this.highlightEffect = null;
-        }
-    }
-
-    injectStyles() {
-        if (document.getElementById('npc-popup-styles')) return;
         
-        const styleSheet = document.createElement('style');
-        styleSheet.id = 'npc-popup-styles';
-        styleSheet.innerHTML = `
-            .npc-popup {
-                position: fixed;
-                top: 80px;
-                left: -350px;
-                background: rgba(0, 0, 0, 0.8);
-                color: white;
-                padding: 10px 15px;
-                border-radius: 8px;
-                font-family: 'Press Start 2P', monospace;
-                font-size: 8px;
-                line-height: 1.4;
-                z-index: 9999;
-                display: block;
-                border: 2px solid #ffd700;
-                box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
-                animation: float 2s ease-in-out infinite;
-                pointer-events: none;
-                transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-                opacity: 0;
-                max-width: 250px;
-                transform: translateX(0);
-            }
-
-            .npc-popup .key {
-                color: #ffd700;
-                font-weight: bold;
-                padding: 2px 4px;
-                background: rgba(255, 215, 0, 0.2);
-                border-radius: 3px;
-                margin: 0 2px;
-                font-size: 8px;
-            }
-
-            .npc-popup .greeting {
-                color: #ffd700;
-                margin-bottom: 5px;
-                font-size: 8px;
-                display: block;
-            }
-
-            .npc-popup .instruction {
-                font-size: 8px;
-                opacity: 0.9;
-            }
-
-            @keyframes float {
-                0% { transform: translateY(0px) translateX(0); }
-                50% { transform: translateY(-5px) translateX(0); }
-                100% { transform: translateY(0px) translateX(0); }
-            }
-
-            .npc-popup.show {
-                opacity: 1;
-                left: 10px;
-                transform: translateX(0);
-            }
-
-            .npc-popup.hide {
-                opacity: 0;
-                left: -350px;
-                transform: translateX(-20px);
-            }
-        `;
-        document.head.appendChild(styleSheet);
-    }
-
-    createPopup() {
-        this.popup = document.createElement('div');
-        this.popup.className = 'npc-popup hide';
-        this.updatePopupText();
-        document.body.appendChild(this.popup);
-    }
-
-    updatePopupText(isColliding = false) {
-        if (isColliding) {
-            this.popup.innerHTML = `
-                <span class="instruction">
-                    Press <span class="key">E</span> to interact
-                </span>
-            `;
-        } else if (this.spriteData.greeting) {
-            // Truncate greeting if it's too long
-            const greeting = this.spriteData.greeting.length > 50 
-                ? this.spriteData.greeting.substring(0, 47) + '...'
-                : this.spriteData.greeting;
-            
-            this.popup.innerHTML = `
-                <span class="greeting">"${greeting}"</span>
-                <span class="instruction">
-                    Press <span class="key">E</span> to interact
-                </span>
-            `;
+        // IMPORTANT: Create a unique ID for each NPC to avoid conflicts
+        this.uniqueId = data?.id + "_" + Math.random().toString(36).substr(2, 9);
+        
+        // IMPORTANT: Create a local dialogue system for this NPC specifically
+        if (data?.dialogues) {
+            this.dialogueSystem = new DialogueSystem({
+                dialogues: data.dialogues,
+                // Pass unique ID to prevent conflicts
+                id: this.uniqueId
+            });
         } else {
-            this.popup.innerHTML = `
-                <span class="instruction">
-                    Press <span class="key">E</span> to interact
-                </span>
-            `;
+            // Create a default dialogue system with a greeting based on NPC data
+            const greeting = data?.greeting || "Hello, traveler!";
+            this.dialogueSystem = new DialogueSystem({
+                dialogues: [
+                    greeting, 
+                    "Nice weather we're having, isn't it?",
+                    "I've been standing here for quite some time."
+                ],
+                // Pass unique ID to prevent conflicts
+                id: this.uniqueId
+            });
+        }
+        
+        // Register with game control for cleanup during transitions
+        if (gameEnv && gameEnv.gameControl) {
+            gameEnv.gameControl.registerInteractionHandler(this);
         }
     }
 
     update() {
         this.draw();
-        this.checkProximity();
-    }
-
-    getDistanceToPlayer() {
-        const player = this.gameEnv.gameObjects.find(obj => 
-            obj.constructor.name === 'Player'
-        );
-        
-        if (!player) return Infinity;
-
-        const dx = (this.position.x + this.width/2) - (player.position.x + player.width/2);
-        const dy = (this.position.y + this.height/2) - (player.position.y + player.height/2);
-        return Math.sqrt(dx * dx + dy * dy);
-    }
-
-    checkProximity() {
-        const distance = this.getDistanceToPlayer();
-        
-        if (distance <= this.proximityRadius) {
-            if (this.popup.classList.contains('hide')) {
-                this.popup.classList.remove('hide');
-                setTimeout(() => {
-                    this.popup.classList.add('show');
-                }, 10);
-                this.updatePopupText(false);
-            }
-        } else {
-            if (this.popup.classList.contains('show')) {
-                this.popup.classList.remove('show');
-                setTimeout(() => {
-                    this.popup.classList.add('hide');
-                }, 10);
-            }
-        }
-
-        // Also check collision events for interaction
+        // Check if player is still in collision
         const players = this.gameEnv.gameObjects.filter(
             obj => obj.state.collisionEvents.includes(this.spriteData.id)
         );
         
-        if (players.length > 0) {
-            // Player is colliding, they can interact
-            this.updatePopupText(true);
+        // Reset interaction state if player moved away
+        if (players.length === 0 && this.isInteracting) {
+            this.isInteracting = false;
         }
     }
 
     bindInteractKeyListeners() {
-        addEventListener('keydown', this.handleKeyDown.bind(this));
-        addEventListener('keyup', this.handleKeyUp.bind(this));
+        // Add event listeners for keydown and keyup
+        document.addEventListener('keydown', this.handleKeyDownBound);
+        document.addEventListener('keyup', this.handleKeyUpBound);
     }
 
-    handleKeyDown({ key }) {
-        if (key === 'e' || key === 'u') {
+    removeInteractKeyListeners() {
+        // Remove event listeners to prevent memory leaks
+        document.removeEventListener('keydown', this.handleKeyDownBound);
+        document.removeEventListener('keyup', this.handleKeyUpBound);
+        
+        // Clear any pending timeouts
+        if (this.alertTimeout) {
+            clearTimeout(this.alertTimeout);
+            this.alertTimeout = null;
+        }
+        
+        // Close any open dialogue
+        if (this.dialogueSystem && this.dialogueSystem.isDialogueOpen()) {
+            this.dialogueSystem.closeDialogue();
+        }
+        
+        // Reset interaction state
+        this.isInteracting = false;
+    }
+
+    handleKeyDown(event) {
+        if (event.key === 'e' || event.key === 'u') {
             this.handleKeyInteract();
         }
     }
 
-    handleKeyUp({ key }) {
-        if (key === 'e' || key === 'u') {
+    handleKeyUp(event) {
+        if (event.key === 'e' || event.key === 'u') {
             if (this.alertTimeout) {
                 clearTimeout(this.alertTimeout);
                 this.alertTimeout = null;
@@ -236,38 +98,82 @@ class Npc extends Character {
     }
 
     handleKeyInteract() {
+        // Check if game is active - don't allow interactions during transitions
+        if (this.gameEnv.gameControl && this.gameEnv.gameControl.isPaused) {
+            return;
+        }
+        
+        // Check if dialogue is already open - close it instead of opening new one
+        if (this.dialogueSystem && this.dialogueSystem.isDialogueOpen()) {
+            this.dialogueSystem.closeDialogue();
+            return;
+        }
+        
         const players = this.gameEnv.gameObjects.filter(
             obj => obj.state.collisionEvents.includes(this.spriteData.id)
         );
         const hasInteract = this.interact !== undefined;
 
-        if (players.length > 0 && hasInteract) {
-            // Update progress before interaction
-            Game.updateProgress(this.spriteData.id);
+        // Only trigger interaction if:
+        // 1. Player is in collision with this NPC
+        // 2. NPC has an interact function
+        // 3. Not already interacting
+        if (players.length > 0 && hasInteract && !this.isInteracting) {
+            this.isInteracting = true;
             
-            // Call the interact function
-            this.interact();
+            // Store a reference to this NPC's interact function
+            const originalInteract = this.interact;
             
-            // Update highlights for all NPCs
-            this.updateAllNpcHighlights();
+            // Execute the interact function
+            originalInteract.call(this);
+            
+            // Check if we're still in the same game level after interaction
+            // This is important for transitions to other levels
+            if (this.gameEnv && this.gameEnv.gameControl && 
+                !this.gameEnv.gameControl.isPaused) {
+                // Reset interaction state after a short delay
+                // This prevents multiple rapid interactions
+                setTimeout(() => {
+                    this.isInteracting = false;
+                }, 500);
+            }
         }
     }
-
-    updateAllNpcHighlights() {
-        if (this.gameEnv) {
-            const npcs = this.gameEnv.gameObjects.filter(obj => obj instanceof Npc);
-            npcs.forEach(npc => npc.checkIfNextTarget());
-        }
+    
+    // Method for showing reaction dialogue
+    showReactionDialogue() {
+        if (!this.dialogueSystem) return;
+        
+        // Get NPC name and avatar if available
+        const npcName = this.spriteData?.id || "";
+        const npcAvatar = this.spriteData?.src || null;
+        
+        // Show dialogue with greeting message
+        const greeting = this.spriteData?.greeting || "Hello!";
+        this.dialogueSystem.showDialogue(greeting, npcName, npcAvatar);
+    }
+    
+    // Method for showing random interaction dialogue
+    showRandomDialogue() {
+        if (!this.dialogueSystem) return;
+        
+        // Get NPC name and avatar if available
+        const npcName = this.spriteData?.id || "";
+        const npcAvatar = this.spriteData?.src || null;
+        
+        // Show random dialogue
+        this.dialogueSystem.showRandomDialogue(npcName, npcAvatar);
     }
 
+    // Clean up event listeners when NPC is destroyed
     destroy() {
-        if (this.popup) {
-            this.popup.remove();
+        // Unregister from game control
+        if (this.gameEnv && this.gameEnv.gameControl) {
+            this.gameEnv.gameControl.unregisterInteractionHandler(this);
         }
-        if (this.highlightEffect) {
-            this.highlightEffect.remove();
-        }
-        super.destroy?.();
+        
+        this.removeInteractKeyListeners();
+        super.destroy();
     }
 }
 

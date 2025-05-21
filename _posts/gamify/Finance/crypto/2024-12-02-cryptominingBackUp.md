@@ -1,9 +1,5 @@
 ---
-
-layout: fortunefinders
-
 layout: finance
-
 title: Crypto Mining Simulator BACKUP
 type: issueshen i
 permalink: /crypto/miningbackup
