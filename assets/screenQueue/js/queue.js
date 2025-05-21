@@ -272,7 +272,7 @@ socket.onopen = function (event) {
     console.log("WebSocket connection established.");
 };
 
-setInterval(checkForStreams, 1000);
+// setInterval(checkForStreams, 1000);
 function checkForStreams() {
     fetch(mappingURI + "/isStreamActive",
         {
