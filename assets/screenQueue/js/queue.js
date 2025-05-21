@@ -52,20 +52,27 @@ let videoStreamGlobal;
 let globalPeer;
 
 async function broadcast() {
-    const stream = await captureScreen();
-    videoStreamGlobal = stream;
-    document.getElementById("mortStream").srcObject = stream;
-    sendMessage({ context: "broadcastRequest" });
+    // const stream = await captureScreen();
+    // videoStreamGlobal = stream;
+    // document.getElementById("mortStream").srcObject = stream;
+    // sendMessage({ context: "broadcastRequest" });
+    captureScreen()
+        .then(stream => {
+            videoStreamGlobal = stream;
+            document.getElementById("mortStream").srcObject = stream;
+            sendMessage({ context: "broadcastRequest" });
+        })
+        .catch(error => {
+            console.error("Error during broadcast:", error);
+        });
 }
 
-async function stopBroadcast()
-{
-    if(!videoStreamGlobal)
-    {
+async function stopBroadcast() {
+    if (!videoStreamGlobal) {
         return;
     }
     videoStreamGlobal.getTracks().forEach(track => track.stop())
-    sendMessage({context:"stopBroadcast"})
+    sendMessage({ context: "stopBroadcast" })
 }
 
 
@@ -73,8 +80,8 @@ socket.onmessage = async function (event) {
     const messageData = JSON.parse(event.data);
     switch (messageData["context"]) {
         case "broadcastRequestServer":
-            await watch()
-        break;
+            watch() //:( await used to be here
+            break;
         case "viewerOfferServer":
             viewerOfferServer(messageData);
             break;
@@ -90,7 +97,7 @@ socket.onmessage = async function (event) {
 
 function sendMessage(message) {
     if (socket.readyState === WebSocket.OPEN) {
-        socket.send(JSON.stringify(message));   
+        socket.send(JSON.stringify(message));
     } else {
         console.error("WebSocket connection is not open.");
     }
@@ -99,49 +106,89 @@ function sendMessage(message) {
 async function viewerOfferServer(messageData) {
     const peer = new RTCPeerConnection(servers);
     globalPeer = peer;
-    
+
     let remotedesc = new RTCSessionDescription({
         type: "offer",
         sdp: messageData["sdp"]
     });
-    
+
     peer.onicecandidate = (e) => {
         if (e.candidate) {
             sendMessage({ context: "iceToViewerClient", candidate: JSON.stringify(e.candidate.toJSON()) });
         }
     };
-    
-    await peer.setRemoteDescription(remotedesc);
-    videoStreamGlobal.getTracks().forEach(track => peer.addTrack(track, videoStreamGlobal));
-    const answer = await peer.createAnswer();
-    await peer.setLocalDescription(answer);
-    
-    sendMessage({
-        context: "viewerAcceptClient",
-        sdp: answer.sdp,
-        returnID: messageData["returnID"]
-    });
+
+    // await peer.setRemoteDescription(remotedesc);
+    // videoStreamGlobal.getTracks().forEach(track => peer.addTrack(track, videoStreamGlobal));
+    // const answer = await peer.createAnswer();
+    // await peer.setLocalDescription(answer);
+
+    // sendMessage({
+    //     context: "viewerAcceptClient",
+    //     sdp: answer.sdp,
+    //     returnID: messageData["returnID"]
+    // });
+    //goodbye awaits
+    return peer.setRemoteDescription(remotedesc)
+        .then(() => {
+            videoStreamGlobal.getTracks().forEach(track => peer.addTrack(track, videoStreamGlobal));
+            return peer.createAnswer();
+        })
+        .then(answer => {
+            return peer.setLocalDescription(answer).then(() => answer);
+        })
+        .then(answer => {
+            sendMessage({
+                context: "viewerAcceptClient",
+                sdp: answer.sdp,
+                returnID: messageData["returnID"]
+            });
+        })
+        .catch(error => {
+            console.error("Error in viewerOfferServer:", error);
+        });
 }
 
+// async function captureScreen() {
+//     try {
+//         let mediaStream = await navigator.mediaDevices.getDisplayMedia({
+//             video: { cursor: "always" },
+//             audio: false
+//         });
+
+//         document.getElementById("streamOffline").style.display = "none";
+//         document.getElementById("mortStream").style.display = "block";
+//         document.getElementById("mortStream").srcObject = mediaStream;
+
+//         // document.getElementById("endBroadcastButton").style.display = "flex";
+
+//         return mediaStream;
+//     } catch (ex) {
+//         // console.log("Error occurred", ex);
+//         // document.getElementById("endBroadcastButton").style.display = "none";
+//     }
+// }
+
 async function captureScreen() {
-    try {
-        let mediaStream = await navigator.mediaDevices.getDisplayMedia({
-            video: { cursor: "always" },
-            audio: false
-        });
-        
+    return navigator.mediaDevices.getDisplayMedia({
+        video: { cursor: "always" },
+        audio: false
+    })
+    .then((mediaStream) => {
         document.getElementById("streamOffline").style.display = "none";
         document.getElementById("mortStream").style.display = "block";
         document.getElementById("mortStream").srcObject = mediaStream;
-        
+
         // document.getElementById("endBroadcastButton").style.display = "flex";
-        
+
         return mediaStream;
-    } catch (ex) {
+    })
+    .catch((ex) => {
         // console.log("Error occurred", ex);
         // document.getElementById("endBroadcastButton").style.display = "none";
-    }
+    });
 }
+
 
 
 function viewerAcceptServer(messageData) {
@@ -149,12 +196,12 @@ function viewerAcceptServer(messageData) {
         type: "answer",
         sdp: messageData["sdp"]
     });
-    
+
     if (globalPeer.signalingState === "stable") {
         console.warn("Skipping setRemoteDescription because connection is already stable.");
         return;
     }
-    
+
     globalPeer.setRemoteDescription(remotedesc)
         .then(() => {
             console.log("Remote description set successfully.");
@@ -162,7 +209,7 @@ function viewerAcceptServer(messageData) {
         .catch(error => {
             console.error("Failed to set remote description:", error);
         });
-    
+
     globalPeer.ontrack = (event) => {
         document.getElementById("mortStream").srcObject = event.streams[0];
         document.getElementById("mortStream").style.display = "block";
@@ -171,19 +218,46 @@ function viewerAcceptServer(messageData) {
 }
 
 async function watch() {
+    // const peer = new RTCPeerConnection(servers);
+    // peer.addTransceiver("video", { direction: "recvonly" });
+    // const offer = await peer.createOffer();
+    // await peer.setLocalDescription(offer);
+
+    // peer.onicecandidate = (e) => {
+    //     if (e.candidate) {
+    //         sendMessage({ context: "iceToStreamerClient", candidate: JSON.stringify(e.candidate.toJSON()) });
+    //     }
+    // };
+
+    // globalPeer = peer;
+    // sendMessage({ context: "viewerOfferClient", sdp: offer.sdp });
     const peer = new RTCPeerConnection(servers);
     peer.addTransceiver("video", { direction: "recvonly" });
-    const offer = await peer.createOffer();
-    await peer.setLocalDescription(offer);
-    
-    peer.onicecandidate = (e) => {
-        if (e.candidate) {
-            sendMessage({ context: "iceToStreamerClient", candidate: JSON.stringify(e.candidate.toJSON()) });
-        }
-    };
-    
-    globalPeer = peer;
-    sendMessage({ context: "viewerOfferClient", sdp: offer.sdp });
+
+    peer.createOffer()
+        .then(offer => {
+            return peer.setLocalDescription(offer).then(() => offer);
+        })
+        .then(offer => {
+            peer.onicecandidate = (e) => {
+                if (e.candidate) {
+                    sendMessage({
+                        context: "iceToStreamerClient",
+                        candidate: JSON.stringify(e.candidate.toJSON())
+                    });
+                }
+            };
+
+            globalPeer = peer;
+            sendMessage({
+                context: "viewerOfferClient",
+                sdp: offer.sdp
+            });
+        })
+        .catch(error => {
+            console.error("Error creating and sending offer:", error);
+        });
+
 }
 
 socket.onerror = function (error) {
@@ -199,28 +273,26 @@ socket.onopen = function (event) {
 };
 
 setInterval(checkForStreams, 1000);
-function checkForStreams()
-{
-    fetch(mappingURI+"/isStreamActive",
+function checkForStreams() {
+    fetch(mappingURI + "/isStreamActive",
         {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json"
-          },
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            },
         }).then(response => {
-          if (response.ok) {
-            return response.text()
-          }
-          throw new Error("Network response failed")
+            if (response.ok) {
+                return response.text()
+            }
+            throw new Error("Network response failed")
         }).then(data => {
-        document.getElementById("StreamOfflineHead").innerText = "Stream Offline"
-          if(data == "true")
-          {
-            document.getElementById("StreamOfflineHead").innerText = "A Stream Was Found!"
-          }
+            document.getElementById("StreamOfflineHead").innerText = "Stream Offline"
+            if (data == "true") {
+                document.getElementById("StreamOfflineHead").innerText = "A Stream Was Found!"
+            }
         })
         .catch(error => {
-          console.error("There was a problem with the fetch", error);
+            console.error("There was a problem with the fetch", error);
         });
 }
 
@@ -234,7 +306,7 @@ function startTimer() {
         alert("You must be at the front of the queue to start the timer.");
         return;
     }
-    
+
     let time = timerlength;
     const timerButton = document.getElementById('beginTimer');
     timerButton.textContent = 'End Timer';
@@ -242,7 +314,7 @@ function startTimer() {
     // Change the click behavior to END the timer
     timerButton.removeEventListener('click', startTimer);
     timerButton.addEventListener('click', endTimerEarly);
-    
+
     timerInterval = setInterval(() => {
         const minutes = Math.floor(time / 60);
         const seconds = time % 60;
@@ -309,7 +381,7 @@ function addToQueue() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify([person])
         })
-        .then(() => fetchQueue());
+            .then(() => fetchQueue());
     } else {
         alert("ERROR: You are not in the working list.")
     }
@@ -328,7 +400,7 @@ function removeFromQueue() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify([person])
         })
-        .then(() => fetchQueue());
+            .then(() => fetchQueue());
     } else {
         alert("ERROR: You are not in the waiting list.")
     }
@@ -342,7 +414,7 @@ function moveToDoneQueue() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(firstPerson)
     })
-    .then(() => fetchQueue());
+        .then(() => fetchQueue());
 }
 
 // reset queue - todo: admin only
@@ -350,7 +422,7 @@ function resetQueue() {
     fetch(URL + `resetQueue/${assignment}`, {
         method: 'PUT'
     })
-    .then(() => fetchQueue());
+        .then(() => fetchQueue());
 }
 
 // add/remove a group from waiting list
@@ -361,23 +433,23 @@ function toggleGroupInQueue() {
         alert("Please enter a valid group name.");
         return;
     }
-    
+
     const trimmedGroup = groupName.trim();
-    
+
     // if group is in queue, remove group, else add group to queue
     const isInQueue = currentQueue.some(item => item === trimmedGroup);
-    
-    if (isInQueue) {        
+
+    if (isInQueue) {
         // Now move the group to the completed queue endpoint
         fetch(URL + `doneToCompleted/${assignment}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify([trimmedGroup])
         })
-        .then(() => {
-            alert(`Moved "${trimmedGroup}" to completed queue.`);
-            fetchQueue();
-        });
+            .then(() => {
+                alert(`Moved "${trimmedGroup}" to completed queue.`);
+                fetchQueue();
+            });
     } else {
         // add to queue
         fetch(URL + `addToWaiting/${assignment}`, {
@@ -385,10 +457,10 @@ function toggleGroupInQueue() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify([trimmedGroup])
         })
-        .then(() => {
-            alert(`Added "${trimmedGroup}" to waiting queue.`);
-            fetchQueue();
-        });
+            .then(() => {
+                alert(`Added "${trimmedGroup}" to waiting queue.`);
+                fetchQueue();
+            });
     }
 }
 
@@ -442,23 +514,23 @@ function fetchUser() {
         method: 'GET',
         cache: "no-cache",
         credentials: 'include',
-        headers: { 
+        headers: {
             'Content-Type': 'application/json',
-            'X-Origin': 'client' 
+            'X-Origin': 'client'
         }
     })
-    .then(response => response.json())
-    .then(userInfo => {
-        person = userInfo.name;
+        .then(response => response.json())
+        .then(userInfo => {
+            person = userInfo.name;
 
-        console.log(typeof person);
-        if (typeof person == 'undefined') {
-            alert("Error: You are not logged in. Redirecting you to the login page.")
-            let loc = window.location.href
-            loc = loc => loc.split('/').slice(0, -2).join('/') || loc;
-            window.location.href = loc + "/toolkit-login"
-        }
-    });
+            console.log(typeof person);
+            if (typeof person == 'undefined') {
+                alert("Error: You are not logged in. Redirecting you to the login page.")
+                let loc = window.location.href
+                loc = loc => loc.split('/').slice(0, -2).join('/') || loc;
+                window.location.href = loc + "/toolkit-login"
+            }
+        });
 }
 
 function showAssignmentModal() {
@@ -466,12 +538,12 @@ function showAssignmentModal() {
     const modalDropdown = document.getElementById('modalAssignmentDropdown');
 
     fetch(URL + 'debug')
-    .then(response => response.json())
-    .then(assignments => {
-        modalDropdown.innerHTML = assignments.map(assignment =>
-            `<option value="${assignment.id}">${assignment.name}</option>`
-        ).join('');
-    });
+        .then(response => response.json())
+        .then(assignments => {
+            modalDropdown.innerHTML = assignments.map(assignment =>
+                `<option value="${assignment.id}">${assignment.name}</option>`
+            ).join('');
+        });
 
     modal.style.display = 'block';
 
