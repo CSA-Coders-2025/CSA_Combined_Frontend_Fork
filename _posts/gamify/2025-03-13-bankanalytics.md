@@ -60,7 +60,7 @@ permalink: /gamify/bankanalytics
     border-radius: 15px;
     cursor: pointer;
     transition: all 0.3s;
-  }
+  } 
 
   .toggle-button.active {
     background: var(--primary-color);
