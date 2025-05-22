@@ -119,7 +119,7 @@ permalink: /gamify/bankanalytics
       <div class="chart-container">
         <canvas id="casino_pokerChart"></canvas>
       </div>
-    </div>
+    </div>                  
     <div class="game-card">
       <h3 class="game-title">Blackjack</h3>
       <div class="chart-container">
@@ -184,7 +184,7 @@ const config = {
 let combinedChart = null;
 const individualCharts = {};
 
-// Data processing
+// Data processing     
 function processTransactions(transactions) {
   const dailyData = {};
   transactions?.forEach(([timestamp, amount]) => {
@@ -194,7 +194,7 @@ function processTransactions(transactions) {
       dailyData[dateString] = (dailyData[dateString] || 0) + Number(amount);
     } catch (e) {
       console.warn('Invalid transaction:', e);
-    }
+    }       
   });
   return {
     labels: Object.keys(dailyData).sort(),
@@ -251,14 +251,14 @@ function createCombinedChart(data) {
   }));
 
   combinedChart = new Chart(ctx, {
-    type: 'line',
+    type: 'line',       
     data: {
       labels: data[Object.keys(data)[0]]?.labels || [],
       datasets: datasets
     },
     options: {
       responsive: true,
-      maintainAspectRatio: false,
+      maintainAspectRatio: false,             
       scales: {
         y: { beginAtZero: true, grid: { color: '#ffffff20' }, ticks: { color: '#fff' } },
         x: { grid: { color: '#ffffff10' }, ticks: { color: '#fff' } }
@@ -282,11 +282,11 @@ async function loadData() {
     }
     const personData = await personResponse.json();
     const personId = personData?.id;
-
+             
     if (!personId) {
       throw new Error('Could not retrieve user ID.');
     }
-
+             
     // Now, fetch bank analytics using the person ID
     const analyticsResponse = await fetch(`${config.javaURI}/bank/analytics/person/${personId}`, {
       credentials: 'include'
@@ -294,14 +294,14 @@ async function loadData() {
 
     if (!analyticsResponse.ok) {
       throw new Error(`Failed to fetch bank analytics: HTTP ${analyticsResponse.status}`);
-    }
+    }                                                    
     const analyticsData = await analyticsResponse.json();
-
+             
     if (!analyticsData.success) {
       throw new Error('Invalid analytics response format');
-    }
+    }             
     return analyticsData.data;
-
+             
   } catch (error) {
     console.warn('Error loading data:', error);
     config.demoMode = true;
