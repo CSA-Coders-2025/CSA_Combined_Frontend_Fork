@@ -722,7 +722,7 @@ class GameLevelAirport {
               "Janet Yellen",
               "Bank Analytics provides a detailed overview of your spending, investments, and savings.\nWould you like to proceed to the analytics dashboard?",
               [
-                { label: "Open Analytics", action: () => showYellenModal("https://nighthawkcoders.github.io/portfolio_2025/bank/analytics") },
+                { label: "Open Analytics", action: () => showYellenModal("https://nighthawkcoders.github.io/portfolio_2025/gamify/bankanalytics") },
                 { label: "Back", action: () => dialogFunctions.intro(), keepOpen: true }
               ]
             );
