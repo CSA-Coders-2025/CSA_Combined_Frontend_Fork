@@ -68,53 +68,33 @@ permalink: /gamify/bankanalytics
     font-weight: bold;
   }
 
-  .loading-spinner {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 200px;
-  }
-
-  .loading-spinner div {
-    border: 5px solid rgba(255, 152, 0, 0.3);
-    border-radius: 50%;
-    border-top: 5px solid var(--primary-color);
-    width: 50px;
-    height: 50px;
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-
   .error-message {
     color: #ff6b6b;
     text-align: center;
     padding: 2rem;
   }
-
-  .data-message {
-    color: #888;
-    text-align: center;
-    padding: 2rem;
-    font-style: italic;
-  }
 </style>
 
 <div class="container">
-  <h1>Game Analytics Dashboard</h1>
+  <h1 class="text-light">Game Analytics Dashboard</h1>
+  
+  <div class="game-card">
+    <h2 class="game-title">User Overview</h2>
+    <div class="text-center mb-4">
+      <h4 class="text-warning">User ID: <span id="userId">Loading...</span></h4>
+      <h4 class="text-success">Current Balance: $<span id="balance">0.00</span></h4>
+    </div>
+  </div>
 
   <div class="game-card">
     <h2 class="game-title">All Games Combined</h2>
     <div class="toggle-container" id="toggleButtons">
-      <button class="toggle-button active" data-game="poker">Poker</button>
-      <button class="toggle-button active" data-game="blackjack">Blackjack</button>
-      <button class="toggle-button active" data-game="dice">Dice</button>
+      <button class="toggle-button active" data-game="casino_poker">Poker</button>
+      <button class="toggle-button active" data-game="casino_blackjack">Blackjack</button>
+      <button class="toggle-button active" data-game="casino_dice">Dice</button>
       <button class="toggle-button active" data-game="casino_mines">Mines</button>
       <button class="toggle-button active" data-game="stocks">Stocks</button>
-      <button class="toggle-button active" data-game="crypto">Crypto</button>
+      <button class="toggle-button active" data-game="cryptomining">Crypto</button>
     </div>
     <div class="chart-container">
       <canvas id="combinedChart"></canvas>
@@ -125,19 +105,19 @@ permalink: /gamify/bankanalytics
     <div class="game-card">
       <h3 class="game-title">Poker</h3>
       <div class="chart-container">
-        <canvas id="pokerChart"></canvas>
+        <canvas id="casino_pokerChart"></canvas>
       </div>
     </div>
     <div class="game-card">
       <h3 class="game-title">Blackjack</h3>
       <div class="chart-container">
-        <canvas id="blackjackChart"></canvas>
+        <canvas id="casino_blackjackChart"></canvas>
       </div>
     </div>
     <div class="game-card">
       <h3 class="game-title">Dice</h3>
       <div class="chart-container">
-        <canvas id="diceChart"></canvas>
+        <canvas id="casino_diceChart"></canvas>
       </div>
     </div>
     <div class="game-card">
@@ -149,7 +129,7 @@ permalink: /gamify/bankanalytics
     <div class="game-card">
       <h3 class="game-title">Crypto Portfolio</h3>
       <div class="chart-container">
-        <canvas id="cryptoChart"></canvas>
+        <canvas id="cryptominingChart"></canvas>
       </div>
     </div>
     <div class="game-card">
@@ -161,71 +141,196 @@ permalink: /gamify/bankanalytics
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script type="module">
 import { javaURI, fetchOptions } from '{{site.baseurl}}/assets/js/api/config.js';
 
-const gameMap = {
-  poker: 'Poker', blackjack: 'Blackjack', dice: 'Dice', casino_mines: 'Mines'
-};
-const gameColors = {
-  poker: '#FF6384', blackjack: '#4BC0C0', dice: '#FFCE56',
-  casino_mines: '#9966FF', crypto: '#00FFFF', stocks: '#28a745'
+const gameConfig = {
+    'casino_poker': { color: '#FF6384', label: 'Poker' },
+    'casino_blackjack': { color: '#4BC0C0', label: 'Blackjack' },
+    'casino_dice': { color: '#FFCE56', label: 'Dice' },
+    'casino_mines': { color: '#9966FF', label: 'Mines' },
+    'stocks': { color: '#28a745', label: 'Stocks' },
+    'cryptomining': { color: '#00ffff', label: 'Crypto' }
 };
 
 let combinedChart = null;
-const charts = {};
-let uid = null;
+const individualCharts = {};
 
-  document.addEventListener('DOMContentLoaded', async () => {
+async function fetchUserData() {
     try {
-      const userResponse = await fetch(`${javaURI}/api/person/get`, fetchOptions);
-      const userData = await userResponse.json();
-      uid = userData.uid;
-      initializeAnalytics();
-
-      document.querySelectorAll('#toggleButtons button').forEach(button => {
-        button.addEventListener('click', (e) => {
-          const game = e.target.getAttribute('data-game');
-          toggleDataset(game);
-          button.classList.toggle('active');
+        const response = await fetch(`${javaURI}/api/person/get`, {
+            ...fetchOptions,
+            credentials: 'include'
         });
-      });
+        if (!response.ok) throw new Error('Failed to fetch user data');
+        return await response.json();
     } catch (error) {
-      console.error("Initialization error:", error);
-      showError("Failed to initialize dashboard. Please refresh the page.");
+        console.error('User data error:', error);
+        showError('Failed to load user data');
+        return null;
     }
-  });
+}
 
-  async function initializeAnalytics() {
+async function fetchBankData(userId) {
     try {
-      showLoading();
-      const response = await fetch(`${javaURI}/bank/analytics/${uid}`, fetchOptions);
-      const analyticsJson = await response.json();
-      userAnalyticsData = analyticsJson.data || {};
-      initializeCharts();
+        const response = await fetch(`${javaURI}/bank/analytics/${userId}`, {
+            ...fetchOptions,
+            credentials: 'include'
+        });
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+        return data.success ? data.data : null;
     } catch (error) {
-      console.error("Analytics error:", error);
-      showError("Failed to load analytics data. Please try again later.");
+        console.error('Bank data error:', error);
+        showError('Failed to load financial data');
+        return null;
     }
-  }
+}
 
-  function initializeCharts() {
-    const profitMap = userAnalyticsData.profitMap || {};
-
-    Object.keys(gameMap).forEach(game => {
-      const container = document.getElementById(`${game}ChartContainer`);
-      if (container) {
-        container.innerHTML = `<canvas id="${game}Chart"></canvas>`;
-        const data = profitMap[game] || [];
-        data.length > 0 ? createChart(game, data) : showEmptyData(`${game}ChartContainer`);
-      }
+function processGameData(transactions) {
+    const dailyData = {};
+    transactions?.forEach(([timestamp, amount]) => {
+        try {
+            const date = new Date(timestamp).toLocaleDateString();
+            dailyData[date] = (dailyData[date] || 0) + Number(amount);
+        } catch (e) {
+            console.warn('Invalid transaction data:', e);
+        }
     });
+    return {
+        labels: Object.keys(dailyData).sort(),
+        values: Object.values(dailyData)
+    };
+}
 
-    createCombinedChart();
-  }
+function createChart(ctx, game, data) {
+    return new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: data.labels,
+            datasets: [{
+                label: `${gameConfig[game].label} Profit/Loss`,
+                data: data.values,
+                borderColor: gameConfig[game].color,
+                backgroundColor: `${gameConfig[game].color}20`,
+                tension: 0.2,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: '#ffffff20' },
+                    ticks: { color: '#fff' }
+                },
+                x: {
+                    grid: { color: '#ffffff10' },
+                    ticks: { color: '#fff' }
+                }
+            },
+            plugins: {
+                legend: { labels: { color: '#fff' } }
+            }
+        }
+    });
+}
 
-  // Rest of the JavaScript remains the same as previous version
-  // (createChart, createCombinedChart, processTransactionData, chartOptions, etc.)
-  // ... [truncated for brevity, keep all remaining functions unchanged]
+function createCombinedChart(data) {
+    const ctx = document.getElementById('combinedChart').getContext('2d');
+    const datasets = Object.entries(data).map(([game, gameData]) => ({
+        label: gameConfig[game].label,
+        data: gameData.values,
+        borderColor: gameConfig[game].color,
+        backgroundColor: `${gameConfig[game].color}20`,
+        tension: 0.2,
+        hidden: false
+    }));
+
+    combinedChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: data[Object.keys(data)[0]]?.labels || [],
+            datasets: datasets
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: '#ffffff20' },
+                    ticks: { color: '#fff' }
+                },
+                x: {
+                    grid: { color: '#ffffff10' },
+                    ticks: { color: '#fff' }
+                }
+            },
+            plugins: {
+                legend: { labels: { color: '#fff' } }
+            }
+        }
+    });
+}
+
+function showError(message) {
+    const container = document.querySelector('.container');
+    container.innerHTML += `<div class="error-message">${message}</div>`;
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        // Get user data
+        const userData = await fetchUserData();
+        if (!userData?.id) {
+            showError('Failed to load user information');
+            return;
+        }
+        document.getElementById('userId').textContent = userData.id;
+
+        // Get bank data
+        const bankData = await fetchBankData(userData.id);
+        if (!bankData) {
+            showError('Financial data not available');
+            return;
+        }
+
+        // Update balance
+        document.getElementById('balance').textContent = bankData.balance?.toFixed(2) || '0.00';
+
+        // Process and display charts
+        const processedData = {};
+        Object.keys(gameConfig).forEach(game => {
+            const rawData = bankData.profitMap?.[game] || [];
+            processedData[game] = processGameData(rawData);
+            
+            const ctx = document.getElementById(`${game}Chart`)?.getContext('2d');
+            if (ctx) {
+                individualCharts[game] = createChart(ctx, game, processedData[game]);
+            }
+        });
+
+        createCombinedChart(processedData);
+
+        // Add chart toggle functionality
+        document.querySelectorAll('.toggle-button').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const game = e.target.dataset.game;
+                const isActive = e.target.classList.contains('active');
+                e.target.classList.toggle('active', !isActive);
+                
+                const dataset = combinedChart.data.datasets.find(d => d.label === gameConfig[game].label);
+                if (dataset) dataset.hidden = isActive;
+                combinedChart.update();
+            });
+        });
+
+    } catch (error) {
+        console.error('Initialization error:', error);
+        showError('Failed to initialize dashboard');
+    }
+});
 </script>
