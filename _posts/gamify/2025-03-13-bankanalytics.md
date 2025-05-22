@@ -214,7 +214,7 @@ function createChart(ctx, game, data) {
         borderColor: config.gameConfig[game].color,
         backgroundColor: `${config.gameConfig[game].color}20`,
         tension: 0.2,
-        fill: true
+        fill: true                          
       }]
     },
     options: {
@@ -225,21 +225,21 @@ function createChart(ctx, game, data) {
           beginAtZero: true,
           grid: { color: '#ffffff20' },
           ticks: { color: '#fff' }
-        },
-        x: {
-          grid: { color: '#ffffff10' },
-          ticks: { color: '#fff' }
+        },             
+        x: {             
+          grid: { color: '#ffffff10' },             
+          ticks: { color: '#fff' }             
         }
-      },
-      plugins: {
-        legend: { labels: { color: '#fff' } }
+      },             
+      plugins: {             
+        legend: { labels: { color: '#fff' } }             
       }
-    }
-  });
-}
+    }             
+  });                          
+}             
 
-// Combined chart
-function createCombinedChart(data) {
+// Combined chart             
+function createCombinedChart(data) {             
   const ctx = document.getElementById('combinedChart').getContext('2d');
   const datasets = Object.entries(data).map(([game, gameData]) => ({
     label: config.gameConfig[game].label,
@@ -249,7 +249,7 @@ function createCombinedChart(data) {
     tension: 0.2,
     hidden: false
   }));
-
+                          
   combinedChart = new Chart(ctx, {
     type: 'line',       
     data: {
@@ -259,7 +259,7 @@ function createCombinedChart(data) {
     options: {
       responsive: true,
       maintainAspectRatio: false,             
-      scales: {
+      scales: {                          
         y: { beginAtZero: true, grid: { color: '#ffffff20' }, ticks: { color: '#fff' } },
         x: { grid: { color: '#ffffff10' }, ticks: { color: '#fff' } }
       },
@@ -276,7 +276,7 @@ async function loadData() {
       method: 'GET', // Explicitly set the method to GET
       credentials: 'include'
     });
-
+                                       
     if (!personResponse.ok) {
       throw new Error(`Failed to fetch user info: HTTP ${personResponse.status}`);
     }
@@ -296,7 +296,7 @@ async function loadData() {
       throw new Error(`Failed to fetch bank analytics: HTTP ${analyticsResponse.status}`);
     }                                                    
     const analyticsData = await analyticsResponse.json();
-             
+                                                    
     if (!analyticsData.success) {
       throw new Error('Invalid analytics response format');
     }             
@@ -338,17 +338,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         const game = e.target.dataset.game;
         const isActive = e.target.classList.contains('active');
         e.target.classList.toggle('active', !isActive);
-
+                                       
         const dataset = combinedChart.data.datasets
           .find(d => d.label === config.gameConfig[game].label);
         if (dataset) dataset.hidden = isActive;
         combinedChart.update();
       });
     });
-
+                          
   } catch (error) {
     console.error('Initialization failed:', error);
     document.body.innerHTML = `<div class="error-message">Failed to load analytics. Please try again later: ${error}</div>`;
   }
 });
-</script>
+</script>                                       
