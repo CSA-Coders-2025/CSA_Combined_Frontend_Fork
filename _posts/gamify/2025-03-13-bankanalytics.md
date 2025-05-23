@@ -82,68 +82,112 @@ permalink: /gamify/bankanalytics
     border-radius: 4px;
     margin: 1rem 0;
   }
+
+  .loading-message {
+    color: var(--primary-color);
+    text-align: center;
+    padding: 2rem;
+    font-size: 1.1rem;
+  }
 </style>
 
 <div class="container">
   <h1 class="text-light">Game Analytics Dashboard</h1>
 
-  <div class="game-card">
-    <h2 class="game-title">Individual Game Analytics</h2>
-    <div class="toggle-container" id="toggleButtons">
-      <button class="toggle-button active" data-game="dice">Dice</button>
-      <button class="toggle-button active" data-game="poker">Poker</button>
-      <button class="toggle-button active" data-game="mines">Mines</button>
-      <button class="toggle-button active" data-game="blackjack">Blackjack</button>
-    </div>
-    <div class="chart-container">
-      <canvas id="combinedChart"></canvas>
-    </div>
+  <div id="loadingMessage" class="loading-message">
+    Loading user data and analytics...
   </div>
 
-  <div class="chart-grid">
+  <div id="errorMessage" class="error-message" style="display: none;">
+    Failed to load analytics data. Please check your connection and try again.
+  </div>
+
+  <div id="mainContent" style="display: none;">
     <div class="game-card">
-      <h3 class="game-title">Dice</h3>
-      <div class="chart-container">
-        <canvas id="diceChart"></canvas>
+      <h2 class="game-title">Individual Game Analytics</h2>
+      <div class="toggle-container" id="toggleButtons">
+        <button class="toggle-button active" data-game="dice">Dice</button>
+        <button class="toggle-button active" data-game="poker">Poker</button>
+        <button class="toggle-button active" data-game="mines">Mines</button>
+        <button class="toggle-button active" data-game="blackjack">Blackjack</button>
       </div>
-    </div>                  
-    <div class="game-card">
-      <h3 class="game-title">Poker</h3>
       <div class="chart-container">
-        <canvas id="pokerChart"></canvas>
-      </div>
-    </div>
-    <div class="game-card">
-      <h3 class="game-title">Mines</h3>
-      <div class="chart-container">
-        <canvas id="minesChart"></canvas>
+        <canvas id="combinedChart"></canvas>
       </div>
     </div>
-    <div class="game-card">
-      <h3 class="game-title">Blackjack</h3>
-      <div class="chart-container">
-        <canvas id="blackjackChart"></canvas>
+
+    <div class="chart-grid">
+      <div class="game-card">
+        <h3 class="game-title">Dice</h3>
+        <div class="chart-container">
+          <canvas id="diceChart"></canvas>
+        </div>
+      </div>                  
+      <div class="game-card">
+        <h3 class="game-title">Poker</h3>
+        <div class="chart-container">
+          <canvas id="pokerChart"></canvas>
+        </div>
+      </div>
+      <div class="game-card">
+        <h3 class="game-title">Mines</h3>
+        <div class="chart-container">
+          <canvas id="minesChart"></canvas>
+        </div>
+      </div>
+      <div class="game-card">
+        <h3 class="game-title">Blackjack</h3>
+        <div class="chart-container">
+          <canvas id="blackjackChart"></canvas>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
+<script src="{{site.baseurl}}/assets/js/api/config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script type="module">
-// Configuration
-const config = {
-  javaURI: 'http://localhost:8085',
-  gameConfig: {
-    'dice': { color: '#FFCE56', label: 'Dice', endpoint: '/bank/7/profitmap/dice' },
-    'poker': { color: '#FF6384', label: 'Poker', endpoint: '/bank/7/profitmap/poker' },
-    'mines': { color: '#9966FF', label: 'Mines', endpoint: '/bank/7/profitmap/mines' },
-    'blackjack': { color: '#4BC0C0', label: 'Blackjack', endpoint: '/bank/7/profitmap/blackjack' }
-  }
+import { javaURI, fetchOptions } from '{{site.baseurl}}/assets/js/api/config.js';
+
+// Game configuration
+const gameConfig = {
+  'dice': { color: '#FFCE56', label: 'Dice', endpoint: '/profitmap/dice' },
+  'poker': { color: '#FF6384', label: 'Poker', endpoint: '/profitmap/poker' },
+  'mines': { color: '#9966FF', label: 'Mines', endpoint: '/profitmap/mines' },
+  'blackjack': { color: '#4BC0C0', label: 'Blackjack', endpoint: '/profitmap/blackjack' }
 };
 
-// Chart instances
+// Global variables
+let personId = null;
 let combinedChart = null;
 const individualCharts = {};
+
+// Get user ID from session
+async function fetchPersonId() {
+  try {
+    console.log('Fetching person ID...');
+    const personResponse = await fetch(`${javaURI}/api/person/get`, fetchOptions);
+    
+    if (!personResponse.ok) {
+      throw new Error(`Failed to fetch person data: ${personResponse.status} ${await personResponse.text()}`);
+    }
+    
+    const personData = await personResponse.json();
+    console.log('Person data:', personData);
+    
+    if (!personData.id) {
+      throw new Error("Could not determine user ID from response");
+    }
+    
+    personId = personData.id;
+    console.log('Person ID:', personId);
+    return personId;
+  } catch (error) {
+    console.error('Error fetching person ID:', error);
+    throw error;
+  }
+}
 
 // Data processing for individual games
 function processTransactions(transactions) {
@@ -193,10 +237,10 @@ function createChart(ctx, game, data) {
     data: {
       labels: data.labels,
       datasets: [{
-        label: `${config.gameConfig[game].label} Running Total`,
+        label: `${gameConfig[game].label} Running Total`,
         data: data.runningTotal,
-        borderColor: config.gameConfig[game].color,
-        backgroundColor: `${config.gameConfig[game].color}20`,
+        borderColor: gameConfig[game].color,
+        backgroundColor: `${gameConfig[game].color}20`,
         tension: 0.2,
         fill: true                          
       }]
@@ -239,10 +283,10 @@ function createCombinedChart(gameData) {
     }
     
     datasets.push({
-      label: config.gameConfig[game].label,
+      label: gameConfig[game].label,
       data: data.runningTotal,
-      borderColor: config.gameConfig[game].color,
-      backgroundColor: `${config.gameConfig[game].color}20`,
+      borderColor: gameConfig[game].color,
+      backgroundColor: `${gameConfig[game].color}20`,
       tension: 0.2,
       hidden: false
     });
@@ -268,18 +312,20 @@ function createCombinedChart(gameData) {
 
 // Fetch game data from endpoints
 async function fetchGameData() {
+  if (!personId) {
+    throw new Error('Person ID not available');
+  }
+
   const gameData = {};
   
   try {
-    // Fetch data for each game
-    for (const [game, gameConfig] of Object.entries(config.gameConfig)) {
-      console.log(`Fetching data for ${game} from ${config.javaURI}${gameConfig.endpoint}`);
+    // Fetch data for each game using dynamic user ID
+    for (const [game, config] of Object.entries(gameConfig)) {
+      const endpoint = `${javaURI}/bank/${personId}${config.endpoint}`;
+      console.log(`Fetching data for ${game} from ${endpoint}`);
       
       try {
-        const response = await fetch(`${config.javaURI}${gameConfig.endpoint}`, {
-          method: 'GET',
-          credentials: 'include'
-        });
+        const response = await fetch(endpoint, fetchOptions);
         
         if (response.ok) {
           const data = await response.json();
@@ -299,23 +345,22 @@ async function fetchGameData() {
     return gameData;
   } catch (error) {
     console.error('Error in fetchGameData:', error);
-    document.getElementById('demoWarning').style.display = 'block';
-    // Return empty data structure
-    return Object.keys(config.gameConfig).reduce((acc, game) => {
-      acc[game] = [];
-      return acc;
-    }, {});
+    throw error;
   }
 }
 
 // Data loading
 async function loadData() {
   try {
+    // First get the person ID
+    await fetchPersonId();
+    
+    // Then fetch game data using the person ID
     const rawGameData = await fetchGameData();
     
     // Process data for each game
     const processedGameData = {};
-    Object.keys(config.gameConfig).forEach(game => {
+    Object.keys(gameConfig).forEach(game => {
       const rawData = rawGameData[game] || [];
       console.log(`Processing ${game} data:`, rawData);
       processedGameData[game] = processTransactions(rawData);
@@ -334,14 +379,32 @@ async function loadData() {
     return processedGameData;
   } catch (error) {
     console.error('Error loading data:', error);
-    document.getElementById('demoWarning').style.display = 'block';
+    throw error;
   }
+}
+
+// Show/hide UI elements
+function showMainContent() {
+  document.getElementById('loadingMessage').style.display = 'none';
+  document.getElementById('errorMessage').style.display = 'none';
+  document.getElementById('mainContent').style.display = 'block';
+}
+
+function showError() {
+  document.getElementById('loadingMessage').style.display = 'none';
+  document.getElementById('mainContent').style.display = 'none';
+  document.getElementById('errorMessage').style.display = 'block';
 }
 
 // Initialization
 document.addEventListener('DOMContentLoaded', async () => {
   try {
+    console.log('Initializing analytics dashboard...');
+    
     const processedData = await loadData();
+    
+    // Show main content
+    showMainContent();
 
     // Toggle functionality for combined chart
     document.querySelectorAll('.toggle-button').forEach(button => {
@@ -352,7 +415,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                                        
         if (combinedChart) {
           const dataset = combinedChart.data.datasets
-            .find(d => d.label === config.gameConfig[game].label);
+            .find(d => d.label === gameConfig[game].label);
           if (dataset) {
             dataset.hidden = isActive;
             combinedChart.update();
@@ -360,9 +423,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
       });
     });
+    
+    console.log('Analytics dashboard initialized successfully');
   } catch (error) {
     console.error('Initialization error:', error);
-    document.getElementById('demoWarning').style.display = 'block';
+    showError();
   }
 });
 </script>
