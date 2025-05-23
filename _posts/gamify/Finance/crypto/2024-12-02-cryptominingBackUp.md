@@ -47,8 +47,8 @@ permalink: /crypto/miningbackup
                             <div class="stat-value text-green-400" id="usd-value">$0.00</div>
                         </div>
                         <div>
-                            <div class="stat-label" id="pool-info"></div>
-                            <div class="stat-value text-yellow-400" id="pool-info"></div>
+                            <div class="stat-label" id="pool-info-label"></div>
+                            <div class="stat-value text-yellow-400" id="pool-info-value"></div>
                         </div>
                     </div>
                 </div>

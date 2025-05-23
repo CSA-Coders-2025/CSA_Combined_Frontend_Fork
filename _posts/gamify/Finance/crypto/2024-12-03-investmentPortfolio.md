@@ -15,39 +15,6 @@ permalink: /crypto/portfolio
         padding: 0;
     }
 
-    .navbar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 10px 20px;
-        background-color: #001f3f; /* Dark blue background */
-        color: #fff;
-    }
-
-    .navbar .logo {
-        font-size: 24px;
-        font-weight: bold;
-        letter-spacing: 2px;
-    }
-
-    .navbar .nav-buttons {
-        display: flex;
-        gap: 20px;
-    }
-
-    .navbar .nav-buttons a {
-        color: #fff;
-        text-decoration: none;
-        font-size: 16px;
-        padding: 8px 16px;
-        border-radius: 4px;
-        transition: background-color 0.3s;
-    }
-
-    .navbar .nav-buttons a:hover {
-        background-color: #ff8c00; /* Orange hover effect */
-    }
-
     h1 {
         color: #333;
         margin-top: 20px;
