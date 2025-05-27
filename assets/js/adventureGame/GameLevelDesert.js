@@ -353,7 +353,7 @@ class GameLevelDesert {
                   
                   // Add button functionality
                   yesButton.onclick = () => {
-                      window.location.href = "https://nighthawkcoders.github.io/portfolio_2025/stocks/home";
+                      window.location.href = "https://pages.opencodingsociety.com/stocks/home";
                   };
                   
                   noButton.onclick = () => {
@@ -381,7 +381,7 @@ class GameLevelDesert {
                   // Original functionality as fallback
                   const confirmTeleport = window.confirm("Teleport to the stock market?");
                   if (confirmTeleport) {
-                      window.location.href = "https://nighthawkcoders.github.io/portfolio_2025/stocks/home";
+                      window.location.href = "https://pages.opencodingsociety.com/stocks/home";
                   }
               }
           }
@@ -469,7 +469,7 @@ class GameLevelDesert {
                 
                 // Add button functionality
                 yesButton.onclick = () => {
-                    window.location.href = "https://nighthawkcoders.github.io/portfolio_2025/gamify/casinohomepage";
+                    window.location.href = "https://pages.opencodingsociety.com/gamify/casinohomepage";
                 };
                 
                 noButton.onclick = () => {
@@ -497,7 +497,7 @@ class GameLevelDesert {
                 // Original functionality as fallback
                 const confirmTeleport = window.confirm("Teleport to gambling hub?");
                 if (confirmTeleport) {
-                    window.location.href = "https://nighthawkcoders.github.io/portfolio_2025/gamify/casinohomepage";
+                    window.location.href = "https://pages.opencodingsociety.com/gamify/casinohomepage";
                 }
             }
         }

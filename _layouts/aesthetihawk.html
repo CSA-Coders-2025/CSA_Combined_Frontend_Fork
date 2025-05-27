@@ -20,13 +20,14 @@
         <!-- Sidebar -->
         <div class="fixed left-0 top-[53px] w-64 h-full bg-neutral-800 border-r  border-neutral-700 flex flex-col">
 
-            <!-- profile pic section -->
+            <!-- profile 
             <div class="p-6 flex flex-col items-center bg-neutral-800">
                 <div class="w-24 h-24 rounded-full overflow-hidden mb-4 cursor-pointer" id="sidebarPfpBox">
                     <img src="" alt="Profile picture" class="w-full h-full object-cover" id="sidebarPfp">
                 </div>
                 <h2 class="text-lg font-semibold text-center mb-6" id="sidebarWelcome">Welcome, User</h2>
             </div>
+            pic section -->
 
             <!-- Scrollable menu section -->
             <div class="overflow-y-auto flex-grow">
@@ -236,7 +237,7 @@
 
         // set sidebar welcome name
         // try to get from localstorage, or fallback to 'user'
-        document.getElementById('sidebarWelcome').innerHTML = 'Welcome,<br>' + localStorage.getItem('name');
+        //ocument.getElementById('sidebarWelcome').innerHTML = 'Welcome,<br>' + localStorage.getItem('name');
     });
 
     // logout from both java and python backends
