@@ -141,7 +141,6 @@ permalink: /gamify/bankanalytics
 </style>
 
 <div class="container">
-  
   <h1 class="text-light">Game Analytics Dashboard</h1>
 
   <div id="loadingMessage" class="loading-message">
@@ -172,7 +171,6 @@ permalink: /gamify/bankanalytics
         <canvas id="combinedChart"></canvas>
       </div>
     </div>
-
     <div class="chart-grid">
       <div class="game-card">
         <h3 class="game-title">Dice</h3>
@@ -201,26 +199,67 @@ permalink: /gamify/bankanalytics
     </div>
   </div>
 </div>
-
 <script src="{{site.baseurl}}/assets/js/api/config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script type="module">
 import { javaURI, fetchOptions } from '{{site.baseurl}}/assets/js/api/config.js';
-
-// Game configuration
+/**
+ * @fileoverview Bank Analytics Dashboard
+ * 
+ * This module provides a comprehensive analytics dashboard for tracking game performance
+ * across multiple casino games including Dice, Poker, Mines, and Blackjack.
+ * 
+ * Features:
+ * - Real-time data visualization using Chart.js
+ * - Individual game performance tracking
+ * - Combined analytics view with toggle functionality
+ * - Responsive design with dark theme
+ * - Dynamic data fetching from backend APIs
+ * - URL parameter and session-based user identification
+ * - User analytics display with risk assessment
+ * 
+ * @author Your Name
+ * @version 1.0.0
+ */
+/**
+ * Configuration object containing game-specific settings including colors,
+ * labels, and API endpoints for data retrieval.
+ * 
+ * @constant {Object} gameConfig
+ * @property {Object} dice - Dice game configuration
+ * @property {Object} poker - Poker game configuration  
+ * @property {Object} mines - Mines game configuration
+ * @property {Object} blackjack - Blackjack game configuration
+ */
 const gameConfig = {
   'dice': { color: '#FFCE56', label: 'Dice', endpoint: '/profitmap/dice' },
   'poker': { color: '#FF6384', label: 'Poker', endpoint: '/profitmap/poker' },
   'mines': { color: '#9966FF', label: 'Mines', endpoint: '/profitmap/mines' },
   'blackjack': { color: '#4BC0C0', label: 'Blackjack', endpoint: '/profitmap/blackjack' }
 };
-
-// Global variables
+/**
+ * Global variable storing the current user's person ID
+ * @type {number|null}
+ */
 let personId = null;
+/**
+ * Chart.js instance for the combined analytics view
+ * @type {Chart|null}
+ */
 let combinedChart = null;
+/**
+ * Object containing Chart.js instances for individual game charts
+ * @type {Object<string, Chart>}
+ */
 const individualCharts = {};
 
-// Get personId from URL parameters or session
+/**
+ * Extracts person ID from URL parameters.
+ * Supports direct linking to specific user analytics.
+ * 
+ * @function getPersonIdFromUrl
+ * @returns {number|null} The person ID from URL parameters, or null if not found
+ */
 function getPersonIdFromUrl() {
   const urlParams = new URLSearchParams(window.location.search);
   const paramPersonId = urlParams.get('personId');
@@ -228,7 +267,15 @@ function getPersonIdFromUrl() {
   return paramPersonId ? parseInt(paramPersonId, 10) : null;
 }
 
-// Get user ID from session (fallback)
+/**
+ * Fetches the current user's person ID from the backend API session.
+ * This ID is required for all subsequent data requests when no URL parameter exists.
+ * 
+ * @async
+ * @function fetchPersonIdFromSession
+ * @returns {Promise<number>} The user's person ID from session
+ * @throws {Error} When API request fails or response is invalid
+ */
 async function fetchPersonIdFromSession() {
   try {
     console.log('Fetching person ID from session...');
@@ -252,7 +299,15 @@ async function fetchPersonIdFromSession() {
   }
 }
 
-// Fetch user analytics data
+/**
+ * Fetches comprehensive user analytics data including balance, loan info, and risk assessment.
+ * 
+ * @async
+ * @function fetchUserAnalytics
+ * @param {number} personId - The user's person ID
+ * @returns {Promise<Object>} User analytics data object
+ * @throws {Error} When API request fails or returns invalid data
+ */
 async function fetchUserAnalytics(personId) {
   try {
     console.log('Fetching user analytics for personId:', personId);
@@ -274,7 +329,20 @@ async function fetchUserAnalytics(personId) {
   }
 }
 
-// Display user information
+/**
+ * Displays user information and statistics in the dashboard header.
+ * Shows balance, loan amount, interest rate, and risk category with color coding.
+ * 
+ * @function displayUserInfo
+ * @param {Object} analyticsData - User analytics data from API
+ * @param {string} analyticsData.username - User's display name
+ * @param {number} analyticsData.userId - User's ID
+ * @param {number} analyticsData.balance - Current account balance
+ * @param {number} analyticsData.loanAmount - Outstanding loan amount
+ * @param {number} analyticsData.dailyInterestRate - Daily interest rate percentage
+ * @param {number} analyticsData.riskCategory - Risk category (0=low, 1=medium, 2=high)
+ * @param {string} analyticsData.riskCategoryString - Human-readable risk category
+ */
 function displayUserInfo(analyticsData) {
   const userInfoDiv = document.getElementById('userInfo');
   const userNameElement = document.getElementById('userName');
@@ -283,7 +351,13 @@ function displayUserInfo(analyticsData) {
   const username = analyticsData.username || `User ${analyticsData.userId}`;
   userNameElement.textContent = `${username} - Analytics Dashboard`;
   
-  // Get risk category color
+  /**
+   * Returns appropriate color for risk category display.
+   * 
+   * @function getRiskColor
+   * @param {number} riskCategory - Risk category (0, 1, or 2)
+   * @returns {string} CSS color value
+   */
   function getRiskColor(riskCategory) {
     switch(riskCategory) {
       case 0: return '#00ff7f'; // Low risk - green
@@ -315,49 +389,59 @@ function displayUserInfo(analyticsData) {
   userInfoDiv.style.display = 'block';
 }
 
-// Data processing for individual games
+/**
+ * Processes raw transaction data into chart-ready format.
+ * Sorts transactions chronologically and calculates running totals.
+ * 
+ * @function processTransactions
+ * @param {Array<Array>} transactions - Array of [timestamp, amount] pairs
+ * @returns {Object} Processed data object containing labels, values, and running totals
+ * @returns {Array<string>} returns.labels - Time-formatted labels for chart x-axis
+ * @returns {Array<number>} returns.values - Individual transaction amounts
+ * @returns {Array<number>} returns.runningTotal - Cumulative sum of all transactions
+ */
 function processTransactions(transactions) {
   console.log('Processing transactions:', transactions);
-  
   if (!transactions || transactions.length === 0) {
     console.log('No transactions found');
     return { labels: [], values: [], runningTotal: [] };
   }
-
   // Sort transactions by timestamp
   const sortedTransactions = [...transactions].sort((a, b) => {
     const dateA = new Date(a[0]);
     const dateB = new Date(b[0]);
     return dateA - dateB;
   });
-
   const labels = [];
   const values = [];
   const runningTotal = [];
   let total = 0;
-
   sortedTransactions.forEach(([timestamp, amount]) => {
     const date = new Date(timestamp);
     const timeLabel = date.toLocaleTimeString();
-    
     console.log('Processing:', timeLabel, amount);
-    
     labels.push(timeLabel);
     values.push(Number(amount));
     total += Number(amount);
     runningTotal.push(total);
   });
-
   console.log('Processed data:', { labels, values, runningTotal });
   return { labels, values, runningTotal };
 }
-
-// Create individual game chart
+/**
+ * Creates a Chart.js line chart for an individual game.
+ * Displays the running total of profits/losses over time.
+ * 
+ * @function createChart
+ * @param {CanvasRenderingContext2D} ctx - Canvas 2D rendering context
+ * @param {string} game - Game identifier (dice, poker, mines, blackjack)
+ * @param {Object} data - Processed transaction data from processTransactions()
+ * @returns {Chart} Chart.js instance for the created chart
+ */
 function createChart(ctx, game, data) {
   if (individualCharts[game]) {
     individualCharts[game].destroy();
   }
-  
   return new Chart(ctx, {
     type: 'line',
     data: {
@@ -392,51 +476,136 @@ function createChart(ctx, game, data) {
   });                          
 }
 
-// Combined chart             
-function createCombinedChart(gameData) {             
+/**
+ * Creates a combined chart showing all games' performance on a unified timeline.
+ * Uses daily aggregation to ensure proper data point spacing across different games.
+ * 
+ * @function createCombinedChart
+ * @param {Object<string, Array>} gameData - Object containing processed data for each game
+ * @param {Array} gameData[game] - Array of [timestamp, amount] pairs for each game
+ */
+function createCombinedChart(gameData) {
   const ctx = document.getElementById('combinedChart').getContext('2d');
   
   if (combinedChart) {
     combinedChart.destroy();
   }
   
-  const datasets = [];
-  let longestLabels = [];
+  // Create a unified date set for proper spacing
+  const dateSet = new Set();
   
-  Object.entries(gameData).forEach(([game, data]) => {
-    if (data.labels.length > longestLabels.length) {
-      longestLabels = data.labels;
+  // Collect all unique dates from all games
+  Object.entries(gameData).forEach(([game, rawData]) => {
+    if (rawData && rawData.length > 0) {
+      rawData.forEach(([timestamp]) => {
+        const date = new Date(timestamp);
+        const dateKey = date.toLocaleDateString();
+        dateSet.add(dateKey);
+      });
     }
+  });
+  
+  // Sort dates chronologically
+  const sortedDates = Array.from(dateSet).sort((a, b) => new Date(a) - new Date(b));
+  
+  const datasets = [];
+  
+  // Process each game's data
+  Object.entries(gameData).forEach(([game, rawData]) => {
+    if (!rawData || rawData.length === 0) {
+      // Create empty dataset for games with no data
+      datasets.push({
+        label: gameConfig[game].label,
+        data: new Array(sortedDates.length).fill(null),
+        borderColor: gameConfig[game].color,
+        backgroundColor: `${gameConfig[game].color}30`,
+        tension: 0.2,
+        fill: false,
+        spanGaps: true,
+        hidden: false
+      });
+      return;
+    }
+    
+    // Create daily balance map
+    const dailyBalanceMap = {};
+    let cumulativeBalance = 0;
+    
+    // Sort transactions by date
+    const sortedTransactions = [...rawData].sort((a, b) => new Date(a[0]) - new Date(b[0]));
+    
+    // Calculate cumulative balance for each day
+    sortedTransactions.forEach(([timestamp, amount]) => {
+      const date = new Date(timestamp);
+      const dateKey = date.toLocaleDateString();
+      const value = parseFloat(amount) || 0;
+      cumulativeBalance += value;
+      dailyBalanceMap[dateKey] = cumulativeBalance;
+    });
+    
+    // Map sorted dates to their corresponding balance values
+    const dataPoints = sortedDates.map(dateKey => dailyBalanceMap[dateKey] ?? null);
     
     datasets.push({
       label: gameConfig[game].label,
-      data: data.runningTotal,
+      data: dataPoints,
       borderColor: gameConfig[game].color,
-      backgroundColor: `${gameConfig[game].color}20`,
+      backgroundColor: `${gameConfig[game].color}30`,
       tension: 0.2,
+      fill: false,
+      spanGaps: true,
       hidden: false
     });
   });
-                          
+  
   combinedChart = new Chart(ctx, {
-    type: 'line',       
+    type: 'line',
     data: {
-      labels: longestLabels,
+      labels: sortedDates,
       datasets: datasets
     },
     options: {
       responsive: true,
-      maintainAspectRatio: false,             
-      scales: {                          
-        y: { beginAtZero: true, grid: { color: '#ffffff20' }, ticks: { color: '#fff' } },
-        x: { grid: { color: '#ffffff10' }, ticks: { color: '#fff' } }
+      maintainAspectRatio: false,
+      scales: {
+        y: { 
+          beginAtZero: true, 
+          grid: { color: '#ffffff20' }, 
+          ticks: { color: '#fff' } 
+        },
+        x: { 
+          grid: { color: '#ffffff10' }, 
+          ticks: { 
+            color: '#fff',
+            maxTicksLimit: 10 // Limit number of x-axis labels for better readability
+          } 
+        }
       },
-      plugins: { legend: { labels: { color: '#fff' } } }
+      plugins: { 
+        legend: { labels: { color: '#fff' } },
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+        }
+      },
+      interaction: {
+        mode: 'nearest',
+        axis: 'x',
+        intersect: false
+      }
     }
   });
 }
 
-// Fetch game data from endpoints
+/**
+ * Fetches game transaction data from backend APIs for all configured games.
+ * Uses the current user's person ID to retrieve personalized data.
+ * 
+ * @async
+ * @function fetchGameData
+ * @returns {Promise<Object<string, Array>>} Object containing transaction arrays for each game
+ * @throws {Error} When person ID is not available or API requests fail
+ */
 async function fetchGameData() {
   if (!personId) {
     throw new Error('Person ID not available');
@@ -475,7 +644,15 @@ async function fetchGameData() {
   }
 }
 
-// Data loading
+/**
+ * Main data loading function that orchestrates the entire data fetching and chart creation process.
+ * Fetches user ID, retrieves user analytics and game data, processes transactions, and creates all charts.
+ * 
+ * @async
+ * @function loadData
+ * @returns {Promise<Object>} Processed game data used for chart creation
+ * @throws {Error} When any step in the data loading process fails
+ */
 async function loadData() {
   try {
     // First try to get personId from URL, then from session
@@ -510,8 +687,8 @@ async function loadData() {
       }
     });
 
-    // Create combined chart
-    createCombinedChart(processedGameData);
+    // Create combined chart with raw data for better date handling
+    createCombinedChart(rawGameData);
 
     return processedGameData;
   } catch (error) {
@@ -520,20 +697,37 @@ async function loadData() {
   }
 }
 
-// Show/hide UI elements
+/**
+ * Shows the main dashboard content and hides loading/error messages.
+ * Called when data loading completes successfully.
+ * 
+ * @function showMainContent
+ */
 function showMainContent() {
   document.getElementById('loadingMessage').style.display = 'none';
   document.getElementById('errorMessage').style.display = 'none';
   document.getElementById('mainContent').style.display = 'block';
 }
 
+/**
+ * Shows the error message and hides other UI elements.
+ * Called when data loading fails.
+ * 
+ * @function showError
+ */
 function showError() {
   document.getElementById('loadingMessage').style.display = 'none';
   document.getElementById('mainContent').style.display = 'none';
   document.getElementById('errorMessage').style.display = 'block';
 }
 
-// Initialization
+/**
+ * Main initialization function that sets up the dashboard when the DOM is ready.
+ * Loads data, creates charts, and sets up event listeners for interactive elements.
+ * 
+ * @async
+ * @function init
+ */
 document.addEventListener('DOMContentLoaded', async () => {
   try {
     console.log('Initializing analytics dashboard...');
@@ -543,7 +737,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Show main content
     showMainContent();
 
-    // Toggle functionality for combined chart
+    /**
+     * Event handler for toggle buttons in the combined chart.
+     * Allows users to show/hide individual game datasets.
+     * 
+     * @param {Event} e - Click event from toggle button
+     */
     document.querySelectorAll('.toggle-button').forEach(button => {
       button.addEventListener('click', (e) => {
         const game = e.target.dataset.game;
@@ -563,7 +762,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     console.log('Analytics dashboard initialized successfully');
   } catch (error) {
-    console.error('Initialization error:', error);  
+    console.error('Initialization error:', error);
     showError();
   }
 });
