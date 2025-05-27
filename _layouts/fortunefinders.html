@@ -162,7 +162,7 @@ layout: base
       const userData = await response.json();
       const balanceElement = document.getElementById('gameBalance');
       if (balanceElement) {
-        balanceElement.textContent = `$${Number(userData.balance).toFixed(2)}`;
+        balanceElement.textContent = `$${Number(userData.banks.balance).toFixed(2)}`;
       }
     } catch (error) {
       console.error("Error loading game balance:", error);

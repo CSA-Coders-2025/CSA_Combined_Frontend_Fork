@@ -183,11 +183,9 @@ permalink: /crypto/portfolio
         <label for="buy-amount">Amount in USD to buy:</label>
         <input type="number" id="buy-amount" placeholder="Enter amount in USD">
         <button class="btn btn-buy" onclick="buyCrypto()">Buy</button>
-
         <label for="sell-amount">Amount to sell (in crypto):</label>
         <input type="number" id="sell-amount" placeholder="Enter amount in crypto">
         <button class="btn btn-sell" onclick="sellCrypto()">Sell</button>
-
         <button class="btn btn-close" onclick="closeModal()">Close</button>
     </div>
         <!-- Search Bar -->
@@ -328,7 +326,7 @@ permalink: /crypto/portfolio
             }
             
             // Format balance with proper decimal places
-            const balance = Number(userData.balance).toFixed(2);
+            const balance = Number(userData.banks.balance).toFixed(2x);
             balanceElement.textContent = `$${balance}`;
             
         } catch (error) {
