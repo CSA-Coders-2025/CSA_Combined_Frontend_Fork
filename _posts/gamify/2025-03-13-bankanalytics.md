@@ -252,7 +252,6 @@ let combinedChart = null;
  * @type {Object<string, Chart>}
  */
 const individualCharts = {};
-
 /**
  * Extracts person ID from URL parameters.
  * Supports direct linking to specific user analytics.
@@ -266,7 +265,6 @@ function getPersonIdFromUrl() {
   console.log('PersonId from URL:', paramPersonId);
   return paramPersonId ? parseInt(paramPersonId, 10) : null;
 }
-
 /**
  * Fetches the current user's person ID from the backend API session.
  * This ID is required for all subsequent data requests when no URL parameter exists.
@@ -280,25 +278,20 @@ async function fetchPersonIdFromSession() {
   try {
     console.log('Fetching person ID from session...');
     const personResponse = await fetch(`${javaURI}/api/person/get`, fetchOptions);
-    
     if (!personResponse.ok) {
       throw new Error(`Failed to fetch person data: ${personResponse.status} ${await personResponse.text()}`);
     }
-    
     const personData = await personResponse.json();
     console.log('Person data from session:', personData);
-    
     if (!personData.id) {
       throw new Error("Could not determine user ID from session");
     }
-    
     return personData.id;
   } catch (error) {
     console.error('Error fetching person ID from session:', error);
     throw error;
   }
 }
-
 /**
  * Fetches comprehensive user analytics data including balance, loan info, and risk assessment.
  * 
@@ -312,11 +305,9 @@ async function fetchUserAnalytics(personId) {
   try {
     console.log('Fetching user analytics for personId:', personId);
     const response = await fetch(`${javaURI}/bank/analytics/person/${personId}`, fetchOptions);
-    
     if (!response.ok) {
       throw new Error(`Failed to fetch user analytics: ${response.status}`);
     }
-    
     const result = await response.json();
     if (result.success && result.data) {
       return result.data;
@@ -328,7 +319,6 @@ async function fetchUserAnalytics(personId) {
     throw error;
   }
 }
-
 /**
  * Displays user information and statistics in the dashboard header.
  * Shows balance, loan amount, interest rate, and risk category with color coding.
@@ -347,10 +337,8 @@ function displayUserInfo(analyticsData) {
   const userInfoDiv = document.getElementById('userInfo');
   const userNameElement = document.getElementById('userName');
   const userStatsElement = document.getElementById('userStats');
-  
   const username = analyticsData.username || `User ${analyticsData.userId}`;
   userNameElement.textContent = `${username} - Analytics Dashboard`;
-  
   /**
    * Returns appropriate color for risk category display.
    * 
@@ -366,7 +354,6 @@ function displayUserInfo(analyticsData) {
       default: return '#ffffff';
     }
   }
-  
   userStatsElement.innerHTML = `
     <div class="stat-item">
       <span>Balance:</span>
@@ -385,10 +372,8 @@ function displayUserInfo(analyticsData) {
       <span class="stat-value" style="color: ${getRiskColor(analyticsData.riskCategory)};">${analyticsData.riskCategoryString}</span>
     </div>
   `;
-  
   userInfoDiv.style.display = 'block';
 }
-
 /**
  * Processes raw transaction data into chart-ready format.
  * Sorts transactions chronologically and calculates running totals.
@@ -475,7 +460,6 @@ function createChart(ctx, game, data) {
     }             
   });                          
 }
-
 /**
  * Creates a combined chart showing all games' performance on a unified timeline.
  * Uses daily aggregation to ensure proper data point spacing across different games.
@@ -486,14 +470,11 @@ function createChart(ctx, game, data) {
  */
 function createCombinedChart(gameData) {
   const ctx = document.getElementById('combinedChart').getContext('2d');
-  
   if (combinedChart) {
     combinedChart.destroy();
   }
-  
   // Create a unified date set for proper spacing
   const dateSet = new Set();
-  
   // Collect all unique dates from all games
   Object.entries(gameData).forEach(([game, rawData]) => {
     if (rawData && rawData.length > 0) {
@@ -504,12 +485,9 @@ function createCombinedChart(gameData) {
       });
     }
   });
-  
   // Sort dates chronologically
   const sortedDates = Array.from(dateSet).sort((a, b) => new Date(a) - new Date(b));
-  
   const datasets = [];
-  
   // Process each game's data
   Object.entries(gameData).forEach(([game, rawData]) => {
     if (!rawData || rawData.length === 0) {
@@ -526,14 +504,11 @@ function createCombinedChart(gameData) {
       });
       return;
     }
-    
     // Create daily balance map
     const dailyBalanceMap = {};
     let cumulativeBalance = 0;
-    
     // Sort transactions by date
     const sortedTransactions = [...rawData].sort((a, b) => new Date(a[0]) - new Date(b[0]));
-    
     // Calculate cumulative balance for each day
     sortedTransactions.forEach(([timestamp, amount]) => {
       const date = new Date(timestamp);
@@ -542,10 +517,8 @@ function createCombinedChart(gameData) {
       cumulativeBalance += value;
       dailyBalanceMap[dateKey] = cumulativeBalance;
     });
-    
     // Map sorted dates to their corresponding balance values
     const dataPoints = sortedDates.map(dateKey => dailyBalanceMap[dateKey] ?? null);
-    
     datasets.push({
       label: gameConfig[game].label,
       data: dataPoints,
@@ -557,7 +530,6 @@ function createCombinedChart(gameData) {
       hidden: false
     });
   });
-  
   combinedChart = new Chart(ctx, {
     type: 'line',
     data: {
@@ -596,7 +568,6 @@ function createCombinedChart(gameData) {
     }
   });
 }
-
 /**
  * Fetches game transaction data from backend APIs for all configured games.
  * Uses the current user's person ID to retrieve personalized data.
@@ -610,18 +581,14 @@ async function fetchGameData() {
   if (!personId) {
     throw new Error('Person ID not available');
   }
-
   const gameData = {};
-  
   try {
     // Fetch data for each game using dynamic user ID
     for (const [game, config] of Object.entries(gameConfig)) {
       const endpoint = `${javaURI}/bank/${personId}${config.endpoint}`;
       console.log(`Fetching data for ${game} from ${endpoint}`);
-      
       try {
         const response = await fetch(endpoint, fetchOptions);
-        
         if (response.ok) {
           const data = await response.json();
           console.log(`Data for ${game}:`, data);
@@ -635,7 +602,6 @@ async function fetchGameData() {
         gameData[game] = [];
       }
     }
-    
     console.log('All game data:', gameData);
     return gameData;
   } catch (error) {
@@ -643,7 +609,6 @@ async function fetchGameData() {
     throw error;
   }
 }
-
 /**
  * Main data loading function that orchestrates the entire data fetching and chart creation process.
  * Fetches user ID, retrieves user analytics and game data, processes transactions, and creates all charts.
@@ -657,28 +622,22 @@ async function loadData() {
   try {
     // First try to get personId from URL, then from session
     personId = getPersonIdFromUrl();
-    
     if (!personId) {
       console.log('No personId in URL, fetching from session...');
       personId = await fetchPersonIdFromSession();
     }
-    
     console.log('Using personId:', personId);
-    
     // Fetch user analytics data to display user info
     const analyticsData = await fetchUserAnalytics(personId);
     displayUserInfo(analyticsData);
-    
     // Then fetch game data using the person ID
     const rawGameData = await fetchGameData();
-    
     // Process data for each game
     const processedGameData = {};
     Object.keys(gameConfig).forEach(game => {
       const rawData = rawGameData[game] || [];
       console.log(`Processing ${game} data:`, rawData);
       processedGameData[game] = processTransactions(rawData);
-
       // Create individual chart
       const ctx = document.getElementById(`${game}Chart`)?.getContext('2d');
       if (ctx) {
@@ -686,17 +645,14 @@ async function loadData() {
         individualCharts[game] = createChart(ctx, game, processedGameData[game]);
       }
     });
-
     // Create combined chart with raw data for better date handling
     createCombinedChart(rawGameData);
-
     return processedGameData;
   } catch (error) {
     console.error('Error loading data:', error);
     throw error;
   }
 }
-
 /**
  * Shows the main dashboard content and hides loading/error messages.
  * Called when data loading completes successfully.
@@ -708,7 +664,6 @@ function showMainContent() {
   document.getElementById('errorMessage').style.display = 'none';
   document.getElementById('mainContent').style.display = 'block';
 }
-
 /**
  * Shows the error message and hides other UI elements.
  * Called when data loading fails.
@@ -720,7 +675,6 @@ function showError() {
   document.getElementById('mainContent').style.display = 'none';
   document.getElementById('errorMessage').style.display = 'block';
 }
-
 /**
  * Main initialization function that sets up the dashboard when the DOM is ready.
  * Loads data, creates charts, and sets up event listeners for interactive elements.
@@ -730,13 +684,10 @@ function showError() {
  */
 document.addEventListener('DOMContentLoaded', async () => {
   try {
-    console.log('Initializing analytics dashboard...');
-    
+    console.log('Initializing analytics dashboard...');   
     const processedData = await loadData();
-    
     // Show main content
     showMainContent();
-
     /**
      * Event handler for toggle buttons in the combined chart.
      * Allows users to show/hide individual game datasets.
@@ -747,8 +698,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       button.addEventListener('click', (e) => {
         const game = e.target.dataset.game;
         const isActive = e.target.classList.contains('active');
-        e.target.classList.toggle('active', !isActive);
-                                       
+        e.target.classList.toggle('active', !isActive);                             
         if (combinedChart) {
           const dataset = combinedChart.data.datasets
             .find(d => d.label === gameConfig[game].label);
@@ -759,7 +709,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
       });
     });
-    
     console.log('Analytics dashboard initialized successfully');
   } catch (error) {
     console.error('Initialization error:', error);
