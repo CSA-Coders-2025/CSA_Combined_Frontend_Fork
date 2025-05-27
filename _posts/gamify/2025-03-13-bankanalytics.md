@@ -89,9 +89,59 @@ permalink: /gamify/bankanalytics
     padding: 2rem;
     font-size: 1.1rem;
   }
+
+  .user-info {
+    background-color: #3d3d3d;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid var(--primary-color);
+  }
+
+  .user-info h3 {
+    color: var(--primary-color);
+    margin: 0 0 0.5rem 0;
+  }
+
+  .user-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  .stat-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #555;
+  }
+
+  .stat-value {
+    font-weight: bold;
+  }
+
+  .back-button {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    margin-bottom: 1rem;
+    transition: background-color 0.3s;
+  }
+
+  .back-button:hover {
+    background: #e68900;
+    color: white;
+    text-decoration: none;
+  }
 </style>
 
 <div class="container">
+  
   <h1 class="text-light">Game Analytics Dashboard</h1>
 
   <div id="loadingMessage" class="loading-message">
@@ -103,6 +153,13 @@ permalink: /gamify/bankanalytics
   </div>
 
   <div id="mainContent" style="display: none;">
+    <div id="userInfo" class="user-info" style="display: none;">
+      <h3 id="userName">User Analytics</h3>
+      <div class="user-stats" id="userStats">
+        <!-- User stats will be populated here -->
+      </div>
+    </div>
+
     <div class="game-card">
       <h2 class="game-title">Individual Game Analytics</h2>
       <div class="toggle-container" id="toggleButtons">
@@ -163,10 +220,18 @@ let personId = null;
 let combinedChart = null;
 const individualCharts = {};
 
-// Get user ID from session
-async function fetchPersonId() {
+// Get personId from URL parameters or session
+function getPersonIdFromUrl() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const paramPersonId = urlParams.get('personId');
+  console.log('PersonId from URL:', paramPersonId);
+  return paramPersonId ? parseInt(paramPersonId, 10) : null;
+}
+
+// Get user ID from session (fallback)
+async function fetchPersonIdFromSession() {
   try {
-    console.log('Fetching person ID...');
+    console.log('Fetching person ID from session...');
     const personResponse = await fetch(`${javaURI}/api/person/get`, fetchOptions);
     
     if (!personResponse.ok) {
@@ -174,19 +239,80 @@ async function fetchPersonId() {
     }
     
     const personData = await personResponse.json();
-    console.log('Person data:', personData);
+    console.log('Person data from session:', personData);
     
     if (!personData.id) {
-      throw new Error("Could not determine user ID from response");
+      throw new Error("Could not determine user ID from session");
     }
     
-    personId = personData.id;
-    console.log('Person ID:', personId);
-    return personId;
+    return personData.id;
   } catch (error) {
-    console.error('Error fetching person ID:', error);
+    console.error('Error fetching person ID from session:', error);
     throw error;
   }
+}
+
+// Fetch user analytics data
+async function fetchUserAnalytics(personId) {
+  try {
+    console.log('Fetching user analytics for personId:', personId);
+    const response = await fetch(`${javaURI}/bank/analytics/person/${personId}`, fetchOptions);
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch user analytics: ${response.status}`);
+    }
+    
+    const result = await response.json();
+    if (result.success && result.data) {
+      return result.data;
+    } else {
+      throw new Error('Invalid analytics data received');
+    }
+  } catch (error) {
+    console.error('Error fetching user analytics:', error);
+    throw error;
+  }
+}
+
+// Display user information
+function displayUserInfo(analyticsData) {
+  const userInfoDiv = document.getElementById('userInfo');
+  const userNameElement = document.getElementById('userName');
+  const userStatsElement = document.getElementById('userStats');
+  
+  const username = analyticsData.username || `User ${analyticsData.userId}`;
+  userNameElement.textContent = `${username} - Analytics Dashboard`;
+  
+  // Get risk category color
+  function getRiskColor(riskCategory) {
+    switch(riskCategory) {
+      case 0: return '#00ff7f'; // Low risk - green
+      case 1: return '#ffcc00'; // Medium risk - yellow
+      case 2: return '#ff6666'; // High risk - red
+      default: return '#ffffff';
+    }
+  }
+  
+  userStatsElement.innerHTML = `
+    <div class="stat-item">
+      <span>Balance:</span>
+      <span class="stat-value" style="color: #00ff7f;">$${Number(analyticsData.balance).toFixed(2)}</span>
+    </div>
+    <div class="stat-item">
+      <span>Loan Amount:</span>
+      <span class="stat-value" style="color: #ff6666;">$${Number(analyticsData.loanAmount).toFixed(2)}</span>
+    </div>
+    <div class="stat-item">
+      <span>Daily Interest Rate:</span>
+      <span class="stat-value" style="color: #ffcc00;">${Number(analyticsData.dailyInterestRate).toFixed(2)}%</span>
+    </div>
+    <div class="stat-item">
+      <span>Risk Category:</span>
+      <span class="stat-value" style="color: ${getRiskColor(analyticsData.riskCategory)};">${analyticsData.riskCategoryString}</span>
+    </div>
+  `;
+  
+  userInfoDiv.style.display = 'block';
 }
 
 // Data processing for individual games
@@ -352,8 +478,19 @@ async function fetchGameData() {
 // Data loading
 async function loadData() {
   try {
-    // First get the person ID
-    await fetchPersonId();
+    // First try to get personId from URL, then from session
+    personId = getPersonIdFromUrl();
+    
+    if (!personId) {
+      console.log('No personId in URL, fetching from session...');
+      personId = await fetchPersonIdFromSession();
+    }
+    
+    console.log('Using personId:', personId);
+    
+    // Fetch user analytics data to display user info
+    const analyticsData = await fetchUserAnalytics(personId);
+    displayUserInfo(analyticsData);
     
     // Then fetch game data using the person ID
     const rawGameData = await fetchGameData();
@@ -426,7 +563,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     console.log('Analytics dashboard initialized successfully');
   } catch (error) {
-    console.error('Initialization error:', error);
+    console.error('Initialization error:', error);  
     showError();
   }
 });
