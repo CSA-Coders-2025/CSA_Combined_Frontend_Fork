@@ -202,6 +202,7 @@ permalink: /gamify/bankanalytics
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script type="module">
 import { javaURI, fetchOptions } from '{{site.baseurl}}/assets/js/api/config.js';
+
 /**
  * @fileoverview Bank Analytics Dashboard
  * 
@@ -211,15 +212,17 @@ import { javaURI, fetchOptions } from '{{site.baseurl}}/assets/js/api/config.js'
  * Features:
  * - Real-time data visualization using Chart.js
  * - Individual game performance tracking
- * - Combined analytics view with toggle functionality
+ * - Combined analytics view with toggle functionality and timestamp-based visualization
  * - Responsive design with dark theme
  * - Dynamic data fetching from backend APIs
  * - URL parameter and session-based user identification
  * - User analytics display with risk assessment
+ * - Enhanced chart visualization with visible data points from first transaction
  * 
  * @author Your Name
- * @version 1.0.0
+ * @version 1.1.0
  */
+
 /**
  * Configuration object containing game-specific settings including colors,
  * labels, and API endpoints for data retrieval.
@@ -236,21 +239,25 @@ const gameConfig = {
   'mines': { color: '#9966FF', label: 'Mines', endpoint: '/profitmap/mines' },
   'blackjack': { color: '#4BC0C0', label: 'Blackjack', endpoint: '/profitmap/blackjack' }
 };
+
 /**
  * Global variable storing the current user's person ID
  * @type {number|null}
  */
 let personId = null;
+
 /**
  * Chart.js instance for the combined analytics view
  * @type {Chart|null}
  */
 let combinedChart = null;
+
 /**
  * Object containing Chart.js instances for individual game charts
  * @type {Object<string, Chart>}
  */
 const individualCharts = {};
+
 /**
  * Extracts person ID from URL parameters.
  * Supports direct linking to specific user analytics.
@@ -264,6 +271,7 @@ function getPersonIdFromUrl() {
   console.log('PersonId from URL:', paramPersonId);
   return paramPersonId ? parseInt(paramPersonId, 10) : null;
 }
+
 /**
  * Fetches the current user's person ID from the backend API session.
  * This ID is required for all subsequent data requests when no URL parameter exists.
@@ -291,6 +299,7 @@ async function fetchPersonIdFromSession() {
     throw error;
   }
 }
+
 /**
  * Fetches comprehensive user analytics data including balance, loan info, and risk assessment.
  * 
@@ -318,6 +327,7 @@ async function fetchUserAnalytics(personId) {
     throw error;
   }
 }
+
 /**
  * Displays user information and statistics in the dashboard header.
  * Shows balance, loan amount, interest rate, and risk category with color coding.
@@ -338,6 +348,7 @@ function displayUserInfo(analyticsData) {
   const userStatsElement = document.getElementById('userStats');
   const username = analyticsData.username || `User ${analyticsData.userId}`;
   userNameElement.textContent = `${username} - Analytics Dashboard`;
+
   /**
    * Returns appropriate color for risk category display.
    * 
@@ -353,6 +364,7 @@ function displayUserInfo(analyticsData) {
       default: return '#ffffff';
     }
   }
+
   userStatsElement.innerHTML = `
     <div class="stat-item">
       <span>Balance:</span>
@@ -373,6 +385,7 @@ function displayUserInfo(analyticsData) {
   `;
   userInfoDiv.style.display = 'block';
 }
+
 /**
  * Processes raw transaction data into chart-ready format.
  * Sorts transactions chronologically and calculates running totals.
@@ -390,16 +403,19 @@ function processTransactions(transactions) {
     console.log('No transactions found');
     return { labels: [], values: [], runningTotal: [] };
   }
+
   // Sort transactions by timestamp
   const sortedTransactions = [...transactions].sort((a, b) => {
     const dateA = new Date(a[0]);
     const dateB = new Date(b[0]);
     return dateA - dateB;
   });
+
   const labels = [];
   const values = [];
   const runningTotal = [];
   let total = 0;
+
   sortedTransactions.forEach(([timestamp, amount]) => {
     const date = new Date(timestamp);
     const timeLabel = date.toLocaleTimeString();
@@ -409,9 +425,11 @@ function processTransactions(transactions) {
     total += Number(amount);
     runningTotal.push(total);
   });
+
   console.log('Processed data:', { labels, values, runningTotal });
   return { labels, values, runningTotal };
 }
+
 /**
  * Creates a Chart.js line chart for an individual game.
  * Displays the running total of profits/losses over time.
@@ -459,65 +477,91 @@ function createChart(ctx, game, data) {
     }             
   });                          
 }
+
 /**
  * Creates a combined chart showing all games' performance on a unified timeline.
- * Uses daily aggregation to ensure proper data point spacing across different games.
+ * Modified to show lines from the first data point using timestamp-based visualization,
+ * ensuring that single-day data is properly displayed with visible chart lines.
  * 
  * @function createCombinedChart
  * @param {Object<string, Array>} gameData - Object containing processed data for each game
- * @param {Array} gameData[game] - Array of [timestamp, amount] pairs for each game
+ * @param {Array<Array>} gameData[game] - Array of [timestamp, amount] pairs for each game
  */
 function createCombinedChart(gameData) {
   const ctx = document.getElementById('combinedChart').getContext('2d');
   if (combinedChart) {
     combinedChart.destroy();
   }
-  // Create a unified date set for proper spacing
-  const dateSet = new Set();
-  // Collect all unique dates from all games
+
+  // Create a unified timestamp set for proper spacing
+  const timestampSet = new Set();
+  
+  // Collect all unique timestamps from all games
   Object.entries(gameData).forEach(([game, rawData]) => {
     if (rawData && rawData.length > 0) {
       rawData.forEach(([timestamp]) => {
-        const date = new Date(timestamp);
-        const dateKey = date.toLocaleDateString();
-        dateSet.add(dateKey);
+        timestampSet.add(timestamp);
       });
     }
   });
-  // Sort dates chronologically
-  const sortedDates = Array.from(dateSet).sort((a, b) => new Date(a) - new Date(b));
+
+  // Sort timestamps chronologically
+  const sortedTimestamps = Array.from(timestampSet).sort((a, b) => new Date(a) - new Date(b));
+  
+  // Create readable labels from timestamps
+  const sortedLabels = sortedTimestamps.map(timestamp => {
+    const date = new Date(timestamp);
+    // Use both date and time for better granularity
+    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+  });
+
   const datasets = [];
+
   // Process each game's data
   Object.entries(gameData).forEach(([game, rawData]) => {
     if (!rawData || rawData.length === 0) {
       // Create empty dataset for games with no data
       datasets.push({
         label: gameConfig[game].label,
-        data: new Array(sortedDates.length).fill(null),
+        data: new Array(sortedTimestamps.length).fill(null),
         borderColor: gameConfig[game].color,
         backgroundColor: `${gameConfig[game].color}30`,
         tension: 0.2,
         fill: false,
         spanGaps: true,
-        hidden: false
+        hidden: false,
+        pointRadius: 4,
+        pointHoverRadius: 6
       });
       return;
     }
-    // Create daily balance map
-    const dailyBalanceMap = {};
+
+    // Create timestamp balance map
+    const timestampBalanceMap = {};
     let cumulativeBalance = 0;
-    // Sort transactions by date
+
+    // Sort transactions by timestamp
     const sortedTransactions = [...rawData].sort((a, b) => new Date(a[0]) - new Date(b[0]));
-    // Calculate cumulative balance for each day
+
+    // Calculate cumulative balance for each timestamp
     sortedTransactions.forEach(([timestamp, amount]) => {
-      const date = new Date(timestamp);
-      const dateKey = date.toLocaleDateString();
       const value = parseFloat(amount) || 0;
       cumulativeBalance += value;
-      dailyBalanceMap[dateKey] = cumulativeBalance;
+      timestampBalanceMap[timestamp] = cumulativeBalance;
     });
-    // Map sorted dates to their corresponding balance values
-    const dataPoints = sortedDates.map(dateKey => dailyBalanceMap[dateKey] ?? null);
+
+    // Map sorted timestamps to their corresponding balance values
+    const dataPoints = sortedTimestamps.map(timestamp => {
+      if (timestampBalanceMap.hasOwnProperty(timestamp)) {
+        return timestampBalanceMap[timestamp];
+      }
+      // For timestamps without data, use the previous cumulative balance or null
+      const prevTimestamp = sortedTimestamps.find(ts => 
+        new Date(ts) < new Date(timestamp) && timestampBalanceMap.hasOwnProperty(ts)
+      );
+      return prevTimestamp ? timestampBalanceMap[prevTimestamp] : null;
+    });
+
     datasets.push({
       label: gameConfig[game].label,
       data: dataPoints,
@@ -526,13 +570,16 @@ function createCombinedChart(gameData) {
       tension: 0.2,
       fill: false,
       spanGaps: true,
-      hidden: false
+      hidden: false,
+      pointRadius: 4,
+      pointHoverRadius: 6
     });
   });
+
   combinedChart = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: sortedDates,
+      labels: sortedLabels,
       datasets: datasets
     },
     options: {
@@ -548,7 +595,9 @@ function createCombinedChart(gameData) {
           grid: { color: '#ffffff10' }, 
           ticks: { 
             color: '#fff',
-            maxTicksLimit: 10 // Limit number of x-axis labels for better readability
+            maxTicksLimit: 8, // Limit number of x-axis labels for better readability
+            maxRotation: 45,
+            minRotation: 0
           } 
         }
       },
@@ -557,16 +606,31 @@ function createCombinedChart(gameData) {
         tooltip: {
           mode: 'index',
           intersect: false,
+          callbacks: {
+            title: function(tooltipItems) {
+              return tooltipItems[0].label;
+            }
+          }
         }
       },
       interaction: {
         mode: 'nearest',
         axis: 'x',
         intersect: false
+      },
+      elements: {
+        line: {
+          borderWidth: 2
+        },
+        point: {
+          radius: 4,
+          hoverRadius: 6
+        }
       }
     }
   });
 }
+
 /**
  * Fetches game transaction data from backend APIs for all configured games.
  * Uses the current user's person ID to retrieve personalized data.
@@ -608,6 +672,7 @@ async function fetchGameData() {
     throw error;
   }
 }
+
 /**
  * Main data loading function that orchestrates the entire data fetching and chart creation process.
  * Fetches user ID, retrieves user analytics and game data, processes transactions, and creates all charts.
@@ -626,17 +691,21 @@ async function loadData() {
       personId = await fetchPersonIdFromSession();
     }
     console.log('Using personId:', personId);
+
     // Fetch user analytics data to display user info
     const analyticsData = await fetchUserAnalytics(personId);
     displayUserInfo(analyticsData);
+
     // Then fetch game data using the person ID
     const rawGameData = await fetchGameData();
+
     // Process data for each game
     const processedGameData = {};
     Object.keys(gameConfig).forEach(game => {
       const rawData = rawGameData[game] || [];
       console.log(`Processing ${game} data:`, rawData);
       processedGameData[game] = processTransactions(rawData);
+      
       // Create individual chart
       const ctx = document.getElementById(`${game}Chart`)?.getContext('2d');
       if (ctx) {
@@ -644,14 +713,17 @@ async function loadData() {
         individualCharts[game] = createChart(ctx, game, processedGameData[game]);
       }
     });
-    // Create combined chart with raw data for better date handling
+
+    // Create combined chart with raw data for better timestamp-based handling
     createCombinedChart(rawGameData);
+
     return processedGameData;
   } catch (error) {
     console.error('Error loading data:', error);
     throw error;
   }
 }
+
 /**
  * Shows the main dashboard content and hides loading/error messages.
  * Called when data loading completes successfully.
@@ -663,6 +735,7 @@ function showMainContent() {
   document.getElementById('errorMessage').style.display = 'none';
   document.getElementById('mainContent').style.display = 'block';
 }
+
 /**
  * Shows the error message and hides other UI elements.
  * Called when data loading fails.
@@ -674,6 +747,7 @@ function showError() {
   document.getElementById('mainContent').style.display = 'none';
   document.getElementById('errorMessage').style.display = 'block';
 }
+
 /**
  * Main initialization function that sets up the dashboard when the DOM is ready.
  * Loads data, creates charts, and sets up event listeners for interactive elements.
@@ -685,8 +759,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   try {
     console.log('Initializing analytics dashboard...');   
     const processedData = await loadData();
+
     // Show main content
     showMainContent();
+
     /**
      * Event handler for toggle buttons in the combined chart.
      * Allows users to show/hide individual game datasets.
@@ -698,6 +774,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const game = e.target.dataset.game;
         const isActive = e.target.classList.contains('active');
         e.target.classList.toggle('active', !isActive);                             
+        
         if (combinedChart) {
           const dataset = combinedChart.data.datasets
             .find(d => d.label === gameConfig[game].label);
@@ -708,6 +785,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
       });
     });
+
     console.log('Analytics dashboard initialized successfully');
   } catch (error) {
     console.error('Initialization error:', error);
