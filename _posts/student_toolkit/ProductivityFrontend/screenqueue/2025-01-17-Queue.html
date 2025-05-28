@@ -35,12 +35,11 @@ active_tab: queue
 <br>
 <br>
 
-<div class="controls">
-
-    <button id="addQueue" class="button">Add to Waiting</button>
-    <button id="removeQueue" class="button">Remove from Waiting</button>
-    <button id="beginTimer" class="button">Begin Timer</button>
-</div>
+   <div class="flex flex-col sm:flex-row gap-4 justify-center mb-6">
+      <button id="addQueue" class="border border-white px-4 py-2 rounded hover:bg-white hover:text-black transition">Add to Waiting</button>
+      <button id="removeQueue" class="border border-white px-4 py-2 rounded hover:bg-white hover:text-black transition">Remove from Waiting</button>
+      <button id="beginTimer" class="border border-white px-4 py-2 rounded hover:bg-white hover:text-black transition">Begin Timer</button>
+    </div>
 
 <div class="timer">
     <span id="timerDisplay">00:00</span>
