@@ -158,7 +158,6 @@ permalink: /gamify/bankanalytics
         <!-- User stats will be populated here -->
       </div>
     </div>
-
     <div class="game-card">
       <h2 class="game-title">Individual Game Analytics</h2>
       <div class="toggle-container" id="toggleButtons">
