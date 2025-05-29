@@ -18,7 +18,6 @@ const sounds = {
   click: createAudio('data:audio/wav;base64,UklGRXEAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YUQAAAB/f39/gICAgICAgH9/f39/f39/f39/f4CAgICAgIB/f39/f39/f39/f3+AgICAgICAgICAgH9/f39/f39/f39/f39/f39/f39/fw==')
 };
 
-// Add CSS for enhanced dialog animations
 const dialogStyle = document.createElement('style');
 dialogStyle.textContent = `
   @keyframes dialogAppear {
@@ -223,8 +222,8 @@ function showDialogBox(title, message, options = []) {
       
       // Short delay to let the sound play before action
       setTimeout(() => {
-        option.action();
-        if (!option.keepOpen) document.body.removeChild(dialogContainer);
+      option.action();
+      if (!option.keepOpen) document.body.removeChild(dialogContainer);
       }, 50);
     };
     buttonContainer.appendChild(button);

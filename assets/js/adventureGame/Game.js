@@ -9,7 +9,20 @@ class StatsManager {
         this.game = game;
         this.initStatsUI();
     }
-
+    async getNpcProgress(personId) {
+        try {
+            const response = await fetch(`${this.game.javaURI}/bank/${personId}/npcProgress`, this.fetchOptions);
+            if (!response.ok) {
+                throw new Error("Failed to fetch questions");
+            }
+            const npcProgressDictionary = await response.json();
+            console.log(npcProgressDictionary);
+            return npcProgressDictionary
+        } catch (error) {
+            console.error("Error fetching Npc Progress:", error);
+            return null;
+        }
+    }
     async fetchStats(personId) {
         const endpoints = {
             balance: this.game.javaURI + '/rpg_answer/getBalance/' + personId,
@@ -113,7 +126,6 @@ class StatsManager {
 
     initStatsUI() {
         const TOTAL_NPCS = 10;
-        // Create wrapper for button and panel
         const statsWrapper = document.createElement('div');
         statsWrapper.id = 'stats-wrapper';
         Object.assign(statsWrapper.style, {
@@ -162,10 +174,10 @@ class StatsManager {
 
             #stats-container {
                 background: #000;
-                border: 4px solid #fff;
-                padding: 20px;
+                border: 3px solid #fff;
+                padding: 15px;
                 margin-left: 10px;
-                min-width: 300px;
+                min-width: 250px;
                 display: none;
                 font-family: 'Press Start 2P', cursive;
                 color: #fff;
@@ -224,8 +236,8 @@ class StatsManager {
             }
 
             .pixel-title {
-                font-size: 16px;
-                margin-bottom: 20px;
+                font-size: 14px;
+                margin-bottom: 15px;
                 text-align: center;
                 color: #ffeb3b;
                 text-shadow: 2px 2px #000;
@@ -235,11 +247,11 @@ class StatsManager {
             .pixel-stat-box {
                 background: rgba(255, 255, 255, 0.1);
                 border: 2px solid #ffb300;
-                margin: 10px 0;
-                padding: 12px;
+                margin: 8px 0;
+                padding: 8px;
                 display: flex;
                 align-items: center;
-                font-size: 12px;
+                font-size: 11px;
                 position: relative;
                 overflow: hidden;
                 transition: all 0.3s;
@@ -269,10 +281,10 @@ class StatsManager {
 
             #npcs-progress-bar-container {
                 position: relative;
-                height: 24px;
+                height: 20px;
                 background: #000;
                 border: 2px solid #ffb300;
-                margin-top: 15px;
+                margin-top: 12px;
                 overflow: hidden;
             }
 
@@ -299,7 +311,7 @@ class StatsManager {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 12px;
+                font-size: 10px;
                 color: #fff;
                 text-shadow: 1px 1px #000;
                 z-index: 2;
@@ -327,8 +339,9 @@ class StatsManager {
             }
 
             .pixel-icon {
-                image-rendering: pixelated;
-                margin-right: 10px;
+                width: 18px !important;
+                height: 18px !important;
+                margin-right: 8px;
                 animation: iconFloat 2s infinite alternate;
             }
 
@@ -642,6 +655,14 @@ class Game {
         
         this.initUser();
         this.inventoryManager.giveStartingItems();
+        this.showGameInstructions();
+        
+        // Add keyboard event listener for 'H' key
+        document.addEventListener('keydown', (event) => {
+            if (event.key.toLowerCase() === 'h') {
+                this.showGameInstructions();
+            }
+        });
         
         const gameLevelClasses = environment.gameLevelClasses;
         new GameControl(this, gameLevelClasses).start();
@@ -702,6 +723,215 @@ class Game {
 
     attemptQuizForNpc(npcCategory, callback = null) {
         return this.quizManager.attemptQuizForNpc(npcCategory, callback);
+    }
+
+    showGameInstructions() {
+        // Create modal container
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #000;
+            padding: 25px;
+            border: 4px solid #fff;
+            color: white;
+            z-index: 10000;
+            max-width: 600px;
+            width: 90%;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+            font-family: 'Press Start 2P', cursive;
+            animation: glowBorder 2s infinite alternate;
+            position: relative;
+            overflow: hidden;
+        `;
+
+        // Add content
+        modal.innerHTML = `
+            <style>
+                @keyframes glowBorder {
+                    0% { box-shadow: 0 0 5px #fff, inset 0 0 5px #fff; }
+                    100% { box-shadow: 0 0 15px #fff, inset 0 0 8px #fff; }
+                }
+                @keyframes scanline {
+                    0% { transform: translateY(-100%); }
+                    100% { transform: translateY(100%); }
+                }
+                @keyframes shine {
+                    0% { left: -100%; }
+                    100% { left: 100%; }
+                }
+                .instruction-box {
+                    background: rgba(255, 255, 255, 0.1);
+                    border: 2px solid #ffb300;
+                    margin: 8px 0;
+                    padding: 12px;
+                    display: flex;
+                    align-items: center;
+                    font-size: 0.7em;
+                    position: relative;
+                    overflow: hidden;
+                    transition: all 0.3s;
+                }
+                .instruction-box:hover {
+                    transform: translateX(5px);
+                    background: rgba(255, 255, 255, 0.15);
+                    border-color: #ffd700;
+                }
+                .instruction-box::after {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: -100%;
+                    width: 100%;
+                    height: 100%;
+                    background: linear-gradient(
+                        90deg,
+                        transparent,
+                        rgba(255, 255, 255, 0.2),
+                        transparent
+                    );
+                    animation: shine 2s infinite;
+                }
+                .instruction-icon {
+                    font-size: 1.2em;
+                    margin-right: 15px;
+                    color: #ffb300;
+                }
+                .instruction-label {
+                    color: #ffb300;
+                    margin-right: 8px;
+                }
+                .modal-title {
+                    font-size: 1.2em;
+                    margin-bottom: 20px;
+                    text-align: center;
+                    color: #ffeb3b;
+                    text-shadow: 2px 2px #000;
+                    position: relative;
+                }
+                .button-container {
+                    display: flex;
+                    justify-content: center;
+                    gap: 15px;
+                    margin-top: 20px;
+                }
+                .game-button {
+                    background: #000;
+                    color: #fff;
+                    border: 2px solid #ffb300;
+                    padding: 12px 20px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-family: 'Press Start 2P', cursive;
+                    font-size: 0.7em;
+                    transition: all 0.3s ease;
+                    position: relative;
+                    overflow: hidden;
+                }
+                .game-button:hover {
+                    transform: translateY(-2px);
+                    border-color: #ffd700;
+                    box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+                }
+                .game-button::after {
+                    content: '';
+                    position: absolute;
+                    top: -50%;
+                    left: -50%;
+                    width: 200%;
+                    height: 200%;
+                    background: linear-gradient(
+                        45deg,
+                        transparent,
+                        rgba(255, 255, 255, 0.1),
+                        transparent
+                    );
+                    transform: rotate(45deg);
+                    animation: shine 2s infinite;
+                }
+                .scanline {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 2px;
+                    background: rgba(255, 255, 255, 0.1);
+                    animation: scanline 2s linear infinite;
+                    pointer-events: none;
+                }
+            </style>
+            <div class="scanline"></div>
+            <h2 class="modal-title">
+                <span style="color: #4CAF50;">⚡</span> HOW TO PLAY <span style="color: #4CAF50;">⚡</span>
+            </h2>
+            <div class="instruction-box">
+                <span class="instruction-icon">🎮</span>
+                <span class="instruction-label">Movement:</span>
+                <span>WASD or Arrow Keys to move</span>
+            </div>
+            <div class="instruction-box">
+                <span class="instruction-icon">🗣️</span>
+                <span class="instruction-label">Interact:</span>
+                <span>Press E near NPCs</span>
+            </div>
+            <div class="instruction-box">
+                <span class="instruction-icon">📊</span>
+                <span class="instruction-label">Stats:</span>
+                <span>Click stats icon (top-right)</span>
+            </div>
+            <div class="instruction-box">
+                <span class="instruction-icon">🎒</span>
+                <span class="instruction-label">Inventory:</span>
+                <span>Press I to view items</span>
+            </div>
+            <div class="instruction-box">
+                <span class="instruction-icon">💰</span>
+                <span class="instruction-label">Goal:</span>
+                <span>Learn finance & earn money!</span>
+            </div>
+            <div class="instruction-box">
+                <span class="instruction-icon">❓</span>
+                <span class="instruction-label">Help:</span>
+                <span>Press H to show this menu</span>
+            </div>
+            <div class="button-container">
+                <button class="game-button" id="closeInstructions">GOT IT!</button>
+            </div>
+        `;
+
+        // Close modal on button click
+        modal.querySelector('#closeInstructions').addEventListener('click', () => {
+            modal.style.opacity = '0';
+            modal.style.transform = 'translate(-50%, -50%) scale(0.95)';
+            setTimeout(() => modal.remove(), 500);
+        });
+
+        // Add fade-in animation
+        modal.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        modal.style.opacity = '0';
+        modal.style.transform = 'translate(-50%, -50%) scale(0.95)';
+        document.body.appendChild(modal);
+        
+        // Trigger animation after a short delay
+        setTimeout(() => {
+            modal.style.opacity = '1';
+            modal.style.transform = 'translate(-50%, -50%) scale(1)';
+        }, 100);
+
+        // Add sound effects
+        const hoverSound = new Audio('data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU');
+        hoverSound.volume = 0.2;
+
+        // Add hover sound effects to instruction boxes and buttons
+        const elements = modal.querySelectorAll('.instruction-box, .game-button');
+        elements.forEach(element => {
+            element.addEventListener('mouseenter', () => {
+                hoverSound.currentTime = 0;
+                hoverSound.play();
+            });
+        });
     }
 }
 

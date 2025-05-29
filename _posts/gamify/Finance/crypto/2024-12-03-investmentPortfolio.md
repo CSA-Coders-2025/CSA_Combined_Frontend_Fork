@@ -15,39 +15,6 @@ permalink: /crypto/portfolio
         padding: 0;
     }
 
-    .navbar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 10px 20px;
-        background-color: #001f3f; /* Dark blue background */
-        color: #fff;
-    }
-
-    .navbar .logo {
-        font-size: 24px;
-        font-weight: bold;
-        letter-spacing: 2px;
-    }
-
-    .navbar .nav-buttons {
-        display: flex;
-        gap: 20px;
-    }
-
-    .navbar .nav-buttons a {
-        color: #fff;
-        text-decoration: none;
-        font-size: 16px;
-        padding: 8px 16px;
-        border-radius: 4px;
-        transition: background-color 0.3s;
-    }
-
-    .navbar .nav-buttons a:hover {
-        background-color: #ff8c00; /* Orange hover effect */
-    }
-
     h1 {
         color: #333;
         margin-top: 20px;
@@ -216,11 +183,9 @@ permalink: /crypto/portfolio
         <label for="buy-amount">Amount in USD to buy:</label>
         <input type="number" id="buy-amount" placeholder="Enter amount in USD">
         <button class="btn btn-buy" onclick="buyCrypto()">Buy</button>
-
         <label for="sell-amount">Amount to sell (in crypto):</label>
         <input type="number" id="sell-amount" placeholder="Enter amount in crypto">
         <button class="btn btn-sell" onclick="sellCrypto()">Sell</button>
-
         <button class="btn btn-close" onclick="closeModal()">Close</button>
     </div>
         <!-- Search Bar -->
@@ -361,7 +326,7 @@ permalink: /crypto/portfolio
             }
             
             // Format balance with proper decimal places
-            const balance = Number(userData.balance).toFixed(2);
+            const balance = Number(userData.banks.balance).toFixed(2x);
             balanceElement.textContent = `$${balance}`;
             
         } catch (error) {

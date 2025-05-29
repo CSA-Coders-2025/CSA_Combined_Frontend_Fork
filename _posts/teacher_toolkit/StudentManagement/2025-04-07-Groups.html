@@ -107,7 +107,7 @@ comments: false
   </div>
 </div>
 
-<script type="module">
+<script>
 // Modal toggle utility
 function toggleModal(id) {
   const modal = document.getElementById(id);
@@ -120,7 +120,9 @@ function toggleModal(id) {
     modal.classList.remove("flex");
   } 
 }
+</script>
 
+<script type="module">
 // Environment setup
 import {javaURI, fetchOptions} from '{{site.baseurl}}/assets/js/api/config.js';
 
@@ -451,5 +453,25 @@ document.getElementById("saveEditGroupBtn").addEventListener("click", () => {
       console.error("Error updating group:", error);
       alert("Error occurred. See console.");
     });
+});
+
+// Filter users in Create Group Modal
+document.getElementById("userSearch").addEventListener("input", function () {
+  const search = this.value.toLowerCase();
+  document.querySelectorAll("#createUserList label").forEach((label) => {
+    label.style.display = label.textContent.toLowerCase().includes(search)
+      ? "block"
+      : "none";
+  });
+});
+
+// Filter users in Edit Group Modal
+document.getElementById("userSearchEdit").addEventListener("input", function () {
+  const search = this.value.toLowerCase();
+  document.querySelectorAll("#editUserList label").forEach((label) => {
+    label.style.display = label.textContent.toLowerCase().includes(search)
+      ? "block"
+      : "none";
+  });
 });
 </script>

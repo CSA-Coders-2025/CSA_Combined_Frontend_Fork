@@ -8,12 +8,15 @@ import WaypointArrow from './WaypointArrow.js';
 import NpcProgressSystem from './NpcProgressSystem.js';
 let socketURI
 let javaURI
+let pagesURI;
 if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
-    javaURI = "http://localhost:8085";
-    socketURI = "ws://localhost:8085/websocket";
+    javaURI = "http://localhost:8585";
+    socketURI = "ws://localhost:8585/websocket";
+    pagesURI = "http://127.0.0.1:4500";
 } else {
-    javaURI = "https://spring2025.nighthawkcodingsociety.com";
-    socketURI = "wss://spring2025.nighthawkcodingsociety.com/websocket";
+    javaURI = "https://spring.opencodingsociety.com";
+    socketURI = "wss://spring.opencodingsociety.com/websocket";
+    pagesURI = "https://pages.opencodingsociety.com";
 }
 class GameLevelAirport {
   constructor(gameEnv) {
@@ -144,69 +147,65 @@ class GameLevelAirport {
           casinoModal.style.display = "flex";
         }
 
-        // Define dialog functions
         const dialogFunctions = {
           intro: function() {
-            showDialogBox(
-              "Frank Sinatra",
-              "Hey, kid. I'm Frank Sinatra — welcome to the bright lights and wild nights of Las Vegas.\nHere, you can test your luck on Blackjack, Poker, or the Minefield Challenge.\nBut remember: in gambling, the swing of fortune can be swift and brutal.\nWant a tip before you step in?",
-              [
-                { label: "Yes, give me advice", action: () => dialogFunctions.giveAdvice(), keepOpen: true },
-                { label: "Take me to the Casino", action: () => openInModal("https://nighthawkcoders.github.io/portfolio_2025/gamify/casinohomepage") },
-                { label: "No thanks", action: () => {} }
-              ]
-            );
+          showDialogBox(
+            "Frank Sinatra",
+            "Hey, kid. I'm Frank Sinatra — welcome to the bright lights and wild nights of Las Vegas.\nHere, you can test your luck on Blackjack, Poker, or the Minefield Challenge.\nBut remember: in gambling, the swing of fortune can be swift and brutal.\nWant a tip before you step in?",
+            [
+              { label: "Yes, give me advice", action: () => dialogFunctions.giveAdvice(), keepOpen: true },
+              { label: "Take me to the Casino", action: () => openInModal(`${pagesURI}/gamify/casinohomepage`) },
+              { label: "No thanks", action: () => {} }
+            ]
+          );
           },
           giveAdvice: function() {
-            const adviceList = getFrankAdviceList();
-            const advice = adviceList[Math.floor(Math.random() * adviceList.length)];
-            showDialogBox(
-              "Frank's Advice",
-              advice + "\nWant to answer a question before you go in?",
-              [
-                { label: "Sure, ask me!", action: () => dialogFunctions.askQuestion(), keepOpen: true },
-                { label: "Take me to the Casino", action: () => openInModal("https://nighthawkcoders.github.io/portfolio_2025/gamify/casinohomepage") },
-                { label: "Another tip", action: () => dialogFunctions.giveAdvice(), keepOpen: true },
-                { label: "Maybe later", action: () => {} }
-              ]
-            );
+          const adviceList = getFrankAdviceList();
+          const advice = adviceList[Math.floor(Math.random() * adviceList.length)];
+          showDialogBox(
+            "Frank's Advice",
+            advice + "\nWant to answer a question before you go in?",
+            [
+              { label: "Sure, ask me!", action: () => dialogFunctions.askQuestion(), keepOpen: true },
+              { label: "Take me to the Casino", action: () => openInModal(`${pagesURI}/gamify/casinohomepage`) },
+              { label: "Another tip", action: () => dialogFunctions.giveAdvice(), keepOpen: true },
+              { label: "Maybe later", action: () => {} }
+            ]
+          );
           },
           askQuestion: function() {
-            showDialogBox(
-              "Frank's Question",
-              "If you won a big jackpot tonight, what would you do with the money?",
-              [
+          showDialogBox(
+            "Frank's Question",
+            "If you won a big jackpot tonight, what would you do with the money?",
+            [
                 { label: "Save it", action: () => dialogFunctions.frankResponse("Smart move, kid. Saving is always classy.") },
                 { label: "Spend it all!", action: () => dialogFunctions.frankResponse("Ha! Just don't spend it all in one place, capisce?") },
                 { label: "Invest it", action: () => dialogFunctions.frankResponse("Now that's the spirit of a true high roller!") },
                 { label: "Back", action: () => dialogFunctions.giveAdvice(), keepOpen: true }
-              ]
-            );
+            ]
+          );
           },
           frankResponse: function(response) {
-            showDialogBox(
-              "Frank Sinatra",
-              response + "\nReady to try your luck?",
-              [
-                { label: "Take me to the Casino", action: () => openInModal("https://nighthawkcoders.github.io/portfolio_2025/gamify/casinohomepage") },
-                { label: "Back to advice", action: () => dialogFunctions.giveAdvice(), keepOpen: true },
-                { label: "Maybe later", action: () => {} }
-              ]
-            );
-          }
+          showDialogBox(
+            "Frank Sinatra",
+            response + "\nReady to try your luck?",
+            [
+              { label: "Take me to the Casino", action: () => openInModal(`${pagesURI}/gamify/casinohomepage`) },
+              { label: "Back to advice", action: () => dialogFunctions.giveAdvice(), keepOpen: true },
+              { label: "Maybe later", action: () => {} }
+            ]
+          );
+        }
         };
 
         // Return the dialog functions so they can be accessed from interact
         return dialogFunctions;
       },
       interact: async function () {
-        const game = gameEnv.game;
-        const npcProgressSystem = new NpcProgressSystem();
-        const allowed = await npcProgressSystem.checkNpcProgress(game, sprite_data_casino.id);
-        if (allowed) {
+
           const dialogFunctions = sprite_data_casino.reaction();
           dialogFunctions.intro();
-        }
+        
       }
     };
 
@@ -304,38 +303,38 @@ class GameLevelAirport {
         // Define dialog functions
         const dialogFunctions = {
           intro: function() {
-            showDialogBox(
-              "J.P. Morgan",
-              "Good day, I am J.P. Morgan, financier of industry and architect of American banking.\nAre you ready to test your skills in the stock market?",
-              [
+          showDialogBox(
+            "J.P. Morgan",
+            "Good day, I am J.P. Morgan, financier of industry and architect of American banking.\nAre you ready to test your skills in the stock market?",
+            [
                 { label: "Yes", action: () => dialogFunctions.explainStocks(), keepOpen: true },
-                { label: "No", action: () => {} }
-              ]
-            );
+              { label: "No", action: () => {} }
+            ]
+          );
           },
           explainStocks: function() {
-            showDialogBox(
-              "J.P. Morgan",
-              "The stock market is a place of opportunity and risk. You can buy shares in companies and watch your investments grow—or shrink.\nWould you like to proceed to the Stock Exchange and begin your investment journey?",
-              [
-                { label: "Take me to the Stock Exchange", action: () => openInModal("https://nighthawkcoders.github.io/portfolio_2025/stocks/home") },
-                { label: "Remind me what stocks are", action: () => dialogFunctions.whatAreStocks(), keepOpen: true },
-                { label: "Back", action: () => dialogFunctions.intro(), keepOpen: true }
-              ]
-            );
+          showDialogBox(
+            "J.P. Morgan",
+            "The stock market is a place of opportunity and risk. You can buy shares in companies and watch your investments grow—or shrink.\nWould you like to proceed to the Stock Exchange and begin your investment journey?",
+            [
+              { label: "Take me to the Stock Exchange", action: () => openInModal(`${pagesURI}/stocks/viewer`) },
+              { label: "Remind me what stocks are", action: () => dialogFunctions.whatAreStocks(), keepOpen: true },
+              { label: "Back", action: () => dialogFunctions.intro(), keepOpen: true }
+            ]
+          );
           },
           whatAreStocks: function() {
-            const facts = getMorganFacts();
-            const fact = facts[Math.floor(Math.random() * facts.length)];
-            showDialogBox(
-              "J.P. Morgan",
-              fact + "\nWould you like to try investing now?",
-              [
-                { label: "Yes, let's invest", action: () => openInModal("https://nighthawkcoders.github.io/portfolio_2025/stocks/home") },
-                { label: "Back", action: () => dialogFunctions.explainStocks(), keepOpen: true }
-              ]
-            );
-          }
+          const facts = getMorganFacts();
+          const fact = facts[Math.floor(Math.random() * facts.length)];
+          showDialogBox(
+            "J.P. Morgan",
+            fact + "\nWould you like to try investing now?",
+            [
+              { label: "Yes, let's invest", action: () => openInModal(`${pagesURI}/stocks/viewer`) },
+              { label: "Back", action: () => dialogFunctions.explainStocks(), keepOpen: true }
+            ]
+          );
+        }
         };
 
         // Return the dialog functions so they can be accessed from interact
@@ -372,7 +371,6 @@ class GameLevelAirport {
       }
     };
 
-      // 🔧 STEP 1: Create modal container
     const cryptoModal = document.createElement("div");
     cryptoModal.id = "cryptoModal";
     cryptoModal.style.position = "fixed";
@@ -387,7 +385,6 @@ class GameLevelAirport {
     cryptoModal.style.zIndex = "1000";
     document.body.appendChild(cryptoModal);
 
-    // 🔧 STEP 2: Create iframe wrapper to simulate cropping
     const iframeWrapper = document.createElement("div");
     iframeWrapper.id = "cryptoFrameWrapper";
     iframeWrapper.style.position = "relative";
@@ -400,18 +397,16 @@ class GameLevelAirport {
     iframeWrapper.style.boxShadow = "0 0 20px rgba(0,0,0,0.5)";
     cryptoModal.appendChild(iframeWrapper);
 
-    // 🔧 STEP 3: Create the actual iframe, shifted up by 10%
     const cryptoFrame = document.createElement("iframe");
     cryptoFrame.id = "cryptoFrame";
     cryptoFrame.style.width = "100%";
-    cryptoFrame.style.height = "110%"; // Slightly taller to allow cropping
+    cryptoFrame.style.height = "110%";
     cryptoFrame.style.position = "absolute";
-    cryptoFrame.style.top = "-10%"; // This shifts the visible area down
+    cryptoFrame.style.top = "-10%";
     cryptoFrame.style.left = "0";
     cryptoFrame.style.border = "none";
     iframeWrapper.appendChild(cryptoFrame);
 
-    // 🔧 STEP 4: Add a close button
     const closeBtn = document.createElement("button");
     closeBtn.innerText = "✖";
     closeBtn.style.position = "absolute";
@@ -441,7 +436,6 @@ class GameLevelAirport {
     };
     iframeWrapper.appendChild(closeBtn);
 
-    // 🧠 SATOSHI NPC LOGIC
     const sprite_src_crypto = path + "/images/gamify/satoshiNakamoto.png";
     const sprite_data_crypto = {
       id: 'Crypto-NPC',
@@ -458,47 +452,47 @@ class GameLevelAirport {
         // Define dialog functions
         const dialogFunctions = {
           intro: function() {
-            showDialogBox(
-              "Satoshi Nakamoto",
-              "Greetings, seeker. I am Satoshi Nakamoto, architect of decentralized currency.\nAre you curious about Bitcoin or ready to explore the Crypto Hub?",
-              [
+          showDialogBox(
+            "Satoshi Nakamoto",
+            "Greetings, seeker. I am Satoshi Nakamoto, architect of decentralized currency.\nAre you curious about Bitcoin or ready to explore the Crypto Hub?",
+            [
                 { label: "Tell me about Bitcoin", action: () => dialogFunctions.aboutBitcoin(), keepOpen: true },
-                { label: "Go to Crypto Hub", action: () => openInModal("https://nighthawkcoders.github.io/portfolio_2025/crypto/portfolio") },
-                { label: "Goodbye", action: () => {} }
-              ]
-            );
+              { label: "Go to Crypto Hub", action: () => openInModal(`${pagesURI}/crypto/portfolio`) },
+              { label: "Goodbye", action: () => {} }
+            ]
+          );
           },
           aboutBitcoin: function() {
-            showDialogBox(
-              "Satoshi Nakamoto",
-              "Bitcoin is a decentralized digital currency, born from a desire for freedom and transparency. It operates without banks or governments.\nWould you like to know how to buy or mine Bitcoin?",
-              [
+          showDialogBox(
+            "Satoshi Nakamoto",
+            "Bitcoin is a decentralized digital currency, born from a desire for freedom and transparency. It operates without banks or governments.\nWould you like to know how to buy or mine Bitcoin?",
+            [
                 { label: "How do I buy Bitcoin?", action: () => dialogFunctions.howToBuy(), keepOpen: true },
                 { label: "How do I mine Bitcoin?", action: () => dialogFunctions.howToMine(), keepOpen: true },
                 { label: "Back", action: () => dialogFunctions.intro(), keepOpen: true }
-              ]
-            );
+            ]
+          );
           },
           howToBuy: function() {
-            showDialogBox(
-              "Satoshi Nakamoto",
-              "To buy Bitcoin, you need a digital wallet and access to a crypto exchange. You can purchase fractions of a Bitcoin.\nWould you like to visit the Crypto Hub to start your journey?",
-              [
-                { label: "Yes, take me there", action: () => openInModal("https://nighthawkcoders.github.io/portfolio_2025/crypto/portfolio") },
-                { label: "Back", action: () => dialogFunctions.aboutBitcoin(), keepOpen: true }
-              ]
-            );
+          showDialogBox(
+            "Satoshi Nakamoto",
+            "To buy Bitcoin, you need a digital wallet and access to a crypto exchange. You can purchase fractions of a Bitcoin.\nWould you like to visit the Crypto Hub to start your journey?",
+            [
+              { label: "Yes, take me there", action: () => openInModal(`${pagesURI}/crypto/portfolio`) },
+              { label: "Back", action: () => dialogFunctions.aboutBitcoin(), keepOpen: true }
+            ]
+          );
           },
           howToMine: function() {
-            showDialogBox(
-              "Satoshi Nakamoto",
-              "Mining Bitcoin requires powerful computers to solve complex puzzles. Miners are rewarded with Bitcoin for verifying transactions.\nWould you like to try mining or learn more?",
-              [
-                { label: "Try Mining", action: () => openInModal("https://nighthawkcoders.github.io/portfolio_2025/crypto/mining") },
-                { label: "Back", action: () => dialogFunctions.aboutBitcoin(), keepOpen: true }
-              ]
-            );
-          }
+          showDialogBox(
+            "Satoshi Nakamoto",
+            "Mining Bitcoin requires powerful computers to solve complex puzzles. Miners are rewarded with Bitcoin for verifying transactions.\nWould you like to try mining or learn more?",
+            [
+              { label: "Try Mining", action: () => openInModal(`${pagesURI}/crypto/mining`) },
+              { label: "Back", action: () => dialogFunctions.aboutBitcoin(), keepOpen: true }
+            ]
+          );
+        }
         };
 
         function openInModal(url) {
@@ -632,7 +626,7 @@ class GameLevelAirport {
             modal.style.zIndex = "1000";
             document.body.appendChild(modal);
 
-            // Iframe wrapper
+            // Create iframe wrapper
             const iframeWrapper = document.createElement("div");
             iframeWrapper.id = "yellenFrameWrapper";
             iframeWrapper.style.position = "relative";
@@ -645,7 +639,7 @@ class GameLevelAirport {
             iframeWrapper.style.boxShadow = "0 0 20px rgba(0,0,0,0.5)";
             modal.appendChild(iframeWrapper);
 
-            // Iframe
+            // Create iframe
             const yellenFrame = document.createElement("iframe");
             yellenFrame.id = "yellenFrame";
             yellenFrame.style.width = "100%";
@@ -656,7 +650,7 @@ class GameLevelAirport {
             yellenFrame.style.border = "none";
             iframeWrapper.appendChild(yellenFrame);
 
-            // Close button
+            // Add close button
             const closeBtn = document.createElement("button");
             closeBtn.innerText = "✖";
             closeBtn.style.position = "absolute";
@@ -687,81 +681,154 @@ class GameLevelAirport {
             iframeWrapper.appendChild(closeBtn);
           }
           const yellenFrame = document.getElementById('yellenFrame');
-          yellenFrame.src = url;
+          yellenFrame.src = `${pagesURI}/${url}`;
           modal.style.display = "flex";
         }
 
         // Define dialog functions
         const dialogFunctions = {
           intro: function() {
-            showDialogBox(
-              "Janet Yellen",
-              "Welcome, I'm Janet Yellen, Secretary of the Treasury.\nToday, you have just been entrusted with an initial sum of $100,000 to shape your financial future.\nWould you like to learn about the bank, review your analytics, get financial tips, or visit the Treasury website?",
-              [
+          showDialogBox(
+            "Janet Yellen",
+            "Welcome, I'm Janet Yellen, Secretary of the Treasury.\nToday, you have just been entrusted with an initial sum of $100,000 to shape your financial future.\nWould you like to learn about the bank, review your analytics, get financial tips, visit the Treasury website, or see the overall leaderboard?",
+            [
                 { label: "Learn about the Bank", action: () => dialogFunctions.explainBank(), keepOpen: true },
                 { label: "Review Analytics", action: () => dialogFunctions.analyticsIntro(), keepOpen: true },
                 { label: "Financial Tip", action: () => dialogFunctions.financialTip(), keepOpen: true },
-                { label: "Visit Treasury Website", action: () => showYellenModal("https://home.treasury.gov/") },
+                { label: "Overall Leaderboard", action: () => openLeaderboardModal() },
                 { label: "Goodbye", action: () => {} }
-              ]
-            );
+            ]
+          );
           },
           explainBank: function() {
-            showDialogBox(
-              "Janet Yellen",
-              "The Bank keeps track of your every transaction, monitors your balance, and helps you plan for the future.\nWould you like to see your analytics or hear a tip?",
-              [
+          showDialogBox(
+            "Janet Yellen",
+            "The Bank keeps track of your every transaction, monitors your balance, and helps you plan for the future.\nWould you like to see your analytics or hear a tip?",
+            [
                 { label: "See Analytics", action: () => dialogFunctions.analyticsIntro(), keepOpen: true },
                 { label: "Financial Tip", action: () => dialogFunctions.financialTip(), keepOpen: true },
                 { label: "Back", action: () => dialogFunctions.intro(), keepOpen: true }
-              ]
-            );
+            ]
+          );
           },
           analyticsIntro: function() {
-            showDialogBox(
-              "Janet Yellen",
-              "Bank Analytics provides a detailed overview of your spending, investments, and savings.\nWould you like to proceed to the analytics dashboard?",
-              [
-                { label: "Open Analytics", action: () => showYellenModal("https://nighthawkcoders.github.io/portfolio_2025/bank/analytics") },
+
+          showDialogBox(
+            "Janet Yellen",
+            "Bank Analytics provides a detailed overview of your spending, investments, and savings.\nWould you like to proceed to the analytics dashboard?",
+            [
+              { label: "Open Analytics", action: () => showYellenModal(`${pagesURI}/gamify/bankanalytics`) },
                 { label: "Back", action: () => dialogFunctions.intro(), keepOpen: true }
-              ]
-            );
+            ]
+          );
           },
           financialTip: function() {
-            const tips = [
-              "Diversify your investments to reduce risk.",
-              "Always keep an emergency fund.",
-              "Track your spending to find savings opportunities.",
-              "Invest for the long term, not quick gains.",
-              "Review your financial goals regularly.",
-              "Bonus: Even small savings add up over time!"
-            ];
-            const tip = tips[Math.floor(Math.random() * tips.length)];
-            showDialogBox(
-              "Janet Yellen - Financial Tip",
-              tip,
-              [
+          const tips = [
+            "Diversify your investments to reduce risk.",
+            "Always keep an emergency fund.",
+            "Track your spending to find savings opportunities.",
+            "Invest for the long term, not quick gains.",
+            "Review your financial goals regularly.",
+            "Bonus: Even small savings add up over time!"
+          ];
+          const tip = tips[Math.floor(Math.random() * tips.length)];
+          showDialogBox(
+            "Janet Yellen - Financial Tip",
+            tip,
+            [
                 { label: "Another Tip", action: () => dialogFunctions.financialTip(), keepOpen: true },
                 { label: "Back", action: () => dialogFunctions.intro(), keepOpen: true }
-              ]
-            );
-          }
+            ]
+          );
+        }
         };
 
         // Return the dialog functions so they can be accessed from interact
         return dialogFunctions;
       },
       interact: async function () {
-        const game = gameEnv.game;
-        const npcProgressSystem = new NpcProgressSystem();
-        const allowed = await npcProgressSystem.checkNpcProgress(game, sprite_data_bank.id);
-        if (allowed) {
+      
           const dialogFunctions = sprite_data_bank.reaction();
           dialogFunctions.intro();
-        }
+
       }
     };
 
+    function openLeaderboardModal() {
+      let modal = document.getElementById('leaderboardModal');
+      if (!modal) {
+        modal = document.createElement("div");
+        modal.id = "leaderboardModal";
+        modal.style.position = "fixed";
+        modal.style.top = "0";
+        modal.style.left = "0";
+        modal.style.width = "100vw";
+        modal.style.height = "100vh";
+        modal.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
+        modal.style.display = "none";
+        modal.style.justifyContent = "center";
+        modal.style.alignItems = "center";
+        modal.style.zIndex = "1000";
+        document.body.appendChild(modal);
+
+        // Create iframe wrapper
+        const iframeWrapper = document.createElement("div");
+        iframeWrapper.id = "leaderboardFrameWrapper";
+        iframeWrapper.style.position = "relative";
+        iframeWrapper.style.overflow = "hidden";
+        iframeWrapper.style.width = "90%";
+        iframeWrapper.style.maxWidth = "1000px";
+        iframeWrapper.style.height = "80%";
+        iframeWrapper.style.border = "2px solid #ccc";
+        iframeWrapper.style.borderRadius = "8px";
+        iframeWrapper.style.boxShadow = "0 0 20px rgba(0,0,0,0.5)";
+        modal.appendChild(iframeWrapper);
+
+        // Create iframe
+        const leaderboardFrame = document.createElement("iframe");
+        leaderboardFrame.id = "leaderboardFrame";
+        leaderboardFrame.style.width = "100%";
+        leaderboardFrame.style.height = "110%";
+        leaderboardFrame.style.position = "absolute";
+        leaderboardFrame.style.top = "-10%";
+        leaderboardFrame.style.left = "0";
+        leaderboardFrame.style.border = "none";
+        iframeWrapper.appendChild(leaderboardFrame);
+
+        // Add close button
+        const closeBtn = document.createElement("button");
+        closeBtn.innerText = "✖";
+        closeBtn.style.position = "absolute";
+        closeBtn.style.top = "10px";
+        closeBtn.style.right = "10px";
+        closeBtn.style.fontSize = "24px";
+        closeBtn.style.background = "#00ff80";
+        closeBtn.style.color = "#000";
+        closeBtn.style.border = "none";
+        closeBtn.style.padding = "10px 15px";
+        closeBtn.style.borderRadius = "5px";
+        closeBtn.style.cursor = "pointer";
+        closeBtn.style.boxShadow = "0 0 15px rgba(0,255,128,0.5)";
+        closeBtn.style.zIndex = "1100";
+        closeBtn.style.transition = "all 0.3s ease";
+        closeBtn.onmouseover = () => {
+          closeBtn.style.background = "#00cc66";
+          closeBtn.style.transform = "scale(1.1)";
+        };
+        closeBtn.onmouseout = () => {
+          closeBtn.style.background = "#00ff80";
+          closeBtn.style.transform = "scale(1)";
+        };
+        closeBtn.onclick = () => {
+          modal.style.display = "none";
+          leaderboardFrame.src = "";
+        };
+        iframeWrapper.appendChild(closeBtn);
+      }
+      const leaderboardFrame = document.getElementById('leaderboardFrame');
+      leaderboardFrame.src = `${pagesURI}/leaderboard/overall-leaderboard`;
+      modal.style.display = "flex";
+    }
 
     this.classes = [
       { class: GameEnvBackground, data: image_data_desert },

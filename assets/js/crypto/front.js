@@ -4,6 +4,9 @@ console.log("front.js is loaded.");
 
 let userEmail = "";
 let userBalance = localStorage.getItem("userBalance");
+let isOnline = navigator.onLine; // Add online status check
+let updateInterval;
+let monitorInterval;
 
 // Define showNotification globally at the top of your script
 window.showNotification = function (message, isError = false) {
@@ -37,9 +40,9 @@ async function fetchUser() {
 }
 
 function updateBalance(balance) {
+  const formattedBalance = parseFloat(balance).toFixed(2);
   const balanceElement = document.getElementById('user-balance');
   if (balanceElement) {
-    const formattedBalance = parseFloat(balance).toFixed(2);
     balanceElement.innerText = formattedBalance;
     localStorage.setItem("userBalance", formattedBalance);
   }
@@ -162,28 +165,51 @@ function startCountdown() {
     const timerElement = document.getElementById('countdown-timer');
     const miningButton = document.getElementById('start-mining');
     
-    countdownElement.classList.remove('hidden');
-    countdownElement.classList.add('visible');
-    miningButton.classList.add('loading');
-    
-    miningTimeLeft = 900; // Reset to 15 minutes
-    timerElement.textContent = formatTime(miningTimeLeft);
-    
-    if (countdownInterval) clearInterval(countdownInterval);
-    
-    countdownInterval = setInterval(() => {
-        miningTimeLeft--;
-        timerElement.textContent = formatTime(miningTimeLeft);
-        
-        if (miningTimeLeft <= 0) {
-            clearInterval(countdownInterval);
-            countdownElement.classList.remove('visible');
-            countdownElement.classList.add('hidden');
-            miningButton.classList.remove('loading');
-            updateMiningStats();
-            startCountdown(); // Restart countdown for next cycle
-        }
-    }, 1000);
+    // Check if mining is actually active before starting countdown
+    fetchWithRetry(`${javaURI}/api/mining/state`, fetchOptions)
+        .then(state => {
+            if (!state.isMining) {
+                stopCountdown();
+                return;
+            }
+            
+            countdownElement.classList.remove('hidden');
+            countdownElement.classList.add('visible');
+            miningButton.classList.add('loading');
+            
+            // Get the actual time left from the server if available
+            const serverTimeLeft = state.timeLeft || 900;
+            miningTimeLeft = serverTimeLeft;
+            timerElement.textContent = formatTime(miningTimeLeft);
+            
+            if (countdownInterval) clearInterval(countdownInterval);
+            
+            countdownInterval = setInterval(async () => {
+                miningTimeLeft--;
+                timerElement.textContent = formatTime(miningTimeLeft);
+                
+                if (miningTimeLeft <= 0) {
+                    clearInterval(countdownInterval);
+                    try {
+                        // Check mining state before restarting
+                        const state = await fetchWithRetry(`${javaURI}/api/mining/state`, fetchOptions);
+                        if (state.isMining) {
+                            await updateMiningStats();
+                            startCountdown(); // Only restart if still mining
+                        } else {
+                            stopCountdown();
+                        }
+                    } catch (error) {
+                        console.error('Error checking mining state:', error);
+                        stopCountdown();
+                    }
+                }
+            }, 1000);
+        })
+        .catch(error => {
+            console.error('Error checking mining state:', error);
+            stopCountdown();
+        });
 }
 
 function stopCountdown() {
@@ -200,18 +226,108 @@ function stopCountdown() {
     miningButton.classList.remove('loading');
 }
 
-// Update the toggleMining function
+// Add periodic state sync
+let stateSyncInterval;
+
+function startStateSync() {
+    if (stateSyncInterval) clearInterval(stateSyncInterval);
+    stateSyncInterval = setInterval(async () => {
+        try {
+            const state = await fetchWithRetry(`${javaURI}/api/mining/state`, fetchOptions);
+            if (!state.isMining && countdownInterval) {
+                stopCountdown();
+            }
+        } catch (error) {
+            console.error('Error syncing state:', error);
+        }
+    }, 900000); // Sync every 15 min
+}
+
+function stopStateSync() {
+    if (stateSyncInterval) {
+        clearInterval(stateSyncInterval);
+        stateSyncInterval = null;
+    }
+}
+
+// Update the startPeriodicUpdates function
+async function startPeriodicUpdates() {
+    if (!isOnline) {
+        showNotification('No internet connection', true);
+        return;
+    }
+    
+    // Clear any existing intervals
+    if (updateInterval) clearInterval(updateInterval);
+    if (monitorInterval) clearInterval(monitorInterval);
+    
+    // Start state sync
+    startStateSync();
+    
+    // Update stats every 15 minutes
+    updateInterval = setInterval(async () => {
+        if (isOnline) {
+            await updateMiningStats();
+        }
+    }, 900000);
+    
+    // Real-time monitoring every 30 seconds
+    monitorInterval = setInterval(async () => {
+        if (!isOnline) return;
+        
+        try {
+            const stats = await fetchWithRetry(`${javaURI}/api/mining/stats`, {
+                ...fetchOptions,
+                method: 'GET',
+                cache: 'no-cache'
+            });
+            
+            // Update critical UI elements
+            if (stats.hashrate !== undefined) {
+                document.getElementById('hashrate').textContent = `${parseFloat(stats.hashrate).toFixed(2)} MH/s`;
+            }
+            if (stats.shares !== undefined) {
+                document.getElementById('shares').textContent = stats.shares;
+            }
+            if (stats.pendingBalance !== undefined) {
+                document.getElementById('pending-balance').textContent = parseFloat(stats.pendingBalance).toFixed(8);
+            }
+            
+            // Update charts
+            updateCharts(stats);
+        } catch (error) {
+            console.error('Real-time monitor error:', error);
+        }
+    }, 900000); // update chart every 15 min
+}
+
+// Update the stopPeriodicUpdates function
+function stopPeriodicUpdates() {
+    if (updateInterval) {
+        clearInterval(updateInterval);
+        updateInterval = null;
+    }
+    if (monitorInterval) {
+        clearInterval(monitorInterval);
+        monitorInterval = null;
+    }
+    stopStateSync();
+}
+
+// Update the toggleMining function with better error handling
 window.toggleMining = async function () {
     try {
+        const button = document.getElementById('start-mining');
+        button.disabled = true;
+        
         const options = {
             ...fetchOptions,
             method: 'POST',
             cache: 'no-cache'
         };
-        const response = await fetch(`${javaURI}/api/mining/toggle`, options);
-        const result = await response.json();
-        console.log('Mining toggle result:', result);
-
+        
+        const result = await fetchWithRetry(`${javaURI}/api/mining/toggle`, options);
+        
         updateMiningButton(result.isMining);
         if (result.isMining) {
             startPeriodicUpdates();
@@ -222,10 +338,20 @@ window.toggleMining = async function () {
             stopCountdown();
             showNotification('Mining stopped');
         }
+        
+        // Update all balances after mining state change
+        await updateAllBalances();
         await updateMiningStats();
     } catch (error) {
         console.error('Error toggling mining:', error);
-        showNotification('Error toggling mining state');
+        showNotification('Error toggling mining state: ' + error.message, true);
+        // Try to recover the correct state
+        await recoverMiningState();
+    } finally {
+        const button = document.getElementById('start-mining');
+        if (button) {
+            button.disabled = false;
+        }
     }
 };
 
@@ -246,7 +372,6 @@ function updateMiningButton(isActive) {
 }
 
 let hashrateChart, profitChart;
-let updateInterval;
 
 // Initialize charts and setup
 document.addEventListener('DOMContentLoaded', async () => {
@@ -361,40 +486,6 @@ async function fetchCurrentEnergyPlan() {
 
 async function initializeMiningState() {
     try {
-        const response = await fetch(`${javaURI}/api/mining/energy`, {
-            ...fetchOptions,
-            method: 'GET',
-            credentials: 'include'
-        });
-        
-        if (!response.ok) {
-            if (response.status === 401) {
-                throw new Error('Please log in to view energy plan');
-            } else {
-                throw new Error(`Failed to fetch energy plan (Status: ${response.status})`);
-            }
-        }
-        
-        const data = await response.json();
-        const energyPlanElement = document.getElementById('current-energy-plan');
-        
-        if (data && data.supplierName) {
-            energyPlanElement.textContent = `${data.supplierName} (${data.EEM || '0.00'} EEM)`;
-            energyPlanElement.className = 'stat-value text-green-400';
-        } else {
-            energyPlanElement.textContent = 'No Energy Plan';
-            energyPlanElement.className = 'stat-value text-red-400';
-        }
-    } catch (error) {
-        console.error('Error fetching energy plan:', error);
-        const energyPlanElement = document.getElementById('current-energy-plan');
-        energyPlanElement.textContent = 'Error Loading Plan';
-        energyPlanElement.className = 'stat-value text-red-400';
-    }
-}
-
-async function initializeMiningState() {
-    try {
         const response = await fetch(`${javaURI}/api/mining/state`, fetchOptions);
         if (!response.ok) {
             throw new Error('Failed to fetch mining state');
@@ -407,39 +498,14 @@ async function initializeMiningState() {
             startPeriodicUpdates();
             startCountdown();
         }
-        // Fetch current energy plan
-        await fetchCurrentEnergyPlan();
+        
+        // Initialize pool info
+        const currentSymbol = localStorage.getItem('currentMiningCrypto') || 'BTC';
+        updatePoolInfo(currentSymbol);
     } catch (error) {
         console.error('Error initializing mining state:', error);
         showNotification('Error loading mining state. Please try again.');
     }
-}
-
-async function startPeriodicUpdates() {
-    if (updateInterval) clearInterval(updateInterval);
-    updateInterval = setInterval(async () => {
-        await updateMiningStats();
-    }, 900000);
-    const options = {
-        ...fetchOptions,
-        method: 'GET',
-        cache: 'no-cache'
-    };
-    // Real time monitor
-    setInterval(async () => {
-        try {
-            const response = await fetch(`${javaURI}/api/mining/stats`, options);
-            const stats = await response.json();
-            console.log('Real time monitor:', {
-                time: new Date().toLocaleTimeString(),
-                pending: stats.pendingBalance,
-                hashrate: stats.hashrate,
-                activeGPUs: stats.activeGPUs?.length || 0
-            });
-        } catch (error) {
-            console.error('Real time monitor **FAILED**:', error);
-        }
-    }, 900000);
 }
 
 // API Calls
@@ -514,6 +580,7 @@ window.buyGpu = async function (gpuId, quantity) {
     }
 }
 
+// Update the updateMiningStats function with better error handling
 async function updateMiningStats() {
     try {
         const options = {
@@ -745,7 +812,6 @@ function updateCharts(stats) {
         profitChart.data.labels.push(now);
         profitChart.data.datasets[0].data.push(totalProfit);
         profitChart.update('none');
-        console.log('Profit chart updated');
     }
 }
 
@@ -898,13 +964,6 @@ document.getElementById('gpu-shop-modal').addEventListener('click', (e) => {
     }
 });
 
-function stopPeriodicUpdates() {
-    if (updateInterval) {
-        clearInterval(updateInterval);
-        updateInterval = null;
-    }
-}
-
 // Update the total price function to properly format numbers
 function updateTotalPrice(gpuId, basePrice) {
     const quantitySelect = document.getElementById(`quantity-${gpuId}`);
@@ -1035,8 +1094,9 @@ window.confirmSell = confirmSell;
 
 // Update the pool info display function
 function updatePoolInfo(symbol) {
-    const poolInfoElement = document.getElementById('pool-info');
-    if (!poolInfoElement) return;
+    const poolInfoLabel = document.getElementById('pool-info-label');
+    const poolInfoValue = document.getElementById('pool-info-value');
+    if (!poolInfoLabel || !poolInfoValue) return;
 
     // Get pool information based on the cryptocurrency
     const poolInfo = {
@@ -1067,9 +1127,9 @@ function updatePoolInfo(symbol) {
     };
 
     const info = poolInfo[symbol] || poolInfo['BTC']; // Default to BTC if symbol not found
-    poolInfoElement.innerHTML = `
+    poolInfoLabel.innerHTML = `<span class="text-blue-400">Mining: ${symbol}</span>`;
+    poolInfoValue.innerHTML = `
         <div class="text-sm">
-            <p class="text-blue-400">Mining: ${symbol}</p>
             <p class="text-gray-400">Algorithm: ${info.algorithm}</p>
             <p class="text-gray-400">Difficulty: ${info.difficulty}</p>
             <p class="text-yellow-400">Min Payout: ${info.minPayout}</p>
@@ -1124,4 +1184,89 @@ window.selectCryptocurrency = function(symbol) {
 document.addEventListener('DOMContentLoaded', () => {
     const currentSymbol = localStorage.getItem('currentMiningCrypto') || 'BTC';
     updatePoolInfo(currentSymbol);
+});
+
+// Add cleanup function for charts
+function cleanupCharts() {
+    if (hashrateChart) {
+        hashrateChart.destroy();
+        hashrateChart = null;
+    }
+    if (profitChart) {
+        profitChart.destroy();
+        profitChart = null;
+    }
+}
+
+// Add cleanup on page unload
+window.addEventListener('beforeunload', () => {
+    stopPeriodicUpdates();
+    stopStateSync();
+    cleanupCharts();
+});
+
+// Add retry logic for API calls
+async function fetchWithRetry(url, options, maxRetries = 3) {
+    let lastError;
+    for (let i = 0; i < maxRetries; i++) {
+        try {
+            const response = await fetch(url, options);
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return await response.json();
+        } catch (error) {
+            console.error(`Attempt ${i + 1} failed:`, error);
+            lastError = error;
+            if (i < maxRetries - 1) {
+                await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1))); // Exponential backoff
+            }
+        }
+    }
+    throw lastError;
+}
+
+// Add missing functions
+async function updateAllBalances() {
+    try {
+        await fetchUserBalance();
+        await updateMiningStats();
+    } catch (error) {
+        console.error('Error updating balances:', error);
+    }
+}
+
+async function recoverMiningState() {
+    try {
+        const state = await fetchWithRetry(`${javaURI}/api/mining/state`, fetchOptions);
+        updateMiningButton(state.isMining);
+        if (state.isMining) {
+            startPeriodicUpdates();
+            startCountdown();
+        } else {
+            stopPeriodicUpdates();
+            stopCountdown();
+        }
+    } catch (error) {
+        console.error('Error recovering mining state:', error);
+        // Default to stopped state if recovery fails
+        updateMiningButton(false);
+        stopPeriodicUpdates();
+        stopCountdown();
+    }
+}
+
+// Add online/offline event listeners
+window.addEventListener('online', () => {
+    isOnline = true;
+    showNotification('Back online');
+    if (document.getElementById('start-mining').textContent === 'Stop Mining') {
+        startPeriodicUpdates();
+    }
+});
+
+window.addEventListener('offline', () => {
+    isOnline = false;
+    showNotification('You are offline', true);
+    stopPeriodicUpdates();
 });
