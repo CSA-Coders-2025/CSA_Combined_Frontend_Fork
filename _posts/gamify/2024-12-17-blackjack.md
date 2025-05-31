@@ -76,7 +76,7 @@ permalink: /gamify/blackjack
                     <div class="card-body">
                         <h3 class="card-title">Place Your Bet</h3>
                         <div class="input-group mb-3">
-                            <input type="number" id="betAmount" class="form-control text-center" min="1000" value="1000" step="1000">
+                            <input type="number" id="betAmount" class="form-control text-center" min="1" value="1000" step="1000">
                             <span class="input-group-text bet-display" id="betValue">$1,000</span>
                         </div>
                     </div>
@@ -128,45 +128,68 @@ permalink: /gamify/blackjack
 
     const API_URL = `${javaURI}/api/casino/blackjack`;
     let uid = "";
+    let personId = null;
     let currentBalance = 0;
 
-    async function getUID() {
-        console.log("Fetching UID...");
+    async function fetchUserData() {
+        console.log("Fetching user data...");
         try {
-            const response = await fetch(`${javaURI}/api/person/get`, fetchOptions);
-            if (!response.ok) throw new Error(`Server response: ${response.status}`);
+            // First get the personId from the user session
+            const personResponse = await fetch(`${javaURI}/api/person/get`, fetchOptions);
+            if (!personResponse.ok) throw new Error(`Server response: ${personResponse.status}`);
 
-            const data = await response.json();
-            if (!data || !data.uid) throw new Error("UID not found in response");
+            const personData = await personResponse.json();
+            if (!personData || !personData.uid) throw new Error("UID not found in response");
 
-            uid = data.uid;
-            currentBalance = data.balanceDouble || 0;
+            uid = personData.uid;
+            personId = personData.id;
+            console.log("UID:", uid, "Person ID:", personId);
+            
+            // Now fetch bank account data using personId
+            const bankResponse = await fetch(`${javaURI}/bank/analytics/person/${personId}`, fetchOptions);
+            if (!bankResponse.ok) throw new Error(`Bank data error: ${bankResponse.status}`);
+            
+            const bankData = await bankResponse.json();
+            if (!bankData.success) {
+                throw new Error("Failed to load bank data");
+            }
+            
+            currentBalance = Number(bankData.data.balance);
             document.getElementById("balance").innerText = `$${currentBalance.toLocaleString()}`;
-            console.log("UID:", uid);
+            
         } catch (error) {
-            console.error("Error fetching UID:", error);
-            document.getElementById("gameStatus").innerText = "Error fetching UID. Please log in.";
+            console.error("Error fetching user data:", error);
+            document.getElementById("gameStatus").innerText = "Error fetching user data. Please log in.";
             document.getElementById("gameStatus").classList.add("text-danger");
         }
     }
 
     document.addEventListener("DOMContentLoaded", function() {
-        getUID();
+        fetchUserData();
         
+        // Update bet display when user types
         document.getElementById("betAmount").addEventListener("input", function() {
             let betValue = this.value;
-            if (betValue < 1000) {
-                this.value = 1000;
-                betValue = 1000;
+            // Allow user to type any value, just update the display
+            if (betValue && !isNaN(betValue)) {
+                document.getElementById("betValue").innerText = `$${Number(betValue).toLocaleString()}`;
+            } else {
+                document.getElementById("betValue").innerText = "$0";
             }
-            document.getElementById("betValue").innerText = `$${Number(betValue).toLocaleString()}`;
         });
     });
 
     document.getElementById("startGame").addEventListener("click", async function () {
         try {
-            await getUID();
+            await fetchUserData();
             const bet = parseInt(document.getElementById("betAmount").value);
+            
+            // Check minimum bet requirement
+            if (bet < 1000) {
+                document.getElementById("gameStatus").innerText = "Sorry, the minimum betting limit is $1,000";
+                document.getElementById("gameStatus").className = "fs-5 text-danger";
+                return;
+            }
             
             if (bet > currentBalance) {
                 document.getElementById("gameStatus").innerText = "You don't have enough money for this bet!";
@@ -254,10 +277,13 @@ permalink: /gamify/blackjack
         displayCards(gameState.playerHand, "playerHand");
         displayCards(gameState.dealerHand, "dealerHand");
 
-        // Update balance if available
-        if (data.balance !== undefined) {
-            currentBalance = data.balance;
+        // Update balance when game results come back
+        if (data.success && data.bank) {
+            currentBalance = data.bank.balance;
             document.getElementById("balance").innerText = `$${currentBalance.toLocaleString()}`;
+        } else {
+            // Refresh the balance from the bank API directly
+            fetchUserData();
         }
 
         // Enable/disable buttons based on game state

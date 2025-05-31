@@ -89,6 +89,33 @@ permalink: /crypto/mining
                         <div>
                             <div class="stat-label">Current Energy Plan</div>
                             <div class="stat-value text-green-400" id="current-energy-plan">Loading...</div>
+                            <script type="module">
+                                import { javaURI, fetchOptions } from '{{site.baseurl}}/assets/js/api/config.js';
+                                async function fetchCurrentEnergyPlan() {
+                                    const planElem = document.getElementById('current-energy-plan');
+                                    if (!planElem) return;
+                                    try {
+                                    const response = await fetch(`${javaURI}/api/mining/energy`, {
+                                        ...fetchOptions,
+                                        credentials: 'include'
+                                    });
+                                    if (!response.ok) {
+                                        if (response.status === 401) {
+                                        throw new Error('Please log in');
+                                        } else {
+                                        throw new Error(`Failed to fetch (Status: ${response.status})`);
+                                        }
+                                    }
+                                    const data = await response.json();
+                                    planElem.textContent = data.supplierName
+                                        ? `${data.supplierName} (EEM: ${data.EEM || '0.00'})`
+                                        : 'No supplier selected';
+                                    } catch (error) {
+                                    planElem.textContent = error.message || 'Error loading energy plan';
+                                    }
+                                }
+                                document.addEventListener('DOMContentLoaded', fetchCurrentEnergyPlan);
+                            </script>
                         </div>
                     </div>
                 </div>
@@ -108,12 +135,12 @@ permalink: /crypto/mining
                 </div>
             </div>
             <!-- Mining Controls -->
-            <div class="flex flex-col sm:flex-row justify-center items-center gap-4">
-                <div class="flex justify-between items-center gap-4">
+            <div class="flex flex-col items-center gap-4">
+                <div class="flex flex-row justify-center items-center gap-4">
                     <a href="{{site.baseurl}}/crypto/energy" class="mining-button energy-plan">
                         <span>Energy Plan</span>
                     </a>
-                    <script type="module" src="{{site.baseurl}}/assets/js/crypto/front.js"/></script>
+                    <script type="module" src="{{site.baseurl}}/assets/js/crypto/front.js"></script>
                     <button id="start-mining" class="mining-button start-mining" onclick="toggleMining()">
                         <span>Start Mining</span>
                     </button>
@@ -165,9 +192,9 @@ permalink: /crypto/mining
             <button class="tutorial-button tutorial-button-primary" onclick="startTutorial()">Start Tour</button>
             <button class="tutorial-button tutorial-button-tertiary" onclick="skipTutorial()">SKIP</button>
             <button class="tutorial-button tutorial-button-tertiary" onclick="neverShowTutorial()">Never Show</button>
-            <script src="{{site.baseurl}}/assets/js/crypto/tutorial.js"></script>
         </div>
     </div>
+    <script type="module" src="{{site.baseurl}}/assets/js/crypto/tutorial.js"></script>
     <!-- GPU Shop Modal -->
     <div id="gpu-shop-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
         <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 

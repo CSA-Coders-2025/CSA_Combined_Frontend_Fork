@@ -4,6 +4,9 @@ console.log("front.js is loaded.");
 
 let userEmail = "";
 let userBalance = localStorage.getItem("userBalance");
+let isOnline = navigator.onLine; // Add online status check
+let updateInterval;
+let monitorInterval;
 
 // Define showNotification globally at the top of your script
 window.showNotification = function (message, isError = false) {
@@ -37,9 +40,9 @@ async function fetchUser() {
 }
 
 function updateBalance(balance) {
+  const formattedBalance = parseFloat(balance).toFixed(2);
   const balanceElement = document.getElementById('user-balance');
   if (balanceElement) {
-    const formattedBalance = parseFloat(balance).toFixed(2);
     balanceElement.innerText = formattedBalance;
     localStorage.setItem("userBalance", formattedBalance);
   }
@@ -237,7 +240,7 @@ function startStateSync() {
         } catch (error) {
             console.error('Error syncing state:', error);
         }
-    }, 30000); // Sync every 30 seconds
+    }, 900000); // Sync every 15 min
 }
 
 function stopStateSync() {
@@ -295,7 +298,7 @@ async function startPeriodicUpdates() {
         } catch (error) {
             console.error('Real-time monitor error:', error);
         }
-    }, 30000);
+    }, 900000); // update chart every 15 min
 }
 
 // Update the stopPeriodicUpdates function
@@ -369,7 +372,6 @@ function updateMiningButton(isActive) {
 }
 
 let hashrateChart, profitChart;
-let updateInterval;
 
 // Initialize charts and setup
 document.addEventListener('DOMContentLoaded', async () => {
@@ -1223,3 +1225,48 @@ async function fetchWithRetry(url, options, maxRetries = 3) {
     }
     throw lastError;
 }
+
+// Add missing functions
+async function updateAllBalances() {
+    try {
+        await fetchUserBalance();
+        await updateMiningStats();
+    } catch (error) {
+        console.error('Error updating balances:', error);
+    }
+}
+
+async function recoverMiningState() {
+    try {
+        const state = await fetchWithRetry(`${javaURI}/api/mining/state`, fetchOptions);
+        updateMiningButton(state.isMining);
+        if (state.isMining) {
+            startPeriodicUpdates();
+            startCountdown();
+        } else {
+            stopPeriodicUpdates();
+            stopCountdown();
+        }
+    } catch (error) {
+        console.error('Error recovering mining state:', error);
+        // Default to stopped state if recovery fails
+        updateMiningButton(false);
+        stopPeriodicUpdates();
+        stopCountdown();
+    }
+}
+
+// Add online/offline event listeners
+window.addEventListener('online', () => {
+    isOnline = true;
+    showNotification('Back online');
+    if (document.getElementById('start-mining').textContent === 'Stop Mining') {
+        startPeriodicUpdates();
+    }
+});
+
+window.addEventListener('offline', () => {
+    isOnline = false;
+    showNotification('You are offline', true);
+    stopPeriodicUpdates();
+});
