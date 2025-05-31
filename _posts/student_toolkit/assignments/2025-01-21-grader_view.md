@@ -1,5 +1,5 @@
 ---
-layout: toolkit
+layout: aesthetihawk
 active_tab: graderview
 title: Grader View
 type: issues
@@ -66,6 +66,7 @@ comments: false
     }
     
     #submissionsTable th {
+        
         background-color:rgb(49, 41, 41);
     }
 
@@ -229,7 +230,7 @@ comments: false
                         <td>${submission.comment || 'No comments'}</td>
                         <td>${submission.grade || 'Not graded'}</td>
                         <td>
-                            <button class="btn btn-grade" onclick="gradeAssignment(${submission.assignment.id}, ${JSON.stringify(submission.students.map(s => s.id))})">Grade</button>
+                            <button class="btn btn-grade" onclick="gradeAssignment(${submission.assignment.id}, ${submission.submitter.id}">Grade</button>
                         </td>
                     `;
                     submissionsList.appendChild(row);
@@ -251,7 +252,7 @@ comments: false
     }
 
     // Placeholder for grading a submission
-    window.gradeAssignment = function(assignmentId, studentIds) {
+    window.gradeAssignment = function(assignmentId, submitterId) {
         var gradeSuggestion = null;
         do {
             gradeSuggestion = prompt("What grade do you want to give?");
@@ -265,19 +266,16 @@ comments: false
         if (explanation === null) {
             return;
         }
-        console.log(studentIds);
+        console.log(submitterId);
         console.log(assignmentId);
         console.log(gradeSuggestion);
         console.log(explanation);
-
-        // const studentIds = JSON.parse(studentIds);
-        console.log(studentIds);
 
         fetch(`${javaURI}/api/synergy/grades/requests/bulk`, {
             ...fetchOptions,
             method: 'POST',
             body: JSON.stringify({
-                'studentIds': studentIds,
+                'submitterId': studentIds,
                 'assignmentId': assignmentId,
                 'gradeSuggestion': gradeSuggestion,
                 'explanation': explanation
