@@ -153,6 +153,30 @@ permalink: /crypto/portfolio
         border-radius: 5px;
         margin: 10px 0;
     }
+    .modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 420px; /* Reduce width for iframe */
+    max-height: 90vh;  /* Prevent it from overflowing vertically */
+    overflow-y: auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    position: relative;
+    color: #333;
+}
+
+/* Make the chart smaller */
+.chart-container {
+    height: 200px; /* Shrink the chart height */
+    margin: 20px 0;
+}
+
+canvas#crypto-chart {
+    max-height: 180px;
+    width: 100%;
+}
 </style>
 
 <div class="container">
@@ -164,10 +188,10 @@ permalink: /crypto/portfolio
         <div class="loading-message">Loading cryptocurrencies...</div>
     </div>
     
-    <button class="btn btn-buy" onclick="viewHoldings()">View Current Holdings</button>
-    <button class="btn btn-sell" onclick="viewHistory()">View Purchase History</button>
+    <button class="btn btn-buy" onclick="openHoldingsModal()">View Current Holdings</button>
+    <button class="btn btn-sell" onclick="openHistoryModal()">View Purchase History</button>
     <button class="btn btn-buy" onclick="openCompareModal()">Compare Cryptos</button>
-    
+        
     <!-- Search Bar -->
     <div style="margin-top: 20px;">
         <input type="text" id="crypto-search" placeholder="Search Crypto..." oninput="searchCrypto()">
@@ -194,6 +218,35 @@ permalink: /crypto/portfolio
         <button class="btn btn-close" onclick="closeModal()">Close</button>
     </div>
 </div>
+<!-- 🟢 Holdings Modal -->
+<div class="modal" id="holdingsModal">
+    <div class="modal-content">
+        <span class="modal-close" onclick="closeHoldingsModal()">&times;</span>
+        <h3>Your Crypto Holdings</h3>
+        <table id="cryptoHoldingsModalTable">
+            <tr>
+                <th>Crypto</th>
+                <th>Amount</th>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<!-- 🔴 History Modal -->
+<div class="modal" id="historyModal">
+    <div class="modal-content">
+        <span class="modal-close" onclick="closeHistoryModal()">&times;</span>
+        <h3>Crypto Transaction History</h3>
+        <table id="fullCryptoHistoryTable">
+            <tr>
+                <th>Type</th>
+                <th>Crypto Amount</th>
+                <th>Dollar Value</th>
+                <th>Timestamp</th>
+            </tr>
+        </table>
+    </div>
+</div>
 
 <!-- Comparison Modal -->
 <div class="modal" id="compare-modal">
@@ -213,6 +266,95 @@ permalink: /crypto/portfolio
 
 <script type="module">
 import { javaURI, fetchOptions } from '{{site.baseurl}}/assets/js/api/config.js';
+
+// 🟢 Modal: Holdings
+function openHoldingsModal() {
+    document.getElementById("holdingsModal").style.display = "flex";
+    updateCryptoHoldingsTable();
+}
+function closeHoldingsModal() {
+    document.getElementById("holdingsModal").style.display = "none";
+}
+
+// 🔴 Modal: History
+function openHistoryModal() {
+    document.getElementById("historyModal").style.display = "flex";
+    updateCryptoHistoryTable();
+}
+
+function closeHistoryModal() {
+    document.getElementById("historyModal").style.display = "none";
+}
+
+// 🛠️ Update Holdings Table
+async function updateCryptoHoldingsTable() {
+    try {
+        const response = await fetch(`${javaURI}/api/crypto/holdings?email=${encodeURIComponent(userEmail)}`);
+        const data = await response.json();
+        const holdingsString = data?.holdings;
+        const table = document.getElementById("cryptoHoldingsModalTable");
+
+        table.innerHTML = `<tr><th>Crypto</th><th>Amount</th></tr>`;
+        if (!holdingsString || holdingsString.trim() === "") {
+            table.innerHTML += '<tr><td colspan="2">No holdings</td></tr>';
+            return;
+        }
+
+        holdingsString.split(",").forEach(item => {
+            const [cryptoId, amount] = item.split(":");
+            const row = document.createElement("tr");
+            row.innerHTML = `<td>${cryptoId.trim()}</td><td>${parseFloat(amount).toFixed(6)}</td>`;
+            table.appendChild(row);
+        });
+    } catch (err) {
+        console.error("🚨 Error loading holdings:", err);
+    }
+}
+
+// 🛠️ Update History Table
+async function updateCryptoHistoryTable() {
+    try {
+        const response = await fetch(`${javaURI}/api/crypto/history?email=${encodeURIComponent(userEmail)}`);
+        const data = await response.json();
+        const history = data?.cryptoHistory || "";
+        const table = document.getElementById("fullCryptoHistoryTable");
+
+        table.innerHTML = `
+            <tr>
+                <th>Type</th>
+                <th>Crypto Amount</th>
+                <th>Dollar Value</th>
+                <th>Timestamp</th>
+            </tr>`;
+
+        if (!history.trim()) return;
+
+        history.split("\n").forEach(tx => {
+            const parsed = parseTransaction(tx);
+            if (parsed) table.appendChild(createTransactionRow(parsed));
+        });
+    } catch (err) {
+        console.error("🚨 Error loading history:", err);
+    }
+}
+
+function parseTransaction(tx) {
+    const regex = /(Bought|Sold)\s([\d.]+)\s([A-Z]+)\sfor\s\$([\d.]+)\sat\s([\d-:\s]+)/;
+    const match = tx.match(regex);
+    if (!match) return null;
+    return {
+        type: match[1],
+        amount: `${match[2]} ${match[3]}`,
+        value: `$${parseFloat(match[4]).toFixed(2)}`,
+        timestamp: match[5]
+    };
+}
+
+function createTransactionRow({ type, amount, value, timestamp }) {
+    const row = document.createElement("tr");
+    row.innerHTML = `<td>${type}</td><td>${amount}</td><td>${value}</td><td>${timestamp}</td>`;
+    return row;
+}
 
 
     let userEmail = "";
@@ -588,8 +730,13 @@ import { javaURI, fetchOptions } from '{{site.baseurl}}/assets/js/api/config.js'
     window.closeCompareModal = closeCompareModal;
     window.compareCryptos = compareCryptos;
     window.searchCrypto = searchCrypto;
-    window.viewHoldings = viewHoldings;
-    window.viewHistory = viewHistory;
+    // window.viewHoldings = viewHoldings;
+    // window.viewHistory = viewHistory;
+    window.openHoldingsModal = openHoldingsModal;
+    window.closeHoldingsModal = closeHoldingsModal;
+    window.openHistoryModal = openHistoryModal;
+    window.closeHistoryModal = closeHistoryModal;
+
 
 </script>
 
