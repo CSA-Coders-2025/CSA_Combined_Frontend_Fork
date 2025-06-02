@@ -330,10 +330,4 @@ window.location.href = next ? decodeURIComponent(next) : '{{site.baseurl}}/profi
                 console.error("Java Database Error:", error);
             });
     }
-    // Show alert if redirected from a protected page
-const params = new URLSearchParams(window.location.search);
-const next = params.get('next');
-if (next) {
-    alert("You must log in first to use the queue.");
-}
-</script>
+  
