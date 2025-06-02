@@ -20,7 +20,6 @@ title: Leaderboard
             margin: 0;
             padding: 0;
         }
-
         /* Navigation Bar */
         .navbar {
             display: flex;
@@ -30,12 +29,10 @@ title: Leaderboard
             background-color: #1c1c1c;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
         }
-
         .nav-buttons {
             display: flex;
             gap: 15px;
         }
-
         .nav-buttons a {
             color: #ffffff;
             text-decoration: none;
@@ -44,18 +41,15 @@ title: Leaderboard
             border-radius: 6px;
             transition: 0.3s;
         }
-
         .nav-buttons a:hover {
             background-color: #ff9800;
             transform: scale(1.1);
         }
-
         /* Leaderboard Container */
         .dashboard {
             padding: 40px;
             text-align: center;
         }
-
         /* Title Styling */
         .leaderboard-title {
             font-size: 32px;
@@ -70,14 +64,12 @@ title: Leaderboard
             letter-spacing: 2px;
             margin-bottom: 20px;
         }
-
         /* Search Box Styling */
         .search-container {
             max-width: 800px;
             margin: 0 auto 25px;
             position: relative;
         }
-
         #leaderboard-search {
             width: 100%;
             padding: 12px 20px;
@@ -88,13 +80,11 @@ title: Leaderboard
             font-size: 16px;
             transition: all 0.3s;
         }
-
         #leaderboard-search:focus {
             outline: none;
             box-shadow: 0 0 10px rgba(255, 152, 0, 0.5);
             border-color: #ffcc00;
         }
-
         /* Leaderboard Table */
         .leaderboard-table {
             width: 100%;
@@ -106,42 +96,35 @@ title: Leaderboard
             box-shadow: 0px 0px 15px rgba(255, 136, 0, 0.5);
             overflow: hidden;
         }
-
         th, td {
             padding: 15px 20px;
             text-align: left;
         }
-
         th {
             background-color: #ff9800;
             color: #000;
             font-size: 18px;
             text-transform: uppercase;
         }
-
         td {
             background-color: #2a2a2a;
             font-size: 16px;
             border-bottom: 1px solid #444;
             transition: background 0.3s;
         }
-
         tr:hover td {
             background-color: #ff22a6;
             color: #ffffff;
         }
-
         /* Cell Specific Styling */
         .rank {
             font-weight: bold;
             color: #ffcc00;
         }
-
         .balance {
             color: #00ff7f;
             font-weight: bold;
         }
-
         .name {
             font-weight: bold;
             color: #ffffff;
@@ -150,56 +133,46 @@ title: Leaderboard
             transition: color 0.2s;
             position: relative;
         }
-
         .name:hover {
             color: #ff9800;
         }
-
         .name::after {
             content: ' 📊';
             font-size: 14px;
             opacity: 0.7;
         }
-
         /* Click indicator */
         .user-row {
             cursor: pointer;
             transition: all 0.2s ease;
         }
-
         .user-row:hover {
             transform: translateX(5px);
             box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
         }
-
         /* Loading and Error States */
         .loading-message, .error-message {
             text-align: center;
             padding: 20px;
             font-style: italic;
         }
-
         .loading-message {
             color: #ff9800;
         }
-
         .error-message {
             color: #ff4444;
         }
-
         .no-results {
             text-align: center;
             color: #ff9800;
             padding: 20px;
             font-style: italic;
         }
-
         /* Loading Animation */
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-
         .loading-spinner {
             border: 4px solid rgba(255, 255, 255, 0.3);
             border-radius: 50%;
@@ -209,7 +182,6 @@ title: Leaderboard
             animation: spin 1s linear infinite;
             margin: 20px auto;
         }
-
         /* Analytics Tooltip */
         .analytics-tooltip {
             position: absolute;
@@ -224,11 +196,9 @@ title: Leaderboard
             opacity: 0;
             transition: opacity 0.2s;
         }
-
         .analytics-tooltip.show {
             opacity: 1;
         }
-
         /* Quick preview on hover */
         .user-preview {
             position: fixed;
@@ -244,12 +214,10 @@ title: Leaderboard
             max-width: 300px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
         }
-
         .user-preview h3 {
             margin-top: 0;
             color: #ff9800;
         }
-
         .preview-stat {
             display: flex;
             justify-content: space-between;
@@ -257,7 +225,6 @@ title: Leaderboard
             padding: 4px 0;
             border-bottom: 1px solid #444;
         }
-
         .preview-stat:last-child {
             border-bottom: none;
         }
@@ -267,18 +234,15 @@ title: Leaderboard
     <!-- Dashboard -->
     <div class="dashboard">
         <h1 class="leaderboard-title">Banking Leaderboard</h1>
-        
         <!-- Search Box -->
         <div class="search-container">
             <input type="text" id="leaderboard-search" placeholder="Search by username..." aria-label="Search users">
             <div id="search-status"></div>
-        </div>
-        
+        </div>        
         <!-- Instructions -->
         <p style="color: #ff9800; margin-bottom: 30px; font-style: italic;">
             Click on any username to view their detailed analytics and profit graphs 📊
-        </p>
-        
+        </p>      
         <!-- Leaderboard Table -->
         <table class="leaderboard-table">
             <thead>
@@ -299,10 +263,8 @@ title: Leaderboard
             </tbody>
         </table>
     </div>
-
     <!-- Analytics tooltip -->
     <div id="analytics-tooltip" class="analytics-tooltip"></div>
-
     <!-- User preview popup -->
     <div id="user-preview" class="user-preview">
         <h3 id="preview-username"></h3>
@@ -311,13 +273,10 @@ title: Leaderboard
             Click to view full analytics
         </p>
     </div>
-
     <script type="module">
         import { javaURI, fetchOptions } from '{{site.baseurl}}/assets/js/api/config.js';
-
         // Global variables for user data storage
         let userAnalyticsCache = new Map();
-
         // Debounce function to limit API calls during typing
         function debounce(func, wait) {
             let timeout;
@@ -327,7 +286,6 @@ title: Leaderboard
                 timeout = setTimeout(() => func.apply(context, args), wait);
             };
         }
-
         // Display loading state
         function showLoading() {
             $('#top-users-table').html(`
@@ -339,7 +297,6 @@ title: Leaderboard
                 </tr>
             `);
         }
-
         // Fetch user analytics data for preview
         async function fetchUserAnalytics(userId) {
             if (userAnalyticsCache.has(userId)) {
