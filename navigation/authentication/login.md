@@ -156,7 +156,9 @@ show_reading_time: false
         })
         .then(data => {
             console.log("Login successful!", data);
-            window.location.href = '{{site.baseurl}}/profile';
+            const params = new URLSearchParams(window.location.search);
+const next = params.get('next');
+window.location.href = next ? decodeURIComponent(next) : '{{site.baseurl}}/profile'; //if next is in the url the user gets redirected back to bathroom queue if not they will go to profile
             // Fetch database after login success using fetchOptions
             return fetch(databaseURL, fetchOptions);
         })
@@ -328,4 +330,10 @@ show_reading_time: false
                 console.error("Java Database Error:", error);
             });
     }
+    // Show alert if redirected from a protected page
+const params = new URLSearchParams(window.location.search);
+const next = params.get('next');
+if (next) {
+    alert("You must log in first to use the queue.");
+}
 </script>
