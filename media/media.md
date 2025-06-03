@@ -1,10 +1,16 @@
 ---
-layout: finance
+layout: fortunefinders
 title: Media Bias Game
 permalink: /media
 ---
 
 <style>
+body {
+    background-color: #181414;
+    color: white;
+    margin: 0;
+    font-family: system-ui, sans-serif;
+}
 .button-class {
     background-color: rgb(71, 167, 75) !important; /* Nighthawk Green */
     border: none;

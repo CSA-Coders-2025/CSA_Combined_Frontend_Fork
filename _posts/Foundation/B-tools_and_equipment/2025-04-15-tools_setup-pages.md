@@ -13,6 +13,12 @@ breadcrumbs: True
 
 ## Installation Hack
 
+New plan... Start with [VSCode Online](https://vscode.dev/).   The objective is to do some edits before tools install and get the actions working without the dependency of start with tools.
+
+Everything below needs to be restructured and ensure it is not duplicated in future sections.
+
+-------
+
 Welcome to your journey of creating your own blogging website! This setup process will guide you through working in a Linux terminal, managing folders, cloning a project, adding packages, and embarking on the `Software Development Lifecycle (SDLC)`. This is a fundamental skill for any developer, and while it may seem challenging at first, remember that every expert was once a beginner. Let's dive in and conquer this iconic struggle together!
 
 ## Visual Representation of the Workflow
@@ -32,7 +38,6 @@ Development journey begins with a lot of setup. After these initial steps, we ar
                              Files and Folders              repository from            the tools required              workflow 
                                 Management                  version control             (Ruby, Python)               (SDLC) phases
 ```
-
 
 ### Shell Commands
 
@@ -151,13 +156,13 @@ MacOS terminal supports Linux/Unix commands by default. To enhance its capabilit
 
 ## Install Developer Tools
 
-Obtain portfolio_2025 repository.
+Obtain pages repository.
 
 ```bash
 cd
 mkdir nighthawk 
 cd nighthawk 
-git clone https://github.com/nighthawkcoders/portfolio_2025.git
+git clone https://github.com/open-coding-society/pages.git
 ```
 
 ### KASM Workspace using Ubuntu terminal
@@ -165,7 +170,7 @@ git clone https://github.com/nighthawkcoders/portfolio_2025.git
 ```bash
 #  Most tools have been pre-installed. Run shell command to automatically finish tool setup.
 cd
-cd nighthawk/portfolio_2025/scripts
+cd nighthawk/pages/scripts
 ./activate.sh 
 ```
 
@@ -180,7 +185,7 @@ cd nighthawk/portfolio_2025/scripts
 ```bash
 # Run shell command to automatically install all your tools.
 cd
-cd nighthawk/portfolio_2025/scripts
+cd nighthawk/pages/scripts
 ./activate_ubuntu.sh
 
 ```
@@ -195,7 +200,7 @@ cd nighthawk/portfolio_2025/scripts
 ```bash
 #  Run shell command to automatically install all your tools. 
 cd
-cd nighthawk/portfolio_2025/scripts
+cd nighthawk/pages/scripts
 ./activate_macos.sh
 ```
 
@@ -279,7 +284,7 @@ cd
 ```bash
 mkdir -p nighthawk
 cd nighthawk 
-git clone https://github.com/nighthawkcoders/student_2025.git
+git clone https://github.com/open-coding-society/student_2025.git
 ```
 
 4. **Prepare project prior to opening VS Code:**
@@ -346,23 +351,23 @@ All students are building a GitHub Pages website.  These steps get your website 
 
 ```bash
 ### Congratulations!!! An output similar to below means tool and equipment success ###
-johnmortensen@Johns-MBP portfolio_2025 % make
+johnmortensen@Johns-MBP pages % make
 Stopping server...
 Stopping logging process...
 Starting server...
 Server PID: 48190
 Terminal logging starting, watching server...
 Server started in 3 seconds
-Configuration file: /Users/johnmortensen/vscode/portfolio_2025/_config.yml
+Configuration file: /Users/johnmortensen/vscode/pages/_config.yml
 To use retry middleware with Faraday v2.0+, install `faraday-retry` gem
-            Source: /Users/johnmortensen/vscode/portfolio_2025
-       Destination: /Users/johnmortensen/vscode/portfolio_2025/_site
+            Source: /Users/johnmortensen/vscode/pages
+       Destination: /Users/johnmortensen/vscode/pages/_site
  Incremental build: disabled. Enable with --incremental
       Generating... 
       Remote Theme: Using theme jekyll/minima
                     done in 2.493 seconds.
- Auto-regeneration: enabled for '/Users/johnmortensen/vscode/portfolio_2025'
-    Server address: http://127.0.0.1:4100/portfolio_2025/
+ Auto-regeneration: enabled for '/Users/johnmortensen/vscode/pages'
+    Server address: http://127.0.0.1:4100/pages/
 ```
 
 #### Make workflow (local build: make, make clean, make stop, make convert)

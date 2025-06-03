@@ -3,7 +3,6 @@ import Player from "./GameEngine/Player.js"
 import Meteor from "./Meteor.js"
 import Character from "./GameEngine/Character.js";
 import Quiz from "./Quiz.js"
-import { checkGameImages } from "./debug-helper.js"
 
 class GameLevelMeteorBlaster {
   constructor(gameEnv) {
@@ -23,7 +22,7 @@ class GameLevelMeteorBlaster {
     this.lasers = []
     this.lastShotTime = 0
     this.shootCooldown = 500
-    this.meteorSpawnRate = 2000  // Time between meteor spawns in milliseconds
+    this.meteorSpawnRate = 2000  
     this.meteorSpawnInterval = null
     this.invincibleTime = 0
     this.invincibleDuration = 1500

@@ -1,5 +1,5 @@
 ---
-layout: finance
+layout: fortunefinders
 permalink: /stocks/viewer
 title: Stocks Viewer
 ---
@@ -15,8 +15,10 @@ title: Stocks Viewer
     }
     body {
       font-family: Arial, sans-serif;
-      background-color: #f0f2f5;
-      color: #333;
+      background-color: #0f0f0f;
+      color: #fff;
+      margin: 0;
+      padding: 0;
     }
     /* Navigation Bar */
     .navbar {
@@ -24,6 +26,7 @@ title: Stocks Viewer
       justify-content: space-between;
       align-items: center;
       padding: 10px 20px;
+      width:1000px;
       background-color: #001f3f; /* Dark blue background */
       color: #fff;
     }
@@ -49,6 +52,7 @@ title: Stocks Viewer
     }
     .container {
       display: flex;
+      width:1000px;
       height: 92vh; /* Adjusted height for navbar */
     }
     .sidebar {

@@ -7,7 +7,7 @@ permalink: /gamify/test
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Person High Scores</title>
+    <title>Adventure Game High Scores</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -58,7 +58,7 @@ permalink: /gamify/test
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Fetch data from the API
-            fetch('http://localhost:8085/api/people')
+            fetch('http://localhost:8585/api/people')
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
@@ -71,7 +71,7 @@ permalink: /gamify/test
                 })
                 .catch(error => {
                     document.getElementById('tableContainer').innerHTML = 
-                        `<p class="error">Error loading data: ${error.message}. Make sure your API is running at http://localhost:8085/api/people</p>`;
+                        `<p class="error">Error loading data: ${error.message}. Make sure your API is running at http://localhost:8585/api/people</p>`;
                 });
         });
         function renderTable(people) {

@@ -1,70 +1,32 @@
 ---
-layout: base
+layout: aesthetihawk
+active_tab: grades
 title: Viewing Grades
 permalink: /student/view-grades
 comments: false
 ---
-<style>
-    .styled-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 25px 0;
-        font-size: 18px;
-        text-align: left;
-    }
 
-    .styled-table th, .styled-table td {
-        padding: 12px 15px;
-        border: 1px solid #ddd;
-    }
-
-    .styled-table th {
-        background-color: #4CAF50;
-        color: white;
-    }
-
-    .styled-table tbody tr:nth-child(even) {
-        background-color: #f2f2f2;
-    }
-
-    .styled-table tbody tr:hover {
-        background-color: #ddd;
-    }
-
-    .styled-table td {
-        text-align: center;
-    }
-
-    #gradegetter {
-        padding: 10px 20px;
-        font-size: 16px;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        cursor: pointer;
-        border-radius: 5px;
-    }
-
-    #gradegetter:hover {
-        background-color: #45a049;
-    }
-
-    .average-row {
-        background-color: #d3d3d3; 
-        font-weight: bold;
-    }
-</style>
-
-<table id="gradesTable" class="styled-table">
-    <thead>
-        <tr>
-            <th>Assignment</th>
-            <th>Grade</th>
-        </tr>
-    </thead>
-    <tbody>
-    </tbody>
-</table>
+<div class="min-h-screen bg-neutral-900 py-10">
+  <div class="max-w-5xl mx-auto px-4">
+    <!-- Grades Card -->
+    <div class="bg-neutral-800 border border-neutral-700 rounded-lg shadow-md p-6">
+      <h2 class="text-2xl font-semibold text-white text-center mb-6">Your Grades</h2>
+      <div class="overflow-x-auto">
+        <table id="gradesTable" class="min-w-full divide-y divide-neutral-700 text-white text-sm">
+          <thead class="text-white">
+            <tr>
+              <th class="px-4 py-2 text-left font-bold text-base">Assignment</th>
+              <th class="px-4 py-2 text-left font-bold text-base">Grade</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-neutral-700">
+            <!-- Grade rows will be dynamically added here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script type="module">
     import { javaURI, fetchOptions } from '{{site.baseurl}}/assets/js/api/config.js';
@@ -73,16 +35,17 @@ comments: false
 
     function populateTable(grades) {
         const tableBody = document.getElementById("gradesTable").getElementsByTagName("tbody")[0];
-        
         tableBody.innerHTML = "";
 
         grades.forEach(stugrade => {
             let row = tableBody.insertRow();
 
             let cell1 = row.insertCell(0);
+            cell1.className = "border border-white px-4 py-2";
             cell1.textContent = stugrade[1];
 
             let cell2 = row.insertCell(1);
+            cell2.className = "border border-white px-4 py-2";
             cell2.textContent = stugrade[0];
         });
 
@@ -101,13 +64,15 @@ comments: false
 
         const tableBody = document.getElementById("gradesTable").getElementsByTagName("tbody")[0];
         let averageRow = tableBody.insertRow();
+        averageRow.classList.add("border", "border-white");
+
         let cell1 = averageRow.insertCell(0);
+        cell1.className = "border border-white px-4 py-2 font-bold";
         cell1.textContent = "Average";
 
         let cell2 = averageRow.insertCell(1);
+        cell2.className = "border border-white px-4 py-2 font-bold";
         cell2.textContent = average;
-
-        averageRow.classList.add("average-row");
     }
 
     async function getUserId() {
