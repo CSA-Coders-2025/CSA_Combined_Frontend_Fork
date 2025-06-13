@@ -282,7 +282,7 @@ show_reading_time: false
                 if (data.success) {
                     document.getElementById("signupMessage").innerText = "Sign up successful!";
                 } else {
-                    document.getElementById("signupMessage").innerText = "Sign up failed: " + data.message;
+                    document.getElementById("signupMessage").innerText = "Account is being created. If this message doesn't change in 2 minutes, retry: " + data.message;
                 }
             })
             .catch(error => {
