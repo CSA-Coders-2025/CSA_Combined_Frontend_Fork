@@ -12,6 +12,12 @@ permalink: /code
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
 
+<select onchange="selectLanguage(this)">
+  <option value="python">Python</option>
+  <option value="javascript">Javascript</option>
+  <option value="html">HTML</option>
+</select>
+
 <textarea id="editor">print('Hello, world!')</textarea>
 <button id="runBtn">Run Code</button>
 <pre id="output"></pre>
@@ -47,5 +53,9 @@ permalink: /code
         outputDiv.textContent = "⚠️ " + e;
       });
     };
+
+    function selectLanguage(x) {
+      editor.setOption(x);
+    }
   });
 </script>
