@@ -1,17 +1,19 @@
 ---
 layout: post
+show_reading_time: false
 tailwind: True
 title: Onboarding Adventure
 assignment: true
 description: >
   A guided sequence of hands-on and learning tasks to help you master the frameworks that power our course.
 author: John Mortensen
-courses: {'csse': {'week': 1}, 'csp': {'week': 1}, 'csa': {'week': 1}}
+courses: {'csse': {'week': 3}, 'csp': {'week': 3}, 'csa': {'week': 1}}
 type: hacks
+canonical_id: onboarding-adventure
 permalink: /hacks
 lxdData:
   Title: "Learning Experience Designer Home"
-  Description: "Explore LxD topics and interactive games to obtain mastery in key oboarding topics... collaboration, design thinking, coding skills, etc."
+  Description: "Explore interactive games to obtain mastery in key oboarding topics... collaboration, design thinking, coding skills, etc."
   Prequisites:
     - title: "Tools Setup"
       link: "/tools"
